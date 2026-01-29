@@ -1,0 +1,276 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Vishal Surya Insights - Feedback</title>
+
+<!-- Firebase SDKs -->
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-app.js";
+import { getDatabase, ref, push, onValue, update } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-database.js";
+import { getAuth, signInWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-auth.js";
+
+// Firebase configuration
+const firebaseConfig = {
+  apiKey: "AIzaSyA1IBtb9pbg8l4gCXlorOJ7s3YBrWIHOc4",
+  authDomain: "vishalsurya-e20d1.firebaseapp.com",
+  databaseURL: "https://vishalsurya-e20d1-default-rtdb.firebaseio.com",
+  projectId: "vishalsurya-e20d1",
+  storageBucket: "vishalsurya-e20d1.appspot.com",
+  messagingSenderId: "194632949134",
+  appId: "1:194632949134:web:51529cbba293730fb318df",
+  measurementId: "G-BHQTZ1BQ55"
+};
+
+const app = initializeApp(firebaseConfig);
+const db = getDatabase(app);
+const auth = getAuth(app);
+
+let selectedStars = 0;
+window.isAdmin = false;
+
+// --- Stars ---
+function createStars(container){
+  const stars=[];
+  for(let i=1;i<=5;i++){
+    const star=document.createElement("span");
+    star.className="star";
+    star.dataset.value=i;
+    star.innerHTML="☆";
+    star.addEventListener("click",()=>{
+      selectedStars=i;
+      updateStars();
+      checkFormValidity();
+    });
+    container.appendChild(star);
+    stars.push(star);
+  }
+  return stars;
+}
+function updateStars(){
+  starElements.forEach((star,i)=>{
+    star.innerHTML = i<selectedStars?"★":"☆";
+  });
+}
+
+// --- Form validation ---
+function checkFormValidity(){
+  const nameVal=document.getElementById("fb-name").value.trim();
+  submitBtn.disabled = !nameVal || selectedStars<1;
+}
+
+// --- Elements ---
+const starsContainer = document.getElementById("fb-stars-container");
+const starElements = createStars(starsContainer);
+const feedbackForm = document.getElementById("feedback-form");
+const submitBtn = document.getElementById("submit-feedback-btn");
+const loadingSpinner = document.getElementById("loading-spinner");
+const feedbackList = document.getElementById("feedback-list");
+const notifOverlay = document.getElementById("feedback-notification");
+const notifClose = document.getElementById("notif-close");
+const adminBtn = document.getElementById("admin-login-btn");
+const adminOverlay = document.getElementById("admin-login-overlay");
+const adminDashboard = document.getElementById("admin-dashboard");
+const loginForm = document.getElementById("admin-login-form");
+const closeAdmin = document.getElementById("close-admin-login");
+const mainContainer = document.querySelector(".container");
+
+// --- Notification overlay ---
+notifOverlay.style.display="flex";
+notifClose.addEventListener("click",()=>{notifOverlay.style.display="none";});
+
+// --- Feedback form events ---
+document.getElementById("fb-name").addEventListener("input",checkFormValidity);
+
+feedbackForm.addEventListener("submit",(e)=>{
+  e.preventDefault();
+  const name=document.getElementById("fb-name").value.trim();
+  const message=document.getElementById("fb-message").value.trim();
+
+  if(!name || selectedStars<1){alert("Name and Stars are required");return;}
+
+  submitBtn.disabled=true;
+  loadingSpinner.style.display="inline-block";
+
+  push(ref(db,"feedbacks"),{name,message,stars:selectedStars,timestamp:new Date().toISOString()})
+  .then(()=>{
+    feedbackForm.reset();
+    selectedStars=0;
+    updateStars();
+    submitBtn.disabled=false;
+    loadingSpinner.style.display="none";
+  })
+  .catch(err=>{
+    alert("Error: "+err.message);
+    submitBtn.disabled=false;
+    loadingSpinner.style.display="none";
+  });
+});
+
+// --- Render feedbacks ---
+function renderFeedbacks(snapshot){
+  feedbackList.innerHTML="";
+  adminDashboard.innerHTML="";
+  const feedbacks=[];
+  snapshot.forEach(child=>{feedbacks.push({...child.val(), key:child.key});});
+  feedbacks.sort((a,b)=>new Date(b.timestamp)-new Date(a.timestamp));
+
+  feedbacks.forEach(fb=>{
+    const starsDisplay="★".repeat(fb.stars)+"☆".repeat(5-fb.stars);
+
+    // --- User view ---
+    const fbBox=document.createElement("div");
+    fbBox.className="feedback-box";
+    fbBox.innerHTML=`
+      <div class="fb-header">
+        <span class="fb-name">${fb.name}</span>
+        <span class="fb-stars">${starsDisplay}</span>
+      </div>
+      <p class="fb-message">${fb.message}</p>
+      <div class="fb-footer">${new Date(fb.timestamp).toLocaleString()}</div>
+      ${fb.reply?`<div class="fb-reply">💬 Reply by Author: ${fb.reply}</div>`:""}
+    `;
+    feedbackList.appendChild(fbBox);
+
+    // --- Admin dashboard view ---
+    if(window.isAdmin){
+      const adminBox=document.createElement("div");
+      adminBox.className="admin-feedback-box";
+      adminBox.innerHTML=`
+        <div class="fb-header">
+          <span class="fb-name">${fb.name}</span>
+          <span class="fb-stars">${starsDisplay}</span>
+        </div>
+        <p class="fb-message">${fb.message}</p>
+        <div class="fb-footer">${new Date(fb.timestamp).toLocaleString()}</div>
+        ${fb.reply?`<div class="fb-reply">💬 Reply: ${fb.reply}</div>`:""}
+        <button class="reply-btn" data-key="${fb.key}">Reply</button>
+      `;
+      adminDashboard.appendChild(adminBox);
+    }
+  });
+
+  // --- Admin reply events ---
+  document.querySelectorAll(".reply-btn").forEach(btn=>{
+    btn.addEventListener("click",()=>{
+      const key = btn.dataset.key;
+      const reply = prompt("Enter your reply:");
+      if(reply) update(ref(db,"feedbacks/"+key),{reply});
+    });
+  });
+}
+
+// --- Listen to feedbacks ---
+onValue(ref(db,"feedbacks"),renderFeedbacks);
+
+// --- Admin login overlay ---
+adminBtn.addEventListener("click",()=>{
+  adminOverlay.style.display="flex";
+});
+
+closeAdmin.addEventListener("click",()=>{
+  adminOverlay.style.display="none";
+  adminDashboard.style.display="none";
+  mainContainer.style.filter="none";
+  window.isAdmin=false;
+  renderFeedbacks();
+});
+
+loginForm.addEventListener("submit",(e)=>{
+  e.preventDefault();
+  const email=document.getElementById("admin-email").value;
+  const password=document.getElementById("admin-password").value;
+  signInWithEmailAndPassword(auth,email,password)
+  .then(()=>{
+    window.isAdmin=true;
+    adminOverlay.style.display="none";
+    adminDashboard.style.display="flex";
+    mainContainer.style.filter="blur(6px)";
+    renderFeedbacks();
+  })
+  .catch(()=>{
+    alert("Invalid credentials");
+    window.isAdmin=false;
+  });
+});
+</script>
+
+<!-- Fonts -->
+<link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@500;700&display=swap" rel="stylesheet">
+
+<style>
+*{margin:0;padding:0;box-sizing:border-box;}
+body{font-family:'Roboto',sans-serif;background:linear-gradient(to bottom,#e0f0ff,#ffffff);color:#1a1a1a;overflow-x:hidden;}
+body::before{content:"";position:fixed;top:0;left:0;width:100%;height:100%;background:url('https://images.unsplash.com/photo-1522202176988-66273c2fd55f?auto=format&fit=crop&w=1600&q=80') no-repeat center/cover;opacity:0.05;z-index:-1;}
+.container{max-width:980px;margin:80px auto;padding:25px;background:rgba(255,255,255,0.95);border-radius:22px;box-shadow:0 15px 45px rgba(0,0,0,0.25);transition:0.3s;}
+.feedback-heading{font-family:'Playfair Display',serif;font-size:2rem;color:#0b3d91;text-align:center;margin-bottom:25px;}
+#feedback-form input,#feedback-form textarea,#admin-login-form input{width:100%;padding:10px;margin-bottom:12px;border-radius:10px;border:1px solid #ccc;font-size:0.95rem;}
+#feedback-form button,#admin-login-form button{padding:12px 20px;background:#0b3d91;color:#fff;border:none;border-radius:12px;cursor:pointer;transition:0.3s;font-family:'Playfair Display',serif;}
+#feedback-form button:hover,#admin-login-form button:hover{background:#3b82f6;}
+#fb-stars-container{margin-bottom:15px;font-size:2rem;cursor:pointer;color:gold;}
+.star{margin-right:6px;transition:0.3s;}
+.feedback-box, .admin-feedback-box{background:linear-gradient(145deg,#ffffff,#f0f4f8);padding:20px;border-radius:18px;box-shadow:0 12px 40px rgba(0,0,0,0.18);margin-bottom:20px;position:relative;transition:transform 0.3s;}
+.feedback-box:hover, .admin-feedback-box:hover{transform:translateY(-4px);box-shadow:0 18px 50px rgba(0,0,0,0.22);}
+.fb-header{display:flex;justify-content:space-between;margin-bottom:10px;font-weight:700;color:#0b3d91;}
+.fb-message{margin-bottom:8px;font-size:0.95rem;}
+.fb-footer{font-size:0.8rem;color:#555;}
+.fb-reply{margin-top:8px;padding:8px;border-left:4px solid #3b82f6;background:#eef3ff;border-radius:8px;color:#0b3d91;font-weight:500;}
+#loading-spinner{display:none;margin-left:10px;font-weight:700;color:#0b3d91;}
+#admin-login-btn{position:fixed;bottom:120px;right:20px;background:linear-gradient(135deg,#0b3d91,#3b82f6);color:#fff;padding:12px 18px;font-size:0.9rem;border-radius:12px;cursor:pointer;box-shadow:0 8px 25px rgba(0,0,0,0.25);}
+#admin-login-overlay{display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.55);justify-content:center;align-items:center;z-index:2500;}
+#admin-dashboard{display:none;position:fixed;top:0;left:0;width:100%;height:100%;overflow-y:auto;background:rgba(0,0,0,0.75);backdrop-filter:blur(6px);padding:30px;z-index:3000;flex-direction:column;}
+#admin-dashboard .admin-feedback-box{background:#fff;margin-bottom:20px;padding:20px;border-radius:12px;position:relative;}
+#admin-login-form{background:#f5f5f5;padding:25px;border-radius:18px;max-width:400px;width:90%;box-shadow:0 15px 45px rgba(0,0,0,0.25);position:relative;}
+#close-admin-login{position:absolute;top:10px;right:15px;font-size:26px;font-weight:bold;background:transparent;border:none;cursor:pointer;color:#0b3d91;}
+#feedback-notification{position:fixed;top:20px;left:50%;transform:translateX(-50%);width:90%;max-width:550px;background:linear-gradient(135deg,#f59e0b,#fcd34d);padding:20px;border-radius:15px;color:#1a1a1a;display:flex;justify-content:space-between;align-items:center;z-index:3000;backdrop-filter:blur(6px);}
+#notif-close{cursor:pointer;font-weight:bold;font-size:22px;}
+footer{text-align:center;padding:20px;background:#0b3d91;color:#fff;font-family:'Roboto',sans-serif;border-top:3px solid #3b82f6;display:flex;flex-direction:column;align-items:center;gap:4px;}
+footer a{color:#60a5fa;text-decoration:none;font-weight:500;}
+.reply-btn{margin-top:8px;padding:6px 12px;background:#0b3d91;color:#fff;border:none;border-radius:8px;cursor:pointer;font-size:0.85rem;}
+.reply-btn:hover{background:#3b82f6;}
+@media(max-width:768px){.container{margin-top:30px;padding:20px;}#admin-login-btn{padding:10px 16px;font-size:0.85rem;}#fb-stars-container{font-size:1.7rem;}}
+</style>
+
+<body>
+
+<div id="feedback-notification">
+  <span>💬 Your feedback matters! Please give us stars according to your help.</span>
+  <span id="notif-close">×</span>
+</div>
+
+<div class="container">
+  <h2 class="feedback-heading">Feedback</h2>
+  <form id="feedback-form">
+    <input type="text" id="fb-name" placeholder="Your Name" required>
+    <div id="fb-stars-container"></div>
+    <textarea id="fb-message" placeholder="Write your feedback (Optional)" rows="3"></textarea>
+    <button type="submit" id="submit-feedback-btn" disabled>Submit Feedback</button>
+    <span id="loading-spinner">⏳ Submitting...</span>
+  </form>
+
+  <h3 style="margin-top:25px;margin-bottom:15px;">Recent Feedbacks</h3>
+  <div id="feedback-list"></div>
+</div>
+
+<button id="admin-login-btn">Admin Login</button>
+
+<div id="admin-login-overlay">
+  <form id="admin-login-form">
+    <button type="button" id="close-admin-login">×</button>
+    <h3>Admin Login</h3>
+    <input type="email" id="admin-email" placeholder="Email" required>
+    <input type="password" id="admin-password" placeholder="Password" required>
+    <button type="submit">Login</button>
+  </form>
+</div>
+
+<div id="admin-dashboard"></div>
+
+<footer>
+  <p>Vishal Insights &copy; 2026 | <a href="mailto:vishalsurya2025@gmail.com">Email</a> | <a href="https://www.instagram.com/vishal_surya05" target="_blank">Instagram</a></p>
+</footer>
+
+</body>
+</html>
