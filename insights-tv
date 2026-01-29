@@ -1,0 +1,343 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Insights TV</title>
+
+<style>
+*{box-sizing:border-box}
+body{
+margin:0;
+font-family:system-ui,-apple-system;
+background:#fff;
+color:#111
+}
+
+/* ===== HEADER ===== */
+header{
+position:sticky;
+top:0;
+z-index:100;
+display:flex;
+align-items:center;
+gap:10px;
+padding:8px 12px;
+border-bottom:1px solid #e5e5e5;
+background:#fff
+}
+.icon-btn{
+background:none;
+border:none;
+font-size:22px;
+color:#111;
+cursor:pointer
+}
+.logo{height:34px}
+.brand{
+font-size:14px;
+font-weight:600
+}
+.search-box{
+flex:1;
+display:flex;
+align-items:center;
+border:1px solid #ccc;
+border-radius:20px;
+padding:4px 10px
+}
+.search-box input{
+border:none;
+outline:none;
+width:100%;
+font-size:14px
+}
+
+/* ===== NOTIFICATION ===== */
+.notify{
+display:none;
+position:fixed;
+top:60px;
+right:12px;
+width:260px;
+background:#fff;
+border-radius:12px;
+box-shadow:0 10px 30px rgba(0,0,0,.15);
+padding:12px;
+z-index:200
+}
+.notify b{font-size:14px}
+.notify p{
+font-size:13px;
+margin:6px 0 0;
+color:#444
+}
+
+/* ===== HOME ===== */
+#home{padding:14px}
+
+.video-card{
+margin-bottom:22px;
+cursor:pointer
+}
+
+/* 🔴 REAL THUMB STYLE */
+.thumb{
+width:100%;
+height:210px;
+border-radius:16px;
+overflow:hidden;
+position:relative
+}
+.thumb img{
+width:100%;
+height:100%;
+object-fit:cover
+}
+
+/* title overlay on thumb */
+.thumb-overlay{
+position:absolute;
+bottom:0;
+left:0;
+right:0;
+padding:12px;
+background:linear-gradient(transparent,rgba(0,0,0,.6));
+color:#fff;
+font-size:18px;
+font-weight:700
+}
+
+.meta{margin-top:6px}
+.meta small{
+color:#666;
+font-size:13px
+}
+
+/* ===== COMING SOON ===== */
+.coming-wrap{
+display:flex;
+justify-content:center;
+margin-top:24px
+}
+.coming-wrap img{
+width:160px;
+border-radius:12px
+}
+
+/* ===== PLAYER ===== */
+#player{display:none}
+
+.player-top{
+display:flex;
+align-items:center;
+gap:6px;
+padding:10px 12px;
+border-bottom:1px solid #e5e5e5
+}
+.player-top b{font-size:15px}
+
+.video-wrap{
+position:relative;
+padding-top:56.25%;
+background:#000
+}
+.video-wrap iframe{
+position:absolute;
+top:0;left:0;
+width:100%;
+height:100%;
+border:none
+}
+
+.info{
+padding:14px
+}
+.info h2{
+margin:0 0 6px;
+font-size:18px
+}
+.info p{
+margin:0;
+font-size:14px;
+color:#555
+}
+
+.comments{
+padding:14px;
+border-top:1px solid #eee
+}
+.comments h3{
+margin:0 0 6px;
+font-size:15px
+}
+.comments .soon{
+font-size:13px;
+color:#888
+}
+
+/* ===== MENU ===== */
+.menu{
+display:none;
+position:fixed;
+top:0;right:0;
+width:70%;
+height:100%;
+background:#fff;
+box-shadow:-10px 0 30px rgba(0,0,0,.2);
+padding:16px;
+z-index:300
+}
+.menu a{
+display:block;
+padding:12px 0;
+font-weight:500;
+cursor:pointer
+}
+</style>
+</head>
+
+<body>
+
+<!-- HEADER -->
+<header>
+<button class="icon-btn" onclick="toggleMenu()">☰</button>
+<img class="logo" src="https://imgproxy.attic.sh/insecure/f:png/plain/https://attic.sh/1wiplce49pqh6zi1msd6cpur4sc0">
+<span class="brand">Insights TV</span>
+
+<div class="search-box">
+<input id="search" placeholder="Search">
+<button class="icon-btn" onclick="searchVideo()">🔍</button>
+</div>
+
+<button class="icon-btn" onclick="toggleNotify()">🔔</button>
+</header>
+
+<!-- NOTIFICATION -->
+<div class="notify" id="notify">
+<b>Notification</b>
+<p>
+New video uploaded by author<br>
+<b>"Amit & Baba ji 😅😂😀 #Funny"</b>
+</p>
+</div>
+
+<!-- MENU -->
+<div class="menu" id="menu">
+<a onclick="goHome()">Home</a>
+<a onclick="openVideo()">Videos</a>
+</div>
+
+<!-- HOME -->
+<div id="home">
+
+<!-- 🔥 REAL VIDEO CARD -->
+<div class="video-card" onclick="openVideo()">
+<div class="thumb">
+<img src="https://mir-s3-cdn-cf.behance.net/project_modules/max_1200/f6ceaa121380093.60d7924dd9163.png">
+<div class="thumb-overlay">
+Amit & Baba ji 😅
+</div>
+</div>
+<div class="meta">
+<b>Amit & Baba ji 😅😂😀 #Funny</b><br>
+<small>Insights TV</small>
+</div>
+</div>
+
+<div class="video-card" onclick="openVideo2()">
+  <div class="thumb">
+    <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRBs5invknQjdHOqz2THym7S0A0EFrZ7X39zw&s">
+    <div class="thumb-overlay">
+      Trailer of Amit ki Beizzati 🎉
+    </div>
+  </div>
+  <div class="meta">
+    <b>Trailer of Amit ki Beizzati 🎉</b><br>
+    <small>Insights TV</small>
+  </div>
+</div>
+
+<!-- 🔥 COMING SOON IMAGE ONLY -->
+<div class="coming-wrap">
+<img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQwzeG3cPJSmTOYZKRyekIJ1zvVJS3F92_-0khf7jdgMJlqKALlmBgbjQHqeRAEedXkQXk&usqp=CAU">
+</div>
+
+</div>
+
+<!-- PLAYER -->
+<div id="player">
+
+<div class="player-top">
+<button class="icon-btn" onclick="goHome()">←</button>
+<b>Amit & Baba ji 😅😂😀 #Funny</b>
+</div>
+
+<div class="video-wrap">
+<iframe
+src="https://drive.google.com/file/d/137Uzb_VAOX78Lp27wXCMTYXcUdxHV0u8/preview"
+allow="autoplay; fullscreen">
+</iframe>
+</div>
+
+<div class="info">
+<h2>Amit & Baba ji 😅😂😀 #Funny</h2>
+<p>
+Kya hua jab Baba Ji Ne poochha ki kya Amit Tum char streams padhna chahte ho 😂😂⚠️
+</p>
+</div>
+
+<div class="comments">
+<h3>Comments</h3>
+<div class="soon">Comments feature coming soon…</div>
+</div>
+
+</div>
+
+<script>
+function openVideo(){
+home.style.display="none";
+player.style.display="block";
+menu.style.display="none";
+window.scrollTo(0,0);
+}
+
+function openVideo2(){
+  home.style.display="none";
+  player.style.display="block";
+  menu.style.display="none";
+  window.scrollTo(0,0);
+
+  // Update iframe for new video
+  document.querySelector("#player iframe").src = "https://drive.google.com/file/d/11vgmEf4V7S9IJH2x0pupwYnwsIxXDKuj/preview";
+
+  // Update title & description
+  document.querySelector(".player-top b").innerText = "Trailer of Amit ki Beizzati 🎉";
+  document.querySelector(".info h2").innerText = "Trailer of Amit ki Beizzati 🎉";
+  document.querySelector(".info p").innerText = "Amit ji urf Buddhu ji ke purane chele😂";
+}
+
+function goHome(){
+player.style.display="none";
+home.style.display="block";
+menu.style.display="none";
+}
+function searchVideo(){
+if(search.value.toLowerCase().includes("amit")){
+openVideo();
+}else{
+alert("No result found");
+}
+}
+function toggleNotify(){
+notify.style.display=
+notify.style.display==="block"?"none":"block";
+}
+function toggleMenu(){
+menu.style.display=
+menu.style.display==="block"?"none":"block";
+}
+</script>
+
+</body>
+</html>
