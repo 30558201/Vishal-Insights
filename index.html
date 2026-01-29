@@ -2,147 +2,177 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>Vishal Insights | VIMAAN AI</title>
+<title>Vishal Insights | Official Platform</title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
 
 <style>
 :root{
-  --primary:#2563eb;
-  --accent:#38bdf8;
+  --primary:#0f172a;
+  --accent:#2563eb;
   --bg:#ffffff;
   --soft:#f8fafc;
-  --dark:#0f172a;
   --muted:#64748b;
   --border:#e5e7eb;
+  --success:#16a34a;
 }
 
-*{
-  margin:0;
-  padding:0;
-  box-sizing:border-box;
-  font-family:'Poppins',sans-serif;
+*{margin:0;padding:0;box-sizing:border-box;font-family:'Poppins',sans-serif;}
+body{background:var(--bg);color:var(--primary);}
+
+/* ================= TOP NAVIGATION ================= */
+.navbar{
+  position:fixed;
+  top:0;left:0;right:0;
+  background:#fff;
+  border-bottom:1px solid var(--border);
+  padding:12px 10px;
+  z-index:1000;
 }
 
-body{
-  background:var(--bg);
-  color:var(--dark);
-  overflow-x:hidden;
+.nav-inner{
+  max-width:1100px;
+  margin:auto;
+  display:flex;
+  flex-wrap:wrap;
+  align-items:center;
+  gap:8px;
 }
 
-/* ===== BLUR WHEN MODAL OPEN ===== */
-body.blur > *:not(.overlay){
-  filter:blur(6px);
+.logo{
+  font-weight:700;
+  font-size:15px;
+  margin-right:auto;
 }
 
-/* ===== OVERLAY NOTIFICATION ===== */
+.nav-btn{
+  position:relative;
+  padding:8px 12px;
+  font-size:13px;
+  font-weight:500;
+  border:1px solid var(--border);
+  border-radius:10px;
+  background:#fff;
+  color:var(--primary);
+  text-decoration:none;
+  transition:.2s;
+}
+
+.nav-btn:hover{
+  background:var(--soft);
+}
+
+.badge-new{
+  position:absolute;
+  top:-6px;
+  right:-8px;
+  background:var(--success);
+  color:#fff;
+  font-size:9px;
+  padding:2px 6px;
+  border-radius:6px;
+  animation:blink 1.3s infinite;
+}
+@keyframes blink{50%{opacity:.5}}
+
+/* ================= NOTIFICATION ================= */
 .overlay{
   position:fixed;
   inset:0;
-  background:rgba(0,0,0,.25);
   display:flex;
   align-items:center;
   justify-content:center;
-  z-index:999;
+  background:rgba(0,0,0,.25);
+  z-index:2000;
 }
 
 .notice{
-  width:100%;
-  max-width:520px;
-  margin:20px;
-  padding:24px;
-  border-radius:20px;
-  background:linear-gradient(135deg,#2563eb,#38bdf8);
+  max-width:420px;
+  width:90%;
+  padding:22px 24px;
+  border-radius:18px;
+  background:linear-gradient(135deg,#020617,#1e293b);
   color:#fff;
-  box-shadow:0 30px 60px rgba(0,0,0,.35);
-  animation:slideIn .6s ease;
+  text-align:center;
+  box-shadow:0 30px 70px rgba(0,0,0,.45);
   position:relative;
 }
 
-@keyframes slideIn{
-  from{transform:translateX(120px);opacity:0}
-  to{transform:translateX(0);opacity:1}
-}
-
 .notice h3{
-  font-size:18px;
-  margin-bottom:12px;
+  font-size:17px;
+  margin-bottom:8px;
 }
 
 .notice p{
-  font-size:14px;
-  line-height:1.7;
+  font-size:13.5px;
+  line-height:1.65;
   opacity:.95;
 }
 
 .notice .sign{
-  margin-top:16px;
+  margin-top:10px;
+  font-size:13px;
   font-weight:600;
 }
 
 .close-btn{
   position:absolute;
-  top:14px;
-  right:16px;
-  background:rgba(255,255,255,.2);
-  border:none;
-  color:#fff;
-  width:34px;
-  height:34px;
+  top:10px;
+  right:10px;
+  width:28px;height:28px;
   border-radius:50%;
-  font-size:18px;
+  border:none;
+  background:rgba(255,255,255,.2);
+  color:#fff;
   cursor:pointer;
 }
 
-/* ===== HERO ===== */
+/* ================= HERO ================= */
 .hero{
-  padding:70px 16px 50px;
+  padding:120px 16px 60px;
   text-align:center;
-  background:linear-gradient(135deg,#eef2ff,#f8fbff,#ecfeff);
+  background:linear-gradient(135deg,#eef2ff,#f8fafc);
 }
 
 .hero h1{
-  font-size:36px;
+  font-size:32px;
   font-weight:700;
-  margin-bottom:10px;
 }
 
 .hero p{
-  font-size:15px;
+  margin-top:8px;
   color:var(--muted);
 }
 
-/* ===== SECTION ===== */
+/* ================= SECTIONS ================= */
 .section{
-  padding:42px 16px;
+  padding:50px 16px;
 }
 
 .section-title{
   text-align:center;
   font-size:22px;
   font-weight:700;
-  margin-bottom:8px;
 }
 
 .section-sub{
   text-align:center;
   font-size:14px;
   color:var(--muted);
-  margin-bottom:30px;
+  margin:10px 0 30px;
 }
 
-/* ===== CARDS ===== */
 .grid{
   display:grid;
-  gap:18px;
+  gap:20px;
 }
 
 .card{
-  background:#fff;
   border:1px solid var(--border);
   border-radius:18px;
   padding:22px;
+  background:#fff;
 }
 
 .card h4{
@@ -155,142 +185,161 @@ body.blur > *:not(.overlay){
   line-height:1.6;
 }
 
-/* ===== BUTTON ===== */
 .btn{
   display:block;
   text-align:center;
-  text-decoration:none;
   padding:14px;
-  border-radius:14px;
-  font-weight:600;
-  background:linear-gradient(135deg,var(--primary),var(--accent));
+  border-radius:16px;
+  background:linear-gradient(135deg,#2563eb,#0ea5e9);
   color:#fff;
-  box-shadow:0 12px 30px rgba(37,99,235,.35);
+  font-weight:600;
+  text-decoration:none;
+  box-shadow:0 14px 30px rgba(37,99,235,.35);
 }
 
-/* ===== FOOTER ===== */
+/* ================= FOOTER ================= */
 footer{
   background:var(--soft);
   border-top:1px solid var(--border);
   padding:36px 16px;
-}
-
-.footer-box{
-  max-width:520px;
-  margin:auto;
   text-align:center;
 }
 
-.footer-box p{
+footer p{
   font-size:13px;
   color:var(--muted);
-  line-height:1.6;
 }
 
-.footer-box a{
+footer a{
   display:block;
   margin-top:8px;
-  color:var(--dark);
+  color:var(--primary);
   text-decoration:none;
-  font-size:14px;
 }
 
 .credit{
-  margin-top:18px;
+  margin-top:14px;
   font-size:13px;
   font-weight:500;
 }
 
-/* ===== DESKTOP ===== */
+/* ================= DESKTOP GRID ================= */
 @media(min-width:768px){
-  .hero h1{font-size:44px}
-  .grid{grid-template-columns:repeat(2,1fr)}
+  .grid{grid-template-columns:repeat(2,1fr);}
 }
 </style>
 </head>
 
-<body class="blur">
+<body>
 
-<!-- ===== OVERLAY ===== -->
+<!-- ================= NOTIFICATION ================= -->
 <div class="overlay" id="overlay">
   <div class="notice">
     <button class="close-btn" onclick="closeNotice()">✕</button>
-    <h3>Welcome to Vishal Insights</h3>
+    <h3>Insights TV Launched</h3>
     <p>
-      Humein yeh batate hue khushi ho rahi hai ki humne ek AI initiative
-      launch kiya hai jiska naam <b>VIMAAN AI</b> hai.
-      Is AI ko OpenAI ke sath connect kiya gaya hai taaki
-      users ko smooth aur reliable replies mil sakein.
+      Vishal Insights ke under ek naya curated video platform
+      <b>Insights TV</b> launch kiya gaya hai,
+      jahan reviewed aur knowledge-based videos publish hoti hain.
     </p>
     <div class="sign">— Vishal Surya</div>
   </div>
 </div>
 
-<!-- ===== HERO ===== -->
+<!-- ================= NAVBAR ================= -->
+<div class="navbar">
+  <div class="nav-inner">
+    <div class="logo">Vishal Insights</div>
+
+    <a class="nav-btn" href="https://30558201.github.io/Vishal-Insights/">Home</a>
+
+    <a class="nav-btn" href="https://30558201.github.io/Vishal-Insights/insightstv.html">
+      Insights TV
+      <span class="badge-new">NEW</span>
+    </a>
+
+    <a class="nav-btn" href="https://30558201.github.io/Vishal-Insights/vimaan.html">VIMAAN AI</a>
+    <a class="nav-btn" href="https://30558201.github.io/Vishal-Insights/blogs.html">Blogs</a>
+    <a class="nav-btn" href="https://30558201.github.io/Vishal-Insights/about.html">About</a>
+    <a class="nav-btn" href="https://30558201.github.io/Vishal-Insights/feedback.html">Feedback</a>
+  </div>
+</div>
+
+<!-- ================= HERO ================= -->
 <section class="hero">
   <h1>Welcome to Vishal Insights</h1>
   <p>Swadeshi Thought • Modern Intelligence</p>
 </section>
 
-<!-- ===== VIMAAN AI ===== -->
+<!-- ================= INSIGHTS TV ================= -->
 <section class="section">
-  <div class="section-title">VIMAAN AI</div>
-  <div class="section-sub">A personal AI initiative by Vishal Surya</div>
+  <div class="section-title">Insights TV</div>
+  <div class="section-sub">A curated & reviewed video platform</div>
 
   <div class="grid">
     <div class="card">
-      <h4>Why VIMAAN AI?</h4>
+      <h4>Premium Content</h4>
       <p>
-        VIMAAN AI ka focus meaningful conversations,
-        clean experience aur learning-based interaction par hai.
+        Sirf meaningful aur knowledge-driven videos
+        review ke baad publish ki jaati hain.
       </p>
     </div>
 
     <div class="card">
-      <h4>OpenAI Connected</h4>
+      <h4>Creator Friendly</h4>
       <p>
-        Better reasoning, fast responses aur smooth chat experience
-        ke liye OpenAI ke sath integrated.
+        Creators apni videos submit kar sakte hain
+        jo approval ke baad showcase hoti hain.
       </p>
     </div>
   </div>
 </section>
 
-<!-- ===== LINKS ===== -->
+<!-- ================= VIMAAN AI ================= -->
+<section class="section">
+  <div class="section-title">VIMAAN AI</div>
+  <div class="section-sub">Personal intelligence & guidance system</div>
+
+  <div class="grid">
+    <div class="card">
+      <h4>Purpose Driven AI</h4>
+      <p>
+        Meaningful conversation aur clarity-focused
+        guidance ke liye design kiya gaya AI.
+      </p>
+    </div>
+
+    <div class="card">
+      <h4>Modern Intelligence</h4>
+      <p>
+        Advanced AI systems ke sath connected
+        smooth aur reliable experience ke liye.
+      </p>
+    </div>
+  </div>
+</section>
+
+<!-- ================= EXPLORE ================= -->
 <section class="section">
   <div class="section-title">Explore</div>
 
   <div class="grid">
-    <a class="btn" href="https://www.vishalsurya.online/vimaan-ai">Chat with VIMAAN AI</a>
-    <a class="btn" href="https://www.vishalsurya.online/about-me">About Me</a>
-    <a class="btn" href="https://www.vishalsurya.online/blogs">Blogs</a>
-    <a class="btn" href="https://www.vishalsurya.online/feedback">Feedback</a>
+    <a class="btn" href="https://30558201.github.io/Vishal-Insights/insightstv.html">Visit Insights TV</a>
+    <a class="btn" href="https://30558201.github.io/Vishal-Insights/vimaan.html">Use VIMAAN AI</a>
+    <a class="btn" href="https://30558201.github.io/Vishal-Insights/blogs.html">Read Blogs</a>
+    <a class="btn" href="https://30558201.github.io/Vishal-Insights/feedback.html">Send Feedback</a>
   </div>
 </section>
 
-<!-- ===== FOOTER ===== -->
 <footer>
-  <div class="footer-box">
-    <p>
-      Blogs ya thoughts share karna ho to
-      email ya Instagram par contact kar sakte hain.
-    </p>
-
-    <a href="mailto:vishalsurya2025@gmail.com">📧 vishalsurya2025@gmail.com</a>
-    <a href="https://instagram.com/vishal_surya05" target="_blank">
-      📷 Instagram: vishal_surya05
-    </a>
-
-    <div class="credit">
-      Made, designed & guided with intelligence by <b>Vishal Surya</b>
-    </div>
-  </div>
+  <p>Official Knowledge & Media Platform</p>
+  <a href="mailto:vishalsurya2025@gmail.com">vishalsurya2025@gmail.com</a>
+  <div class="credit">Founded & guided by <b>Vishal Surya</b></div>
 </footer>
 
 <script>
 function closeNotice(){
   document.getElementById("overlay").style.display="none";
-  document.body.classList.remove("blur");
 }
 </script>
 
