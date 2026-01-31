@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Vimaan</title>
+
+<style>
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Segoe UI', sans-serif;
+}
+
+body {
+    background: linear-gradient(135deg, #0f172a, #1e293b);
+    color: white;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+}
+
+/* ===== TOP BAR ===== */
+.topbar {
+    height: 70px;
+    background: rgba(17, 24, 39, 0.95);
+    backdrop-filter: blur(10px);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 25px;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.4);
+}
+
+.menu {
+    font-size: 24px;
+    cursor: pointer;
+}
+
+.brand {
+    font-size: 22px;
+    font-weight: bold;
+    letter-spacing: 1px;
+}
+
+.status {
+    color: #22c55e;
+    font-weight: bold;
+    animation: pulse 1.5s infinite;
+}
+
+@keyframes pulse {
+    0% { opacity: 1; }
+    50% { opacity: 0.4; }
+    100% { opacity: 1; }
+}
+
+/* ===== CENTER CARD ===== */
+.container {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 40px 20px;
+}
+
+.card {
+    background: rgba(255,255,255,0.08);
+    backdrop-filter: blur(20px);
+    border-radius: 20px;
+    padding: 40px;
+    max-width: 600px;
+    text-align: center;
+    box-shadow: 0 10px 40px rgba(0,0,0,0.6);
+    animation: fadeIn 1s ease-in-out;
+}
+
+.card h1 {
+    font-size: 26px;
+    margin-bottom: 20px;
+}
+
+.card p {
+    color: #cbd5e1;
+    font-size: 16px;
+    line-height: 1.6;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(30px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+/* ===== FOOTER ===== */
+.footer {
+    text-align: center;
+    padding: 20px;
+    color: #94a3b8;
+    font-size: 14px;
+}
+</style>
+</head>
+
+<body>
+
+<div class="topbar">
+    <div class="menu">☰</div>
+    <div class="brand">✈ Vimaan</div>
+    <div class="status">Updating...</div>
+</div>
+
+<div class="container">
+    <div class="card">
+        <h1>Vimaan – Under Progress</h1>
+        <p>
+            Our platform is currently under development. Exciting premium features,
+            modern experience, and powerful updates are being integrated.
+            Stay tuned for the official luxury launch.
+        </p>
+    </div>
+</div>
+
+<div class="footer">
+    By Vishal Surya
+</div>
+
+</body>
+</html>
