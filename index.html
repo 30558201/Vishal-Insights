@@ -9,178 +9,99 @@
 
 <style>
 :root{
+  --bg:#f4f6f9;
+  --card:#ffffff;
   --primary:#0f172a;
   --accent:#2563eb;
-  --bg:#ffffff;
-  --soft:#f8fafc;
   --muted:#64748b;
-  --border:#e5e7eb;
-  --success:#16a34a;
+  --border:#e2e8f0;
+}
+
+body.dark{
+  --bg:#0f172a;
+  --card:#1e293b;
+  --primary:#ffffff;
+  --accent:#3b82f6;
+  --muted:#94a3b8;
+  --border:#334155;
 }
 
 *{margin:0;padding:0;box-sizing:border-box;font-family:'Poppins',sans-serif;}
-body{background:var(--bg);color:var(--primary);}
 
-/* ================= TOP NAVIGATION ================= */
-.navbar{
+body{
+  background:var(--bg);
+  color:var(--primary);
+  padding-bottom:80px;
+}
+
+/* ===== APP HEADER ===== */
+.app-header{
   position:fixed;
   top:0;left:0;right:0;
-  background:#fff;
-  border-bottom:1px solid var(--border);
-  padding:12px 10px;
-  z-index:1000;
-}
-
-.nav-inner{
-  max-width:1100px;
-  margin:auto;
-  display:flex;
-  flex-wrap:wrap;
-  align-items:center;
-  gap:8px;
-}
-
-.logo{
-  font-weight:700;
-  font-size:15px;
-  margin-right:auto;
-}
-
-.nav-btn{
-  position:relative;
-  padding:8px 12px;
-  font-size:13px;
-  font-weight:500;
-  border:1px solid var(--border);
-  border-radius:10px;
-  background:#fff;
-  color:var(--primary);
-  text-decoration:none;
-  transition:.2s;
-}
-
-.nav-btn:hover{
-  background:var(--soft);
-}
-
-.badge-new{
-  position:absolute;
-  top:-6px;
-  right:-8px;
-  background:var(--success);
-  color:#fff;
-  font-size:9px;
-  padding:2px 6px;
-  border-radius:6px;
-  animation:blink 1.3s infinite;
-}
-@keyframes blink{50%{opacity:.5}}
-
-/* ================= NOTIFICATION ================= */
-.overlay{
-  position:fixed;
-  inset:0;
+  height:60px;
+  background:var(--card);
   display:flex;
   align-items:center;
   justify-content:center;
-  background:rgba(0,0,0,.25);
-  z-index:2000;
+  border-bottom:1px solid var(--border);
+  z-index:1000;
 }
 
-.notice{
-  max-width:420px;
-  width:90%;
-  padding:22px 24px;
-  border-radius:18px;
-  background:linear-gradient(135deg,#020617,#1e293b);
-  color:#fff;
-  text-align:center;
-  box-shadow:0 30px 70px rgba(0,0,0,.45);
-  position:relative;
-}
-
-.notice h3{
-  font-size:17px;
-  margin-bottom:8px;
-}
-
-.notice p{
-  font-size:13.5px;
-  line-height:1.65;
-  opacity:.95;
-}
-
-.notice .sign{
-  margin-top:10px;
-  font-size:13px;
+.app-title{
   font-weight:600;
+  font-size:16px;
 }
 
-.close-btn{
+.menu-btn{
   position:absolute;
-  top:10px;
-  right:10px;
-  width:28px;height:28px;
-  border-radius:50%;
-  border:none;
-  background:rgba(255,255,255,.2);
-  color:#fff;
+  left:15px;
+  font-size:20px;
   cursor:pointer;
 }
 
-/* ================= HERO ================= */
+/* ===== HERO ===== */
 .hero{
-  padding:120px 16px 60px;
+  padding:90px 20px 30px;
   text-align:center;
-  background:linear-gradient(135deg,#eef2ff,#f8fafc);
 }
 
 .hero h1{
-  font-size:32px;
+  font-size:24px;
   font-weight:700;
 }
 
 .hero p{
-  margin-top:8px;
+  margin-top:6px;
+  font-size:14px;
   color:var(--muted);
 }
 
-/* ================= SECTIONS ================= */
+/* ===== SECTIONS ===== */
 .section{
-  padding:50px 16px;
+  padding:20px;
 }
 
 .section-title{
-  text-align:center;
-  font-size:22px;
-  font-weight:700;
-}
-
-.section-sub{
-  text-align:center;
-  font-size:14px;
-  color:var(--muted);
-  margin:10px 0 30px;
-}
-
-.grid{
-  display:grid;
-  gap:20px;
+  font-size:18px;
+  font-weight:600;
+  margin-bottom:15px;
 }
 
 .card{
-  border:1px solid var(--border);
-  border-radius:18px;
-  padding:22px;
-  background:#fff;
+  background:var(--card);
+  border-radius:16px;
+  padding:18px;
+  margin-bottom:15px;
+  box-shadow:0 5px 20px rgba(0,0,0,0.05);
 }
 
 .card h4{
-  margin-bottom:8px;
+  margin-bottom:6px;
+  font-size:15px;
 }
 
 .card p{
-  font-size:14px;
+  font-size:13px;
   color:var(--muted);
   line-height:1.6;
 }
@@ -189,157 +110,143 @@ body{background:var(--bg);color:var(--primary);}
   display:block;
   text-align:center;
   padding:14px;
-  border-radius:16px;
-  background:linear-gradient(135deg,#2563eb,#0ea5e9);
+  margin-bottom:12px;
+  border-radius:14px;
+  background:var(--accent);
   color:#fff;
   font-weight:600;
   text-decoration:none;
-  box-shadow:0 14px 30px rgba(37,99,235,.35);
 }
 
-/* ================= FOOTER ================= */
-footer{
-  background:var(--soft);
+/* ===== BOTTOM NAV ===== */
+.bottom-nav{
+  position:fixed;
+  bottom:0;
+  left:0;
+  right:0;
+  height:65px;
+  background:var(--card);
   border-top:1px solid var(--border);
-  padding:36px 16px;
-  text-align:center;
+  display:flex;
+  justify-content:space-around;
+  align-items:center;
+  z-index:1000;
 }
 
-footer p{
+.bottom-nav a{
+  text-decoration:none;
+  font-size:11px;
+  color:var(--muted);
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+}
+
+.bottom-nav a span{
+  font-size:20px;
+}
+
+.bottom-nav a.active{
+  color:var(--accent);
+  font-weight:600;
+}
+
+/* ===== FOOTER ===== */
+footer{
+  text-align:center;
+  padding:30px 20px 100px;
   font-size:13px;
   color:var(--muted);
 }
 
-footer a{
-  display:block;
-  margin-top:8px;
-  color:var(--primary);
-  text-decoration:none;
-}
-
-.credit{
-  margin-top:14px;
-  font-size:13px;
-  font-weight:500;
-}
-
-/* ================= DESKTOP GRID ================= */
-@media(min-width:768px){
-  .grid{grid-template-columns:repeat(2,1fr);}
-}
 </style>
 </head>
 
 <body>
 
-<!-- ================= NOTIFICATION ================= -->
-<div class="overlay" id="overlay">
-  <div class="notice">
-    <button class="close-btn" onclick="closeNotice()">✕</button>
-    <h3>Insights TV Launched</h3>
-    <p>
-      Vishal Insights ke under ek naya curated video platform
-      <b>Insights TV</b> launch kiya gaya hai,
-      jahan reviewed aur knowledge-based videos publish hoti hain.
-    </p>
-    <div class="sign">— Vishal Surya</div>
-  </div>
+<!-- APP HEADER -->
+<div class="app-header">
+  <div class="menu-btn" onclick="toggleDark()">☾</div>
+  <div class="app-title">Vishal Insights</div>
 </div>
 
-<!-- ================= NAVBAR ================= -->
-<div class="navbar">
-  <div class="nav-inner">
-    <div class="logo">Vishal Insights</div>
-
-    <a class="nav-btn" href="https://30558201.github.io/Vishal-Insights/">Home</a>
-
-    <a class="nav-btn" href="https://30558201.github.io/Vishal-Insights/insightstv.html">
-      Insights TV
-      <span class="badge-new">NEW</span>
-    </a>
-
-    <a class="nav-btn" href="https://30558201.github.io/Vishal-Insights/vimaan.html">VIMAAN AI</a>
-    <a class="nav-btn" href="https://30558201.github.io/Vishal-Insights/blogs.html">Blogs</a>
-    <a class="nav-btn" href="https://30558201.github.io/Vishal-Insights/about.html">About</a>
-    <a class="nav-btn" href="https://30558201.github.io/Vishal-Insights/feedback.html">Feedback</a>
-  </div>
-</div>
-
-<!-- ================= HERO ================= -->
-<section class="hero">
+<!-- HERO -->
+<div class="hero">
   <h1>Welcome to Vishal Insights</h1>
   <p>Swadeshi Thought • Modern Intelligence</p>
-</section>
+</div>
 
-<!-- ================= INSIGHTS TV ================= -->
-<section class="section">
+<!-- INSIGHTS TV -->
+<div class="section">
   <div class="section-title">Insights TV</div>
-  <div class="section-sub">A curated & reviewed video platform</div>
 
-  <div class="grid">
-    <div class="card">
-      <h4>Premium Content</h4>
-      <p>
-        Sirf meaningful aur knowledge-driven videos
-        review ke baad publish ki jaati hain.
-      </p>
-    </div>
-
-    <div class="card">
-      <h4>Creator Friendly</h4>
-      <p>
-        Creators apni videos submit kar sakte hain
-        jo approval ke baad showcase hoti hain.
-      </p>
-    </div>
+  <div class="card">
+    <h4>Premium Content</h4>
+    <p>Meaningful aur knowledge-driven videos review ke baad publish ki jaati hain.</p>
   </div>
-</section>
 
-<!-- ================= VIMAAN AI ================= -->
-<section class="section">
+  <div class="card">
+    <h4>Creator Friendly</h4>
+    <p>Creators apni videos submit kar sakte hain jo approval ke baad showcase hoti hain.</p>
+  </div>
+</div>
+
+<!-- VIMAAN AI -->
+<div class="section">
   <div class="section-title">VIMAAN AI</div>
-  <div class="section-sub">Personal intelligence & guidance system</div>
 
-  <div class="grid">
-    <div class="card">
-      <h4>Purpose Driven AI</h4>
-      <p>
-        Meaningful conversation aur clarity-focused
-        guidance ke liye design kiya gaya AI.
-      </p>
-    </div>
-
-    <div class="card">
-      <h4>Modern Intelligence</h4>
-      <p>
-        Advanced AI systems ke sath connected
-        smooth aur reliable experience ke liye.
-      </p>
-    </div>
+  <div class="card">
+    <h4>Purpose Driven AI</h4>
+    <p>Clarity-focused guidance aur meaningful conversations ke liye design kiya gaya AI.</p>
   </div>
-</section>
 
-<!-- ================= EXPLORE ================= -->
-<section class="section">
-  <div class="section-title">Explore</div>
-
-  <div class="grid">
-    <a class="btn" href="https://30558201.github.io/Vishal-Insights/insightstv.html">Visit Insights TV</a>
-    <a class="btn" href="https://30558201.github.io/Vishal-Insights/vimaan.html">Use VIMAAN AI</a>
-    <a class="btn" href="https://30558201.github.io/Vishal-Insights/blogs.html">Read Blogs</a>
-    <a class="btn" href="https://30558201.github.io/Vishal-Insights/feedback.html">Send Feedback</a>
+  <div class="card">
+    <h4>Modern Intelligence</h4>
+    <p>Advanced systems ke sath smooth aur reliable experience.</p>
   </div>
-</section>
+</div>
+
+<!-- EXPLORE -->
+<div class="section">
+  <a class="btn" href="insightstv.html">Visit Insights TV</a>
+  <a class="btn" href="vimaan.html">Use VIMAAN AI</a>
+  <a class="btn" href="blogs.html">Read Blogs</a>
+  <a class="btn" href="feedback.html">Send Feedback</a>
+</div>
 
 <footer>
-  <p>Official Knowledge & Media Platform</p>
-  <a href="mailto:vishalsurya2025@gmail.com">vishalsurya2025@gmail.com</a>
-  <div class="credit">Founded & guided by <b>Vishal Surya</b></div>
+  Official Knowledge & Media Platform  
+  <br><br>
+  Founded & guided by <b>Vishal Surya</b>
 </footer>
 
+<!-- BOTTOM NAVIGATION -->
+<div class="bottom-nav">
+  <a href="index.html" class="active">
+    <span>🏠</span>
+    Home
+  </a>
+  <a href="insightstv.html">
+    <span>📺</span>
+    TV
+  </a>
+  <a href="vimaan.html">
+    <span>🤖</span>
+    AI
+  </a>
+  <a href="blogs.html">
+    <span>📰</span>
+    Blogs
+  </a>
+  <a href="about.html">
+    <span>👤</span>
+    About
+  </a>
+</div>
+
 <script>
-function closeNotice(){
-  document.getElementById("overlay").style.display="none";
+function toggleDark(){
+  document.body.classList.toggle("dark");
 }
 </script>
 
