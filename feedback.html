@@ -3,274 +3,304 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Vishal Surya Insights - Feedback</title>
+<title>Feedback Insights</title>
 
-<!-- Firebase SDKs -->
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+<style>
+:root{
+--bg:#f8fafc;
+--card:rgba(255,255,255,0.85);
+--text:#0f172a;
+--muted:#64748b;
+--accent:#2563eb;
+--border:rgba(0,0,0,.08);
+--glass:blur(18px);
+}
+body.dark{
+--bg:#0f172a;
+--card:rgba(30,41,59,0.75);
+--text:#f1f5f9;
+--muted:#94a3b8;
+--accent:#3b82f6;
+--border:rgba(255,255,255,.08);
+}
+*{margin:0;padding:0;box-sizing:border-box;font-family:'Outfit',sans-serif;}
+body{background:var(--bg);color:var(--text);transition:.3s}
+
+/* ===== HEADER ===== */
+.header{
+position:fixed;top:0;left:0;right:0;height:75px;
+backdrop-filter:var(--glass);
+background:var(--card);
+border-bottom:1px solid var(--border);
+display:flex;align-items:center;
+padding:0 18px;z-index:1000;
+}
+.menu-btn{font-size:22px;cursor:pointer;}
+.logo-wrap{display:flex;align-items:center;gap:10px;margin-left:12px;}
+.logo-wrap img{height:36px;border-radius:8px;}
+.spacer{flex:1;}
+.page-title{font-weight:600;}
+
+/* ===== DRAWER ===== */
+.overlay{
+position:fixed;inset:0;background:rgba(0,0,0,.5);
+display:none;z-index:2000;
+}
+.drawer{
+position:fixed;left:-280px;top:0;width:270px;height:100%;
+backdrop-filter:var(--glass);
+background:var(--card);
+padding:20px;transition:.4s;z-index:3000;
+}
+.drawer.active{left:0}
+.overlay.active{display:block}
+.menu-item{
+display:block;padding:14px;border-radius:14px;margin-bottom:10px;
+background:var(--bg);text-decoration:none;color:var(--text);
+}
+.menu-item:hover{background:var(--accent);color:#fff}
+.theme-toggle{
+margin-top:20px;padding:10px;border-radius:20px;
+background:var(--bg);text-align:center;cursor:pointer;
+}
+
+/* ===== NOTIFICATION OVERLAY ===== */
+#feedback-notification{
+position:fixed;
+top:90px;
+left:50%;
+transform:translateX(-50%);
+width:90%;
+max-width:600px;
+background:linear-gradient(135deg,#f59e0b,#fcd34d);
+padding:18px;
+border-radius:15px;
+display:flex;
+justify-content:space-between;
+align-items:center;
+z-index:4000;
+box-shadow:0 15px 40px rgba(0,0,0,.25);
+}
+#notif-close{
+cursor:pointer;
+font-weight:bold;
+font-size:20px;
+}
+
+/* ===== MAIN ===== */
+.container{
+max-width:950px;
+margin:120px auto 100px;
+padding:30px;
+background:var(--card);
+border-radius:22px;
+border:1px solid var(--border);
+box-shadow:0 20px 60px rgba(0,0,0,.15);
+}
+
+h2{text-align:center;margin-bottom:25px;}
+
+input,textarea{
+width:100%;padding:12px;margin-bottom:14px;
+border-radius:12px;border:1px solid var(--border);
+background:var(--bg);color:var(--text);
+}
+
+button{
+padding:12px 20px;border:none;border-radius:14px;
+background:var(--accent);color:#fff;cursor:pointer;
+}
+button:disabled{opacity:.6;cursor:not-allowed;}
+
+#fb-stars-container{font-size:2rem;margin-bottom:15px;color:gold;cursor:pointer;}
+.star{margin-right:6px;transition:.2s;}
+.star:hover{transform:scale(1.2);}
+
+.feedback-box{
+background:linear-gradient(145deg,#ffffff,#f0f4f8);
+padding:22px;border-radius:18px;margin-bottom:20px;
+border:1px solid var(--border);
+box-shadow:0 12px 30px rgba(0,0,0,.08);
+}
+
+.fb-header{display:flex;justify-content:space-between;font-weight:600;margin-bottom:6px;}
+.fb-footer{font-size:.8rem;color:var(--muted);}
+.fb-reply{
+margin-top:8px;padding:8px;
+border-left:4px solid var(--accent);
+background:rgba(37,99,235,.1);
+border-radius:8px;
+}
+
+/* SUCCESS TOAST */
+#success-toast{
+position:fixed;
+top:90px;
+right:20px;
+background:#22c55e;
+color:#fff;
+padding:14px 22px;
+border-radius:14px;
+display:none;
+z-index:5000;
+box-shadow:0 10px 30px rgba(0,0,0,.25);
+}
+</style>
+</head>
+
+<body>
+
+<!-- HEADER -->
+<div class="header">
+<div class="menu-btn" onclick="openDrawer()">☰</div>
+<div class="logo-wrap">
+<img src="https://lh3.googleusercontent.com/pw/AP1GczP1FxDyqLI0EVbXpZEhgt9c9LvyJMaTUX4jySqgZ9FUGW0Zzzu8h4yf1y2XpVsmFGpOMMDgNbDF5MtnNfHQbh51Hq1V7kJLmQIJGnxFyi2ospz1ufeepCbpJ_63zAllNYgjQmOZxVhYwuQ9JVlZET86=w865-h900-s-no-gm">
+<span class="page-title">Feedback Insights</span>
+</div>
+<div class="spacer"></div>
+</div>
+
+<!-- DRAWER -->
+<div class="overlay" onclick="closeDrawer()"></div>
+<div class="drawer" id="drawer">
+<h3>Menu</h3>
+<a href="index.html" class="menu-item">Home</a>
+<a href="insightstv.html" class="menu-item">Insights TV</a>
+<a href="vimaan.html" class="menu-item">VIMAAN AI</a>
+<a href="blogs.html" class="menu-item">Blogs</a>
+<a href="feedback.html" class="menu-item">Feedback</a>
+<div class="theme-toggle" onclick="toggleTheme()">Toggle Dark Mode</div>
+</div>
+
+<!-- NOTIFICATION -->
+<div id="feedback-notification">
+<span>💬 Your feedback matters! Please give stars honestly.</span>
+<span id="notif-close">×</span>
+</div>
+
+<!-- SUCCESS -->
+<div id="success-toast">Feedback Saved Successfully</div>
+
+<div class="container">
+<h2>Share Your Experience</h2>
+
+<form id="feedback-form">
+<input type="text" id="fb-name" placeholder="Your Name" required>
+<div id="fb-stars-container"></div>
+<textarea id="fb-message" placeholder="Write your feedback (Optional)"></textarea>
+<button type="submit" id="submit-feedback-btn" disabled>Submit Feedback</button>
+<span id="loading-spinner" style="display:none;">⏳ Submitting...</span>
+</form>
+
+<h3 style="margin-top:30px;">Recent Feedbacks</h3>
+<div id="feedback-list"></div>
+</div>
+
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-app.js";
-import { getDatabase, ref, push, onValue, update } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-database.js";
-import { getAuth, signInWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-auth.js";
+import { getDatabase, ref, push, onValue } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-database.js";
 
-// Firebase configuration
 const firebaseConfig = {
-  apiKey: "AIzaSyA1IBtb9pbg8l4gCXlorOJ7s3YBrWIHOc4",
-  authDomain: "vishalsurya-e20d1.firebaseapp.com",
-  databaseURL: "https://vishalsurya-e20d1-default-rtdb.firebaseio.com",
-  projectId: "vishalsurya-e20d1",
-  storageBucket: "vishalsurya-e20d1.appspot.com",
-  messagingSenderId: "194632949134",
-  appId: "1:194632949134:web:51529cbba293730fb318df",
-  measurementId: "G-BHQTZ1BQ55"
+apiKey: "AIzaSyA1IBtb9pbg8l4gCXlorOJ7s3YBrWIHOc4",
+authDomain: "vishalsurya-e20d1.firebaseapp.com",
+databaseURL: "https://vishalsurya-e20d1-default-rtdb.firebaseio.com",
+projectId: "vishalsurya-e20d1",
+storageBucket: "vishalsurya-e20d1.appspot.com",
+messagingSenderId: "194632949134",
+appId: "1:194632949134:web:51529cbba293730fb318df"
 };
 
 const app = initializeApp(firebaseConfig);
 const db = getDatabase(app);
-const auth = getAuth(app);
 
 let selectedStars = 0;
-window.isAdmin = false;
 
-// --- Stars ---
-function createStars(container){
-  const stars=[];
-  for(let i=1;i<=5;i++){
-    const star=document.createElement("span");
-    star.className="star";
-    star.dataset.value=i;
-    star.innerHTML="☆";
-    star.addEventListener("click",()=>{
-      selectedStars=i;
-      updateStars();
-      checkFormValidity();
-    });
-    container.appendChild(star);
-    stars.push(star);
-  }
-  return stars;
-}
-function updateStars(){
-  starElements.forEach((star,i)=>{
-    star.innerHTML = i<selectedStars?"★":"☆";
-  });
-}
-
-// --- Form validation ---
-function checkFormValidity(){
-  const nameVal=document.getElementById("fb-name").value.trim();
-  submitBtn.disabled = !nameVal || selectedStars<1;
-}
-
-// --- Elements ---
+const nameInput = document.getElementById("fb-name");
 const starsContainer = document.getElementById("fb-stars-container");
-const starElements = createStars(starsContainer);
-const feedbackForm = document.getElementById("feedback-form");
 const submitBtn = document.getElementById("submit-feedback-btn");
-const loadingSpinner = document.getElementById("loading-spinner");
-const feedbackList = document.getElementById("feedback-list");
-const notifOverlay = document.getElementById("feedback-notification");
-const notifClose = document.getElementById("notif-close");
-const adminBtn = document.getElementById("admin-login-btn");
-const adminOverlay = document.getElementById("admin-login-overlay");
-const adminDashboard = document.getElementById("admin-dashboard");
-const loginForm = document.getElementById("admin-login-form");
-const closeAdmin = document.getElementById("close-admin-login");
-const mainContainer = document.querySelector(".container");
+const spinner = document.getElementById("loading-spinner");
+const toast = document.getElementById("success-toast");
+const list = document.getElementById("feedback-list");
 
-// --- Notification overlay ---
-notifOverlay.style.display="flex";
-notifClose.addEventListener("click",()=>{notifOverlay.style.display="none";});
-
-// --- Feedback form events ---
-document.getElementById("fb-name").addEventListener("input",checkFormValidity);
-
-feedbackForm.addEventListener("submit",(e)=>{
-  e.preventDefault();
-  const name=document.getElementById("fb-name").value.trim();
-  const message=document.getElementById("fb-message").value.trim();
-
-  if(!name || selectedStars<1){alert("Name and Stars are required");return;}
-
-  submitBtn.disabled=true;
-  loadingSpinner.style.display="inline-block";
-
-  push(ref(db,"feedbacks"),{name,message,stars:selectedStars,timestamp:new Date().toISOString()})
-  .then(()=>{
-    feedbackForm.reset();
-    selectedStars=0;
-    updateStars();
-    submitBtn.disabled=false;
-    loadingSpinner.style.display="none";
-  })
-  .catch(err=>{
-    alert("Error: "+err.message);
-    submitBtn.disabled=false;
-    loadingSpinner.style.display="none";
-  });
+for(let i=1;i<=5;i++){
+const star=document.createElement("span");
+star.className="star";
+star.innerHTML="☆";
+star.onclick=()=>{
+selectedStars=i;
+document.querySelectorAll(".star").forEach((s,index)=>{
+s.innerHTML=index<i?"★":"☆";
 });
-
-// --- Render feedbacks ---
-function renderFeedbacks(snapshot){
-  feedbackList.innerHTML="";
-  adminDashboard.innerHTML="";
-  const feedbacks=[];
-  snapshot.forEach(child=>{feedbacks.push({...child.val(), key:child.key});});
-  feedbacks.sort((a,b)=>new Date(b.timestamp)-new Date(a.timestamp));
-
-  feedbacks.forEach(fb=>{
-    const starsDisplay="★".repeat(fb.stars)+"☆".repeat(5-fb.stars);
-
-    // --- User view ---
-    const fbBox=document.createElement("div");
-    fbBox.className="feedback-box";
-    fbBox.innerHTML=`
-      <div class="fb-header">
-        <span class="fb-name">${fb.name}</span>
-        <span class="fb-stars">${starsDisplay}</span>
-      </div>
-      <p class="fb-message">${fb.message}</p>
-      <div class="fb-footer">${new Date(fb.timestamp).toLocaleString()}</div>
-      ${fb.reply?`<div class="fb-reply">💬 Reply by Author: ${fb.reply}</div>`:""}
-    `;
-    feedbackList.appendChild(fbBox);
-
-    // --- Admin dashboard view ---
-    if(window.isAdmin){
-      const adminBox=document.createElement("div");
-      adminBox.className="admin-feedback-box";
-      adminBox.innerHTML=`
-        <div class="fb-header">
-          <span class="fb-name">${fb.name}</span>
-          <span class="fb-stars">${starsDisplay}</span>
-        </div>
-        <p class="fb-message">${fb.message}</p>
-        <div class="fb-footer">${new Date(fb.timestamp).toLocaleString()}</div>
-        ${fb.reply?`<div class="fb-reply">💬 Reply: ${fb.reply}</div>`:""}
-        <button class="reply-btn" data-key="${fb.key}">Reply</button>
-      `;
-      adminDashboard.appendChild(adminBox);
-    }
-  });
-
-  // --- Admin reply events ---
-  document.querySelectorAll(".reply-btn").forEach(btn=>{
-    btn.addEventListener("click",()=>{
-      const key = btn.dataset.key;
-      const reply = prompt("Enter your reply:");
-      if(reply) update(ref(db,"feedbacks/"+key),{reply});
-    });
-  });
+validate();
+};
+starsContainer.appendChild(star);
 }
 
-// --- Listen to feedbacks ---
-onValue(ref(db,"feedbacks"),renderFeedbacks);
+nameInput.addEventListener("input",validate);
 
-// --- Admin login overlay ---
-adminBtn.addEventListener("click",()=>{
-  adminOverlay.style.display="flex";
+function validate(){
+submitBtn.disabled=!nameInput.value.trim()||selectedStars<1;
+}
+
+document.getElementById("feedback-form").addEventListener("submit",(e)=>{
+e.preventDefault();
+spinner.style.display="inline-block";
+submitBtn.disabled=true;
+
+push(ref(db,"feedbacks"),{
+name:nameInput.value.trim(),
+message:document.getElementById("fb-message").value.trim(),
+stars:selectedStars,
+timestamp:new Date().toISOString()
+}).then(()=>{
+spinner.style.display="none";
+toast.style.display="block";
+setTimeout(()=>{toast.style.display="none";},3000);
+document.getElementById("feedback-form").reset();
+selectedStars=0;
+document.querySelectorAll(".star").forEach(s=>s.innerHTML="☆");
+validate();
+});
 });
 
-closeAdmin.addEventListener("click",()=>{
-  adminOverlay.style.display="none";
-  adminDashboard.style.display="none";
-  mainContainer.style.filter="none";
-  window.isAdmin=false;
-  renderFeedbacks();
+onValue(ref(db,"feedbacks"),(snapshot)=>{
+list.innerHTML="";
+snapshot.forEach(child=>{
+const fb=child.val();
+const box=document.createElement("div");
+box.className="feedback-box";
+box.innerHTML=`
+<div class="fb-header">
+<span>${fb.name}</span>
+<span>${"★".repeat(fb.stars)}${"☆".repeat(5-fb.stars)}</span>
+</div>
+<p>${fb.message||""}</p>
+<div class="fb-footer">${new Date(fb.timestamp).toLocaleString()}</div>
+${fb.reply?`<div class="fb-reply">💬 ${fb.reply}</div>`:""}
+`;
+list.prepend(box);
 });
-
-loginForm.addEventListener("submit",(e)=>{
-  e.preventDefault();
-  const email=document.getElementById("admin-email").value;
-  const password=document.getElementById("admin-password").value;
-  signInWithEmailAndPassword(auth,email,password)
-  .then(()=>{
-    window.isAdmin=true;
-    adminOverlay.style.display="none";
-    adminDashboard.style.display="flex";
-    mainContainer.style.filter="blur(6px)";
-    renderFeedbacks();
-  })
-  .catch(()=>{
-    alert("Invalid credentials");
-    window.isAdmin=false;
-  });
 });
 </script>
 
-<!-- Fonts -->
-<link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
-<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@500;700&display=swap" rel="stylesheet">
-
-<style>
-*{margin:0;padding:0;box-sizing:border-box;}
-body{font-family:'Roboto',sans-serif;background:linear-gradient(to bottom,#e0f0ff,#ffffff);color:#1a1a1a;overflow-x:hidden;}
-body::before{content:"";position:fixed;top:0;left:0;width:100%;height:100%;background:url('https://images.unsplash.com/photo-1522202176988-66273c2fd55f?auto=format&fit=crop&w=1600&q=80') no-repeat center/cover;opacity:0.05;z-index:-1;}
-.container{max-width:980px;margin:80px auto;padding:25px;background:rgba(255,255,255,0.95);border-radius:22px;box-shadow:0 15px 45px rgba(0,0,0,0.25);transition:0.3s;}
-.feedback-heading{font-family:'Playfair Display',serif;font-size:2rem;color:#0b3d91;text-align:center;margin-bottom:25px;}
-#feedback-form input,#feedback-form textarea,#admin-login-form input{width:100%;padding:10px;margin-bottom:12px;border-radius:10px;border:1px solid #ccc;font-size:0.95rem;}
-#feedback-form button,#admin-login-form button{padding:12px 20px;background:#0b3d91;color:#fff;border:none;border-radius:12px;cursor:pointer;transition:0.3s;font-family:'Playfair Display',serif;}
-#feedback-form button:hover,#admin-login-form button:hover{background:#3b82f6;}
-#fb-stars-container{margin-bottom:15px;font-size:2rem;cursor:pointer;color:gold;}
-.star{margin-right:6px;transition:0.3s;}
-.feedback-box, .admin-feedback-box{background:linear-gradient(145deg,#ffffff,#f0f4f8);padding:20px;border-radius:18px;box-shadow:0 12px 40px rgba(0,0,0,0.18);margin-bottom:20px;position:relative;transition:transform 0.3s;}
-.feedback-box:hover, .admin-feedback-box:hover{transform:translateY(-4px);box-shadow:0 18px 50px rgba(0,0,0,0.22);}
-.fb-header{display:flex;justify-content:space-between;margin-bottom:10px;font-weight:700;color:#0b3d91;}
-.fb-message{margin-bottom:8px;font-size:0.95rem;}
-.fb-footer{font-size:0.8rem;color:#555;}
-.fb-reply{margin-top:8px;padding:8px;border-left:4px solid #3b82f6;background:#eef3ff;border-radius:8px;color:#0b3d91;font-weight:500;}
-#loading-spinner{display:none;margin-left:10px;font-weight:700;color:#0b3d91;}
-#admin-login-btn{position:fixed;bottom:120px;right:20px;background:linear-gradient(135deg,#0b3d91,#3b82f6);color:#fff;padding:12px 18px;font-size:0.9rem;border-radius:12px;cursor:pointer;box-shadow:0 8px 25px rgba(0,0,0,0.25);}
-#admin-login-overlay{display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.55);justify-content:center;align-items:center;z-index:2500;}
-#admin-dashboard{display:none;position:fixed;top:0;left:0;width:100%;height:100%;overflow-y:auto;background:rgba(0,0,0,0.75);backdrop-filter:blur(6px);padding:30px;z-index:3000;flex-direction:column;}
-#admin-dashboard .admin-feedback-box{background:#fff;margin-bottom:20px;padding:20px;border-radius:12px;position:relative;}
-#admin-login-form{background:#f5f5f5;padding:25px;border-radius:18px;max-width:400px;width:90%;box-shadow:0 15px 45px rgba(0,0,0,0.25);position:relative;}
-#close-admin-login{position:absolute;top:10px;right:15px;font-size:26px;font-weight:bold;background:transparent;border:none;cursor:pointer;color:#0b3d91;}
-#feedback-notification{position:fixed;top:20px;left:50%;transform:translateX(-50%);width:90%;max-width:550px;background:linear-gradient(135deg,#f59e0b,#fcd34d);padding:20px;border-radius:15px;color:#1a1a1a;display:flex;justify-content:space-between;align-items:center;z-index:3000;backdrop-filter:blur(6px);}
-#notif-close{cursor:pointer;font-weight:bold;font-size:22px;}
-footer{text-align:center;padding:20px;background:#0b3d91;color:#fff;font-family:'Roboto',sans-serif;border-top:3px solid #3b82f6;display:flex;flex-direction:column;align-items:center;gap:4px;}
-footer a{color:#60a5fa;text-decoration:none;font-weight:500;}
-.reply-btn{margin-top:8px;padding:6px 12px;background:#0b3d91;color:#fff;border:none;border-radius:8px;cursor:pointer;font-size:0.85rem;}
-.reply-btn:hover{background:#3b82f6;}
-@media(max-width:768px){.container{margin-top:30px;padding:20px;}#admin-login-btn{padding:10px 16px;font-size:0.85rem;}#fb-stars-container{font-size:1.7rem;}}
-</style>
-
-<body>
-
-<div id="feedback-notification">
-  <span>💬 Your feedback matters! Please give us stars according to your help.</span>
-  <span id="notif-close">×</span>
-</div>
-
-<div class="container">
-  <h2 class="feedback-heading">Feedback</h2>
-  <form id="feedback-form">
-    <input type="text" id="fb-name" placeholder="Your Name" required>
-    <div id="fb-stars-container"></div>
-    <textarea id="fb-message" placeholder="Write your feedback (Optional)" rows="3"></textarea>
-    <button type="submit" id="submit-feedback-btn" disabled>Submit Feedback</button>
-    <span id="loading-spinner">⏳ Submitting...</span>
-  </form>
-
-  <h3 style="margin-top:25px;margin-bottom:15px;">Recent Feedbacks</h3>
-  <div id="feedback-list"></div>
-</div>
-
-<button id="admin-login-btn">Admin Login</button>
-
-<div id="admin-login-overlay">
-  <form id="admin-login-form">
-    <button type="button" id="close-admin-login">×</button>
-    <h3>Admin Login</h3>
-    <input type="email" id="admin-email" placeholder="Email" required>
-    <input type="password" id="admin-password" placeholder="Password" required>
-    <button type="submit">Login</button>
-  </form>
-</div>
-
-<div id="admin-dashboard"></div>
-
-<footer>
-  <p>Vishal Insights &copy; 2026 | <a href="mailto:vishalsurya2025@gmail.com">Email</a> | <a href="https://www.instagram.com/vishal_surya05" target="_blank">Instagram</a></p>
-</footer>
+<script>
+function openDrawer(){
+drawer.classList.add("active");
+document.querySelector(".overlay").classList.add("active");
+}
+function closeDrawer(){
+drawer.classList.remove("active");
+document.querySelector(".overlay").classList.remove("active");
+}
+function toggleTheme(){
+document.body.classList.toggle("dark");
+}
+document.getElementById("notif-close").onclick=()=>{
+document.getElementById("feedback-notification").style.display="none";
+};
+</script>
 
 </body>
 </html>
