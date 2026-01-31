@@ -3,127 +3,174 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Vimaan</title>
+<title>Vimaan AI</title>
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700&display=swap" rel="stylesheet">
 
 <style>
-* {
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
-    font-family: 'Segoe UI', sans-serif;
+:root{
+--bg:#f8fafc;
+--card:rgba(255,255,255,0.85);
+--text:#0f172a;
+--muted:#64748b;
+--accent:#2563eb;
+--border:rgba(0,0,0,.08);
+--glass:blur(18px);
 }
 
-body {
-    background: linear-gradient(135deg, #0f172a, #1e293b);
-    color: white;
-    min-height: 100vh;
-    display: flex;
-    flex-direction: column;
+*{margin:0;padding:0;box-sizing:border-box;font-family:'Outfit',sans-serif;}
+body{background:var(--bg);color:var(--text);}
+
+/* HEADER */
+.header{
+position:fixed;top:0;left:0;right:0;height:75px;
+backdrop-filter:var(--glass);
+background:var(--card);
+border-bottom:1px solid var(--border);
+display:flex;align-items:center;
+padding:0 15px;
+z-index:1000;
 }
 
-/* ===== TOP BAR ===== */
-.topbar {
-    height: 70px;
-    background: rgba(17, 24, 39, 0.95);
-    backdrop-filter: blur(10px);
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding: 0 25px;
-    box-shadow: 0 4px 20px rgba(0,0,0,0.4);
+.menu-btn{font-size:22px;cursor:pointer;}
+.logo-wrap{display:flex;align-items:center;gap:8px;margin-left:10px;}
+.logo-wrap img{height:36px;border-radius:8px;}
+.spacer{flex:1;}
+
+.updating{
+background:red;
+color:white;
+padding:6px 14px;
+border-radius:20px;
+font-size:13px;
+font-weight:600;
+animation:blink 1s infinite;
 }
 
-.menu {
-    font-size: 24px;
-    cursor: pointer;
+@keyframes blink{
+0%{opacity:1}
+50%{opacity:0.4}
+100%{opacity:1}
 }
 
-.brand {
-    font-size: 22px;
-    font-weight: bold;
-    letter-spacing: 1px;
+/* CONTENT */
+.content{
+padding:130px 20px 120px;
+display:flex;
+justify-content:center;
 }
 
-.status {
-    color: #22c55e;
-    font-weight: bold;
-    animation: pulse 1.5s infinite;
+/* CENTER BOX */
+.premium-box{
+background:white;
+max-width:650px;
+width:100%;
+padding:50px 35px;
+border-radius:20px;
+box-shadow:0 20px 50px rgba(0,0,0,.12);
+text-align:center;
+animation:fadeIn 1s ease;
 }
 
-@keyframes pulse {
-    0% { opacity: 1; }
-    50% { opacity: 0.4; }
-    100% { opacity: 1; }
+.premium-box h1{
+font-size:28px;
+margin-bottom:20px;
 }
 
-/* ===== CENTER CARD ===== */
-.container {
-    flex: 1;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    padding: 40px 20px;
+.premium-box p{
+color:var(--muted);
+font-size:16px;
+line-height:1.7;
 }
 
-.card {
-    background: rgba(255,255,255,0.08);
-    backdrop-filter: blur(20px);
-    border-radius: 20px;
-    padding: 40px;
-    max-width: 600px;
-    text-align: center;
-    box-shadow: 0 10px 40px rgba(0,0,0,0.6);
-    animation: fadeIn 1s ease-in-out;
+@keyframes fadeIn{
+from{opacity:0;transform:translateY(30px)}
+to{opacity:1;transform:translateY(0)}
 }
 
-.card h1 {
-    font-size: 26px;
-    margin-bottom: 20px;
+/* DRAWER */
+.overlay{position:fixed;inset:0;background:rgba(0,0,0,.5);display:none;z-index:2000;}
+.drawer{
+position:fixed;left:-280px;top:0;width:270px;height:100%;
+backdrop-filter:var(--glass);background:var(--card);
+padding:20px;transition:.4s;z-index:3000;
+}
+.drawer.active{left:0}
+.overlay.active{display:block}
+
+.menu-item{
+display:block;padding:14px;border-radius:14px;margin-bottom:10px;
+background:var(--bg);text-decoration:none;color:var(--text);
 }
 
-.card p {
-    color: #cbd5e1;
-    font-size: 16px;
-    line-height: 1.6;
+/* BOTTOM NAV */
+.bottom-nav{
+position:fixed;bottom:0;left:0;right:0;height:70px;
+background:var(--card);border-top:1px solid var(--border);
+display:flex;justify-content:space-around;align-items:center;
 }
+.bottom-nav a{text-decoration:none;color:var(--muted);font-size:13px;display:flex;flex-direction:column;align-items:center}
+.bottom-nav img{width:26px;margin-bottom:4px}
 
-@keyframes fadeIn {
-    from { opacity: 0; transform: translateY(30px); }
-    to { opacity: 1; transform: translateY(0); }
-}
-
-/* ===== FOOTER ===== */
-.footer {
-    text-align: center;
-    padding: 20px;
-    color: #94a3b8;
-    font-size: 14px;
-}
 </style>
 </head>
 
 <body>
 
-<div class="topbar">
-    <div class="menu">☰</div>
-    <div class="brand">✈ Vimaan</div>
-    <div class="status">Updating...</div>
+<!-- HEADER -->
+<div class="header">
+<div class="menu-btn" onclick="openDrawer()">☰</div>
+
+<div class="logo-wrap">
+<img src="https://lh3.googleusercontent.com/pw/AP1GczP1FxDyqLI0EVbXpZEhgt9c9LvyJMaTUX4jySqgZ9FUGW0Zzzu8h4yf1y2XpVsmFGpOMMDgNbDF5MtnNfHQbh51Hq1V7kJLmQIJGnxFyi2ospz1ufeepCbpJ_63zAllNYgjQmOZxVhYwuQ9JVlZET86=w865-h900-s-no-gm">
+<b>Vimaan AI</b>
 </div>
 
-<div class="container">
-    <div class="card">
-        <h1>Vimaan – Under Progress</h1>
-        <p>
-            Our platform is currently under development. Exciting premium features,
-            modern experience, and powerful updates are being integrated.
-            Stay tuned for the official luxury launch.
-        </p>
-    </div>
+<div class="spacer"></div>
+
+<div class="updating">UPDATING</div>
 </div>
 
-<div class="footer">
-    By Vishal Surya
+<!-- CONTENT -->
+<div class="content">
+<div class="premium-box">
+<h1>New Features Are Adding</h1>
+<p>
+Vimaan AI is currently under progress.  
+Advanced intelligent tools and premium enhancements are being integrated.  
+It will soon be officially introduced inside our app with a refined and powerful experience.  
+Stay connected for the grand launch.
+</p>
 </div>
+</div>
+
+<!-- DRAWER -->
+<div class="overlay" onclick="closeDrawer()"></div>
+<div class="drawer" id="drawer">
+<h3>Menu</h3>
+<a href="index.html" class="menu-item">Home</a>
+<a href="insightstv.html" class="menu-item">Insights TV</a>
+<a href="vimaan.html" class="menu-item">VIMAAN AI</a>
+<a href="blogs.html" class="menu-item">Blogs</a>
+<a href="feedback.html" class="menu-item">Feedback</a>
+</div>
+
+<!-- BOTTOM NAV -->
+<div class="bottom-nav">
+<a href="index.html"><img src="https://cdn-icons-png.flaticon.com/512/61/61972.png">Home</a>
+<a href="feedback.html"><img src="https://cdn-icons-png.flaticon.com/512/1828/1828884.png">Feedback</a>
+<a href="index.html"><img src="https://cdn-icons-png.flaticon.com/512/1828/1828479.png">Logout</a>
+</div>
+
+<script>
+function openDrawer(){
+drawer.classList.add("active");
+document.querySelector(".overlay").classList.add("active");
+}
+function closeDrawer(){
+drawer.classList.remove("active");
+document.querySelector(".overlay").classList.remove("active");
+}
+</script>
 
 </body>
 </html>
