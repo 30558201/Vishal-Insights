@@ -3,280 +3,261 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Vishal Surya Insights - About</title>
+<title>Vishal Insights - About This App & Me</title>
 
-<!-- Google Fonts -->
-<link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
-<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@500;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700&display=swap" rel="stylesheet">
 
 <style>
-/* --- Reset & Base --- */
-* { margin:0; padding:0; box-sizing:border-box; }
-body {
-  font-family: 'Roboto', sans-serif;
-  background: linear-gradient(to bottom, #e0f0ff, #ffffff);
-  color: #1a1a1a;
-  font-size:16px;
-  line-height:1.6;
-  transition: filter 0.3s ease;
-  overflow-x:hidden;
+:root{
+--bg:#f4f7fb;
+--card:#ffffff;
+--text:#1e293b;
+--muted:#64748b;
+--accent:#0f172a;
+--highlight:#2563eb;
+--border:rgba(0,0,0,.08);
+--glass:blur(18px);
+}
+body.dark{
+--bg:#0f172a;
+--card:#1e293b;
+--text:#f1f5f9;
+--muted:#94a3b8;
+--accent:#3b82f6;
+--highlight:#60a5fa;
+--border:rgba(255,255,255,.08);
+}
+*{margin:0;padding:0;box-sizing:border-box;font-family:'Outfit',sans-serif;}
+body{
+background:var(--bg);
+color:var(--text);
+transition:.3s;
 }
 
-/* --- Background Image --- */
-body::before {
-  content:"";
-  position:fixed;
-  top:0; left:0; width:100%; height:100%;
-  background: url('https://images.unsplash.com/photo-1581091215366-55f6d24aefb1?auto=format&fit=crop&w=1600&q=80') no-repeat center center/cover;
-  opacity:0.08;
-  z-index:-1;
+/* HEADER */
+.header{
+position:fixed;
+top:0;left:0;right:0;
+height:75px;
+background:var(--card);
+border-bottom:1px solid var(--border);
+display:flex;
+align-items:center;
+padding:0 18px;
+z-index:1000;
+}
+.menu-btn{font-size:22px;cursor:pointer;}
+.logo-wrap{
+display:flex;
+align-items:center;
+gap:10px;
+margin-left:12px;
+}
+.logo-wrap img{
+height:36px;
+border-radius:8px;
+}
+.page-title{
+font-weight:600;
+font-size:16px;
+}
+.spacer{flex:1;}
+.version-badge{
+background:linear-gradient(135deg,#111827,#2563eb);
+color:#fff;
+padding:8px 18px;
+border-radius:20px;
+font-size:13px;
+font-weight:600;
+animation:blink 2.5s infinite;
+}
+@keyframes blink{
+0%,100%{opacity:1;}
+50%{opacity:.4;}
 }
 
-/* --- Container --- */
-.container {
-  max-width:980px;
-  margin:50px auto;
-  padding:25px;
-  background: rgba(255,255,255,0.95);
-  border-radius:22px;
-  box-shadow:0 15px 45px rgba(0,0,0,0.25);
-  transition: filter 0.3s;
+/* DRAWER */
+.overlay{
+position:fixed;
+inset:0;
+background:rgba(0,0,0,.5);
+display:none;
+z-index:2000;
+}
+.drawer{
+position:fixed;
+left:-280px;
+top:0;
+width:270px;
+height:100%;
+background:var(--card);
+padding:20px;
+transition:.4s;
+z-index:3000;
+}
+.drawer.active{left:0;}
+.overlay.active{display:block;}
+.menu-item{
+display:block;
+padding:14px;
+border-radius:14px;
+margin-bottom:10px;
+background:var(--bg);
+text-decoration:none;
+color:var(--text);
+transition:.3s;
+}
+.menu-item:hover{
+background:var(--highlight);
+color:#fff;
+}
+.theme-toggle{
+margin-top:15px;
+padding:12px;
+border-radius:20px;
+background:var(--bg);
+cursor:pointer;
+text-align:center;
 }
 
-/* --- About Heading --- */
-.about-heading {
-  font-family:'Playfair Display', serif;
-  font-size:2.3rem;
-  color:#0b3d91;
-  text-align:center;
-  margin-bottom:40px;
-}
-.about-heading span { font-weight:700; }
-
-/* --- Section Boxes --- */
-.section-box {
-  background: linear-gradient(145deg, #ffffff, #f0f4f8);
-  padding:35px 30px;
-  border-radius:20px;
-  box-shadow:0 12px 45px rgba(0,0,0,0.18);
-  margin-bottom:40px;
-  transition: transform 0.4s, box-shadow 0.4s;
-}
-.section-box:hover {
-  transform:translateY(-8px);
-  box-shadow:0 22px 60px rgba(0,0,0,0.25);
-}
-.section-box h2 {
-  font-family:'Playfair Display', serif;
-  font-size:1.9rem;
-  color:#0b3d91;
-  margin-bottom:20px;
-}
-.section-box p {
-  font-family:'Roboto', sans-serif;
-  font-weight:300;
-  font-size:1rem;
-  color:#1a1a1a;
-  margin-bottom:15px;
-  line-height:1.65;
+/* MAIN */
+.container{
+max-width:1000px;
+margin:120px auto 80px;
+padding:20px;
 }
 
-/* --- Contact Box --- */
-.contact-box {
-  background: linear-gradient(120deg, #fefefe, #e0f0ff);
-  padding:25px;
-  border-radius:20px;
-  box-shadow:0 10px 35px rgba(0,0,0,0.18);
-  margin-bottom:40px;
+.section{
+background:var(--card);
+border:1px solid var(--border);
+border-radius:22px;
+padding:30px;
+margin-bottom:30px;
+box-shadow:0 15px 40px rgba(0,0,0,.05);
+transition:.3s;
 }
-.contact-box h2 {
-  font-family:'Playfair Display', serif;
-  color:#0b3d91;
-  font-size:1.8rem;
-  margin-bottom:15px;
+.section:hover{
+transform:translateY(-6px);
+box-shadow:0 20px 55px rgba(0,0,0,.1);
 }
-.contact-box p, .contact-box a {
-  font-size:1rem;
-  color:#1a1a1a;
-  text-decoration:none;
-  display:block;
-  margin-bottom:8px;
+.section h2{
+margin-bottom:15px;
+font-size:20px;
 }
-
-/* --- Notification Overlay Box --- */
-#notification-box {
-  position: fixed;
-  top:50px;
-  right:-420px; /* initial offscreen */
-  width:400px;
-  max-width:90%;
-  background: linear-gradient(135deg, #fdf6e3, #fceabb);
-  border-radius:20px;
-  box-shadow:0 15px 50px rgba(0,0,0,0.35);
-  padding:25px 25px 20px 25px;
-  z-index:2000;
-  transition: right 0.8s ease;
-  font-family:'Roboto', sans-serif;
-  line-height:1.5;
-}
-#notification-box.active { right:30px; }
-#notification-box h3 {
-  font-family:'Playfair Display', serif;
-  font-size:1.6rem;
-  color:#0b3d91;
-  margin-bottom:15px;
-}
-#notification-box p {
-  font-size:0.95rem;
-  color:#1a1a1a;
-  margin-bottom:12px;
-}
-#notification-box button {
-  position:absolute;
-  top:10px;
-  right:15px;
-  font-size:26px;
-  font-weight:bold;
-  background:transparent;
-  border:none;
-  cursor:pointer;
-  color:#0b3d91;
+.section p{
+color:var(--muted);
+margin-bottom:12px;
+line-height:1.6;
 }
 
-/* --- Blur Background when notification active --- */
-.blur {
-  filter: blur(8px);
-  transition: filter 0.3s ease;
-}
-
-/* --- Professional NEW Badge --- */
-#new-badge {
-  position:fixed;
-  top:15px;
-  right:15px;
-  background: linear-gradient(135deg,#0b3d91,#3b82f6);
-  color:#fff;
-  font-weight:700;
-  padding:12px 26px;
-  border-radius:15px;
-  font-size:1rem;
-  z-index:2100;
-  box-shadow:0 8px 25px rgba(0,0,0,0.25);
-  animation: blink 3s infinite;
-  font-family:'Playfair Display', serif;
-}
-@keyframes blink {
-  0%,50%,100% { opacity:1; }
-  25%,75% { opacity:0.4; }
-}
-
-/* --- Footer --- */
-footer {
-  text-align:center;
-  padding:40px 20px;
-  background:#0b3d91;
-  color:#fff;
-  font-family:'Roboto', sans-serif;
-  border-top:3px solid #3b82f6;
-  display:flex;
-  flex-direction:column;
-  align-items:center;
-  gap:6px;
-}
-footer a { color:#60a5fa; text-decoration:none; font-weight:500; }
-footer p { margin:0; }
-
-/* --- Responsive --- */
-@media(max-width:768px){
-  .container{ margin-top:50px; padding:22px; }
-  .section-box h2{ font-size:1.55rem; }
-  .about-heading{ font-size:1.6rem; }
-  #notification-box{ width:90%; right:-420px; }
-  #new-badge{ font-size:0.9rem; padding:10px 20px; }
+/* Footer */
+footer{
+background:var(--card);
+border-top:2px solid var(--highlight);
+text-align:center;
+padding:30px;
+color:var(--muted);
 }
 </style>
 </head>
+
 <body>
 
-<!-- NEW Badge -->
-<div id="new-badge">NEW! Updated Version</div>
-
-<!-- Notification Box -->
-<div id="notification-box">
-  <button onclick="closeNotification()">×</button>
-  <h3>About Me 😜</h3>
-  <p>👋 Welcome to Vishal Surya Insights!</p>
-  <p>If you have any disagreement with my thoughts or vision, please give feedback. Your insights are extremely valuable! 🙏</p>
-  <p>We continuously improve this platform, and new features will keep coming. If you have suggestions, drop them in feedback! 😉📚</p>
-  <p class="small-text">- Vishal Surya</p>
+<!-- HEADER -->
+<div class="header">
+<div class="menu-btn" onclick="openDrawer()">☰</div>
+<div class="logo-wrap">
+<img src="https://lh3.googleusercontent.com/pw/AP1GczP1FxDyqLI0EVbXpZEhgt9c9LvyJMaTUX4jySqgZ9FUGW0Zzzu8h4yf1y2XpVsmFGpOMMDgNbDF5MtnNfHQbh51Hq1V7kJLmQIJGnxFyi2ospz1ufeepCbpJ_63zAllNYgjQmOZxVhYwuQ9JVlZET86=w865-h900-s-no-gm">
+<span class="page-title">About This App & Me</span>
+</div>
+<div class="spacer"></div>
+<div class="version-badge">New Updated Version</div>
 </div>
 
-<!-- Main Container -->
-<div class="container" id="main-content">
+<!-- DRAWER -->
+<div class="overlay" onclick="closeDrawer()"></div>
+<div class="drawer" id="drawer">
+<h3>Menu</h3>
+<a href="index.html" class="menu-item">Home</a>
+<a href="insightstv.html" class="menu-item">Insights TV</a>
+<a href="about.html" class="menu-item">About</a>
+<a href="blogs.html" class="menu-item">Blogs</a>
+<a href="vimaan.html" class="menu-item">VIMAAN AI</a>
+<a href="feedback.html" class="menu-item">Feedback</a>
+<div class="theme-toggle" onclick="toggleTheme()">Toggle Dark Mode</div>
+</div>
 
-  <!-- About Heading -->
-  <div class="about-heading">About Me 😜</div>
+<div class="container">
 
-  <!-- Sections -->
-  <div class="section-box">
-    <h2>Profile</h2>
-    <p>🎓 Class 11 student exploring Physics, Chemistry, and Maths. Sharing insights in a fun, readable way. 😜</p>
-    <p>💡 Skills: Clear explanations, professional content, fun human-friendly style for kids & adults.</p>
-  </div>
+<!-- ABOUT APP -->
+<div class="section">
+<h2>About This App</h2>
+<p>Vishal Insights is a fully independent, swadeshi digital learning platform created and developed by Vishal Surya.</p>
+<p>The journey started as a simple website. Over time, it evolved into a structured multi-page knowledge ecosystem and now operates as a complete app-style platform.</p>
+<p>The goal is simple: structured knowledge, professional presentation, and continuous innovation.</p>
+</div>
 
-  <div class="section-box">
-    <h2>What I Do</h2>
-    <p>🛠️ Providing educational insights emphasizing understanding over rote memorization. Learning can be fun with small jokes hidden! 🤓😂</p>
-    <p>📱 Fully mobile-friendly, visually professional, engaging for all ages.</p>
-  </div>
+<!-- PLATFORM STRUCTURE -->
+<div class="section">
+<h2>Platform Structure & Pages</h2>
 
-  <div class="section-box">
-    <h2>Benefits for Visitors</h2>
-    <p>✅ Structured insights, professional learning, occasional humor. Knowledge + smile = best combo!</p>
-  </div>
+<p><strong>1. Home Page</strong> – Central introduction of the platform, vision, and navigation to all sections.</p>
 
-  <div class="section-box">
-    <h2>Benefits for Society & Country</h2>
-    <p>🌐 Proper understanding + critical thinking helps society grow. Educated minds create innovative solutions for our nation! 🚀</p>
-  </div>
+<p><strong>2. Insights TV</strong> – A professional streaming-style video section where documentaries and educational videos are published. To submit video proposals, contact via email.</p>
 
-  <div class="section-box">
-    <h2>Additional Insights</h2>
-    <p>✨ Luxury professional content with emoji and fun style. Learning enjoyable for children, adults, and elders. 🎉</p>
-    <p>💼 Mobile-first, desktop-friendly, smooth animations, professional design.</p>
-  </div>
+<p><strong>3. About Page</strong> – Detailed explanation of the platform vision and the creator.</p>
 
-  <!-- Contact Section -->
-  <div class="contact-box">
-    <h2>Contact Me</h2>
-    <p>Email: <a href="mailto:vishalsurya2025@gmail.com">vishalsurya2025@gmail.com</a></p>
-    <p>Instagram: <a href="https://www.instagram.com/vishal_surya05" target="_blank">@vishal_surya05</a></p>
-  </div>
+<p><strong>4. Blogs Page</strong> – Educational articles, structured insights, and published thoughts. Blog submissions can be sent via email for review.</p>
+
+<p><strong>5. VIMAAN AI</strong> – An intelligent AI-based learning assistant designed to simplify complex topics and improve understanding.</p>
+
+<p><strong>6. Feedback Page</strong> – Users can rate, comment, and interact. Admin replies are supported.</p>
 
 </div>
 
-<!-- Footer -->
+<!-- ABOUT CREATOR -->
+<div class="section">
+<h2>About Me</h2>
+<p>I am Vishal Surya, a Class 11 student focused on Physics, Chemistry, and Mathematics.</p>
+<p>This platform represents practical application of learning, design thinking, and digital development.</p>
+<p>Every section of this platform is self-structured and built step by step with continuous improvements.</p>
+<p>The mission is not just content creation — but building something meaningful and scalable.</p>
+</div>
+
+<!-- VISION -->
+<div class="section">
+<h2>Vision & Purpose</h2>
+<p>• Encourage structured learning over rote memorization.</p>
+<p>• Build an independent Indian digital knowledge ecosystem.</p>
+<p>• Combine education, AI, media, and innovation in one place.</p>
+<p>• Create long-term value for students and society.</p>
+</div>
+
+<!-- CONTACT -->
+<div class="section">
+<h2>Contact & Submissions</h2>
+<p><strong>Email:</strong> vishalsurya2025@gmail.com</p>
+<p>For blog submission or video proposal in Insights TV, contact via email with proper details.</p>
+<p>Feedback and suggestions are always welcome.</p>
+</div>
+
+</div>
+
 <footer>
-  <p>Vishal Insights &copy; 2026 | <a href="https://www.vishalsurya.online">www.vishalsurya.online</a></p>
+Vishal Insights © 2026 • Built Independently • Educational Innovation Platform
 </footer>
 
 <script>
-// Notification overlay animation
-const notif = document.getElementById('notification-box');
-const mainContent = document.getElementById('main-content');
-
-// Show notification after 1 sec
-window.onload = () => {
-  setTimeout(()=> {
-    notif.classList.add('active');
-    mainContent.classList.add('blur');
-  }, 800);
+function openDrawer(){
+document.getElementById("drawer").classList.add("active");
+document.querySelector(".overlay").classList.add("active");
 }
-
-// Close notification
-function closeNotification(){
-  notif.classList.remove('active');
-  mainContent.classList.remove('blur');
+function closeDrawer(){
+document.getElementById("drawer").classList.remove("active");
+document.querySelector(".overlay").classList.remove("active");
+}
+function toggleTheme(){
+document.body.classList.toggle("dark");
 }
 </script>
 
