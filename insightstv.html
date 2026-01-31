@@ -183,7 +183,7 @@ display:flex;justify-content:space-around;align-items:center;
 <div class="content" id="home">
 
 <div class="sponsor">
-<img src="https://lh3.googleusercontent.com/pw/AP1GczMb3Z3d501hx_gxhfrF32x-8v84fDyiQMkh4xs9xlWEjjFIynH8i1ykZ1sVKYXeCoFgaT-yH2_nhmGiFusiXWMZRJMIWq-yg0S5L2WnksARLgPKq5Sj9fn1qpJxKiky4iyjaURHpVfEgIPlcfZVyqK1=w631-h140-s-no-gm">
+<img src="https://lh3.googleusercontent.com/pw/AP1GczO3O-sfkhHgDKzXzbSEN6vk8xGxyLQ1vR29672tqt7ROk_lRMzNam7MVLqq8MonVjpRRXmXX8trtkboavRaYaRP89JVLzQt3UmgdhyNfATh8gKZpGbiuWFlMsfE6ZQWT-n5vdo3cg6Z7-vEBlxzy1xH=w631-h84-s-no-gm">
 <div class="sponsor-tag">Sponsored</div>
 <button class="sponsor-close" onclick="this.parentElement.style.display='none'">✕</button>
 </div>
@@ -255,12 +255,12 @@ pTitle.innerText=title;pType.innerText=type;
 }
 function openScheduled(){
 home.style.display="none";player.style.display="block";
-videoWrap.innerHTML='<div class="back-video" onclick="goHome()">←</div><div class="close-video" onclick="goHome()">✕</div><div class="scheduled-bg" style="background-image:url(https://picsum.photos/800/500?1)"></div><div class="scheduled-overlay"><h2>Scheduled for 1 Feb 2026</h2></div><div class="countdown" id="countdown"></div>';
+videoWrap.innerHTML='<div class="back-video" onclick="goHome()">←</div><div class="close-video" onclick="goHome()">✕</div><div class="scheduled-bg" style="background-image:url(https://lh3.googleusercontent.com/pw/AP1GczO3O-sfkhHgDKzXzbSEN6vk8xGxyLQ1vR29672tqt7ROk_lRMzNam7MVLqq8MonVjpRRXmXX8trtkboavRaYaRP89JVLzQt3UmgdhyNfATh8gKZpGbiuWFlMsfE6ZQWT-n5vdo3cg6Z7-vEBlxzy1xH=w631-h84-s-no-gm"><h2>Scheduled for 7 Feb 2026</h2></div><div class="countdown" id="countdown"></div>';
 startCountdown();
 pTitle.innerText="The BackBench Files";pType.innerText="Scheduled Premiere • Insights TV";
 }
 function startCountdown(){
-const target=new Date("2026-02-01T00:00:00").getTime();
+const target=new Date("2026-02-07T00:00:00").getTime();
 setInterval(()=>{
 const now=new Date().getTime();const diff=target-now;
 if(diff<=0){countdown.innerText="Now Live";return;}
