@@ -3,240 +3,331 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Vishal Surya Insights - Blogs</title>
+<title>Vishal Insights - Blogs</title>
 
-<link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
-<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@500;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700&display=swap" rel="stylesheet">
 
 <style>
-/* --- Reset & Base --- */
-*{margin:0;padding:0;box-sizing:border-box;}
-body{font-family:'Roboto',sans-serif;background:linear-gradient(to bottom,#e0f0ff,#ffffff);color:#1a1a1a;overflow-x:hidden;}
-body::before{content:"";position:fixed;top:0;left:0;width:100%;height:100%;background:url('https://images.unsplash.com/photo-1581091215366-55f6d24aefb1?auto=format&fit=crop&w=1600&q=80') no-repeat center/cover;opacity:0.08;z-index:-1;}
+:root{
+--bg:#f8fafc;
+--card:rgba(255,255,255,0.92);
+--text:#0f172a;
+--muted:#64748b;
+--accent:#2563eb;
+--border:rgba(0,0,0,.08);
+--glass:blur(18px);
+}
+body.dark{
+--bg:#0f172a;
+--card:rgba(30,41,59,0.85);
+--text:#f1f5f9;
+--muted:#94a3b8;
+--accent:#3b82f6;
+--border:rgba(255,255,255,.08);
+}
+*{margin:0;padding:0;box-sizing:border-box;font-family:'Outfit',sans-serif;}
+body{background:var(--bg);color:var(--text);transition:.3s}
 
-/* --- Blur effect only on content --- */
-.blur{filter:blur(8px);transition:0.3s;}
+/* HEADER */
+.header{
+position:fixed;top:0;left:0;right:0;height:75px;
+backdrop-filter:var(--glass);
+background:var(--card);
+border-bottom:1px solid var(--border);
+display:flex;align-items:center;padding:0 18px;
+z-index:1000;
+}
+.menu-btn{font-size:22px;cursor:pointer;}
+.logo-wrap{display:flex;align-items:center;gap:10px;margin-left:12px;}
+.logo-wrap img{height:36px;border-radius:8px;}
+.page-title{font-weight:600;}
+.spacer{flex:1;}
+.version-badge{
+background:linear-gradient(135deg,#0b3d91,#3b82f6);
+color:#fff;
+padding:8px 18px;
+border-radius:20px;
+font-size:13px;
+font-weight:600;
+animation:blink 2s infinite;
+}
+@keyframes blink{
+0%,100%{opacity:1;}
+50%{opacity:.3;}
+}
 
-/* --- Container --- */
-.container{max-width:980px;margin:50px auto;padding:25px;background:rgba(255,255,255,0.95);border-radius:22px;box-shadow:0 15px 45px rgba(0,0,0,0.25);transition:0.3s;}
+/* DRAWER */
+.overlay{position:fixed;inset:0;background:rgba(0,0,0,.5);display:none;z-index:2000;}
+.drawer{
+position:fixed;left:-280px;top:0;width:270px;height:100%;
+backdrop-filter:var(--glass);
+background:var(--card);
+padding:20px;transition:.4s;z-index:3000;
+}
+.drawer.active{left:0}
+.overlay.active{display:block}
+.menu-item{
+display:block;padding:14px;border-radius:14px;margin-bottom:10px;
+background:var(--bg);text-decoration:none;color:var(--text);
+transition:.3s;
+}
+.menu-item:hover{background:var(--accent);color:#fff}
+.theme-toggle{
+margin-top:20px;padding:10px;border-radius:20px;
+background:var(--bg);text-align:center;cursor:pointer;
+}
 
-/* --- Page Heading --- */
-.page-heading{font-family:'Playfair Display',serif;font-size:2.3rem;color:#0b3d91;text-align:center;margin-bottom:40px;}
+/* MAIN */
+.container{
+max-width:1000px;
+margin:120px auto 80px;
+padding:20px;
+}
 
-/* --- Blog Card --- */
-.blog-card{position:relative;background:linear-gradient(145deg,#ffffff,#f0f4f8);padding:25px;border-radius:20px;box-shadow:0 12px 45px rgba(0,0,0,0.18);margin-bottom:30px;transition:transform 0.4s,box-shadow 0.4s;}
-.blog-card:hover{transform:translateY(-6px);box-shadow:0 18px 55px rgba(0,0,0,0.22);}
-.blog-card h2{font-family:'Playfair Display',serif;font-size:1.8rem;color:#0b3d91;margin-bottom:12px;}
-.blog-card p{font-family:'Roboto',sans-serif;font-size:1rem;line-height:1.6;color:#1a1a1a;margin-bottom:12px;}
-.blog-author{position:absolute;top:12px;right:12px;background:linear-gradient(135deg,#0b3d91,#3b82f6);color:#fff;font-weight:700;padding:6px 14px;border-radius:20px;font-size:0.85rem;font-family:'Playfair Display',serif;box-shadow:0 3px 10px rgba(0,0,0,0.2);}
-.blog-timestamp{position:absolute;bottom:10px;left:12px;font-size:0.75rem;color:#555;}
+.blog-card{
+background:var(--card);
+border:1px solid var(--border);
+border-radius:20px;
+padding:25px;
+margin-bottom:25px;
+box-shadow:0 15px 40px rgba(0,0,0,.1);
+transition:.3s;
+}
+.blog-card:hover{
+transform:translateY(-6px);
+box-shadow:0 20px 55px rgba(0,0,0,.15);
+}
+.blog-card h2{margin-bottom:10px;}
+.blog-author{
+font-size:13px;
+font-weight:600;
+color:var(--accent);
+margin-bottom:6px;
+}
+.blog-time{
+font-size:12px;
+color:var(--muted);
+margin-top:10px;
+}
 
-/* --- Notification --- */
-#notification-box{position:fixed;top:60px;right:-100%;width:90%;max-width:400px;background:linear-gradient(135deg,#fdf6e3,#fceabb);border-radius:20px;box-shadow:0 15px 50px rgba(0,0,0,0.35);padding:20px 20px 15px 20px;z-index:3000;transition:right 0.5s ease;font-size:0.95rem;}
-#notification-box.active{right:5%;}
-#notification-box h3{font-family:'Playfair Display',serif;font-size:1.5rem;color:#0b3d91;margin-bottom:10px;}
-#notification-box p{margin-bottom:8px;}
-#notification-box a{color:#0b3d91;text-decoration:underline;}
-#notification-box button{position:absolute;top:8px;right:12px;font-size:24px;font-weight:bold;background:transparent;border:none;cursor:pointer;color:#0b3d91;}
+/* BUTTON */
+#add-blog-btn{
+display:block;
+margin:30px auto;
+padding:14px 30px;
+background:var(--accent);
+color:#fff;
+border:none;
+border-radius:20px;
+font-weight:600;
+cursor:pointer;
+}
 
-/* --- NEW Badge --- */
-#new-badge{position:fixed;top:15px;right:15px;background:linear-gradient(135deg,#0b3d91,#3b82f6);color:#fff;font-weight:700;padding:12px 26px;border-radius:15px;font-size:1rem;z-index:3100;box-shadow:0 8px 25px rgba(0,0,0,0.25);animation:blink 3s infinite;font-family:'Playfair Display',serif;}
-@keyframes blink{0%,50%,100%{opacity:1;}25%,75%{opacity:0.4;}}
+/* MODAL */
+.modal{
+position:fixed;
+top:0;left:0;
+width:100%;height:100%;
+background:rgba(0,0,0,.65);
+display:none;
+justify-content:center;
+align-items:center;
+z-index:4000;
+}
+.modal-content{
+background:#fff;
+padding:30px;
+border-radius:20px;
+width:95%;
+max-width:600px;
+}
+.modal-content input,.modal-content textarea{
+width:100%;
+padding:12px;
+margin-bottom:12px;
+border-radius:12px;
+border:1px solid #ccc;
+}
+.modal-content button{
+padding:10px 18px;
+margin:5px;
+border:none;
+border-radius:12px;
+cursor:pointer;
+background:var(--accent);
+color:#fff;
+}
+.delete-btn{background:#ef4444 !important;}
 
-/* --- Add Blog Button --- */
-#add-blog-btn{display:block;margin:30px auto;padding:14px 28px;font-size:1rem;font-weight:700;background:linear-gradient(135deg,#0b3d91,#3b82f6);color:#fff;border:none;border-radius:20px;cursor:pointer;box-shadow:0 8px 25px rgba(0,0,0,0.25);}
-#add-blog-btn:hover{transform:scale(1.05);transition:0.2s;}
-
-/* --- Dashboard Modal --- */
-#dashboard-modal{position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.65);display:none;justify-content:center;align-items:flex-start;padding-top:50px;z-index:3200;overflow-y:auto;}
-#dashboard-content{background:#fff;padding:20px;border-radius:20px;max-width:700px;width:95%;box-shadow:0 20px 50px rgba(0,0,0,0.3);}
-#dashboard-content h2{text-align:center;font-family:'Playfair Display',serif;color:#0b3d91;margin-bottom:20px;font-size:1.8rem;}
-#dashboard-content input,#dashboard-content textarea{width:100%;padding:12px;margin-bottom:12px;border-radius:12px;border:1px solid #ccc;font-size:1rem;}
-#dashboard-content textarea{resize:none;min-height:100px;}
-#dashboard-content button{padding:10px 18px;margin:5px;font-weight:600;font-size:0.95rem;border:none;border-radius:12px;cursor:pointer;transition:0.2s;}
-#login-btn,#submit-blog-btn{background:linear-gradient(135deg,#0b3d91,#3b82f6);color:#fff;}
-#login-btn:hover,#submit-blog-btn:hover{background:linear-gradient(135deg,#3b82f6,#0b3d91);}
-#logout-btn{background:#ccc;color:#000;}
-#logout-btn:hover{background:#999;color:#fff;}
-#blogs-table{width:100%;border-collapse:collapse;margin-top:20px;}
-#blogs-table th,#blogs-table td{padding:10px;text-align:left;border-bottom:1px solid #ccc;}
-#blogs-table th{background:#0b3d91;color:#fff;border-radius:12px;}
-.action-btn{padding:6px 12px;font-size:0.85rem;border-radius:12px;font-weight:600;cursor:pointer;color:#fff;margin-right:4px;}
-.delete-btn{background:linear-gradient(135deg,#ef4444,#f87171);}
-.delete-btn:hover{background:linear-gradient(135deg,#f87171,#ef4444);}
-
-/* --- Footer --- */
-footer{ text-align:center; padding:30px 15px; background:#0b3d91; color:#fff; font-family:'Roboto',sans-serif; display:flex; flex-direction:column; align-items:center; gap:6px;}
-footer a{color:#60a5fa;text-decoration:none;font-weight:500;}
-footer p{margin:0;}
-.footer-desc{font-size:0.9rem;color:#cfd8ff;}
-
-/* --- Responsive --- */
-@media(max-width:768px){
-  .container{margin-top:40px;padding:18px;}
-  .page-heading{font-size:1.6rem;}
-  #dashboard-content{width:95%;padding:18px;}
-  #notification-box{top:60px;width:90%;padding:16px;font-size:0.9rem;}
-  #notification-box h3{font-size:1.4rem;}
-  #add-blog-btn{margin:25px auto;padding:12px 24px;font-size:0.95rem;}
-  footer{padding:25px 15px;font-size:0.9rem;}
+footer{
+background:var(--card);
+border-top:2px solid var(--accent);
+text-align:center;
+padding:25px;
+color:var(--muted);
 }
 </style>
 </head>
+
 <body>
 
-<div id="new-badge">NEW! Updated Version</div>
-
-<div id="notification-box">
-  <button id="close-notif-btn">×</button>
-  <h3>Share Your Thoughts ✍️</h3>
-  <p>If you want to share your thoughts or write a blog here, contact me:</p>
-  <p>Email: <a href="mailto:vishalsurya2025@gmail.com">vishalsurya2025@gmail.com</a></p>
-  <p>Instagram: <a href="https://www.instagram.com/vishal_surya05" target="_blank">@vishal_surya05</a></p>
-  <p>- Vishal Surya</p>
+<!-- HEADER -->
+<div class="header">
+<div class="menu-btn" onclick="openDrawer()">☰</div>
+<div class="logo-wrap">
+<img src="https://lh3.googleusercontent.com/pw/AP1GczP1FxDyqLI0EVbXpZEhgt9c9LvyJMaTUX4jySqgZ9FUGW0Zzzu8h4yf1y2XpVsmFGpOMMDgNbDF5MtnNfHQbh51Hq1V7kJLmQIJGnxFyi2ospz1ufeepCbpJ_63zAllNYgjQmOZxVhYwuQ9JVlZET86=w865-h900-s-no-gm">
+<span class="page-title">Blogs</span>
+</div>
+<div class="spacer"></div>
+<div class="version-badge">New Updated Version</div>
 </div>
 
-<div class="container blur-target" id="main-content">
-  <div class="page-heading">📝 Blogs</div>
-  <div id="blogs-container"></div>
+<div class="overlay" onclick="closeDrawer()"></div>
+<div class="drawer" id="drawer">
+<h3>Menu</h3>
+<a href="index.html" class="menu-item">Home</a>
+<a href="insightstv.html" class="menu-item">Insights TV</a>
+<a href="vimaan.html" class="menu-item">VIMAAN AI</a>
+<a href="blogs.html" class="menu-item">Blogs</a>
+<a href="feedback.html" class="menu-item">Feedback</a>
+<div class="theme-toggle" onclick="toggleTheme()">Toggle Dark Mode</div>
 </div>
 
-<button id="add-blog-btn" class="blur-target">Add Blog</button>
-
-<div id="dashboard-modal">
-  <div id="dashboard-content">
-    <h2>Admin Login / Add Blog</h2>
-    <div id="login-section">
-      <input type="email" id="admin-email" placeholder="Email">
-      <input type="password" id="admin-password" placeholder="Password">
-      <button id="login-btn">Login</button>
-    </div>
-    <div id="add-blog-section" style="display:none;">
-      <input type="text" id="blog-title" placeholder="Blog Title">
-      <textarea id="blog-summary" placeholder="Blog Summary"></textarea>
-      <input type="text" id="blog-author" placeholder="Author Name">
-      <button id="submit-blog-btn">Submit Blog</button>
-      <button id="logout-btn">Logout</button>
-      <table id="blogs-table">
-        <thead><tr><th>Title</th><th>Summary</th><th>Actions</th></tr></thead>
-        <tbody id="blogs-list"></tbody>
-      </table>
-    </div>
-  </div>
+<div class="container">
+<div id="blogs-container"></div>
 </div>
 
-<footer class="blur-target">
-  <p class="footer-desc">Sharing educational insights in a fun and professional way. Stay connected!</p>
-  <p>Email: <a href="mailto:vishalsurya2025@gmail.com">vishalsurya2025@gmail.com</a> | Instagram: <a href="https://www.instagram.com/vishal_surya05" target="_blank">@vishal_surya05</a></p>
-  <p>Vishal Insights &copy; 2026 | <a href="https://www.vishalsurya.online">www.vishalsurya.online</a></p>
+<button id="add-blog-btn">Add Blog</button>
+
+<div class="modal" id="dashboard-modal">
+<div class="modal-content">
+<h2>Admin Dashboard</h2>
+
+<div id="login-section">
+<input type="email" id="admin-email" placeholder="Email">
+<input type="password" id="admin-password" placeholder="Password">
+<button id="login-btn">Login</button>
+</div>
+
+<div id="add-blog-section" style="display:none;">
+<input type="text" id="blog-title" placeholder="Blog Title">
+<textarea id="blog-summary" placeholder="Blog Summary"></textarea>
+<input type="text" id="blog-author" placeholder="Author Name">
+<button id="submit-blog-btn">Submit Blog</button>
+<button id="logout-btn">Logout</button>
+<table style="width:100%;margin-top:15px;">
+<tbody id="blogs-list"></tbody>
+</table>
+</div>
+
+</div>
+</div>
+
+<footer>
+Vishal Insights © 2026 • Educational Blogs Platform
 </footer>
+
+<script>
+function openDrawer(){drawer.classList.add("active");document.querySelector(".overlay").classList.add("active")}
+function closeDrawer(){drawer.classList.remove("active");document.querySelector(".overlay").classList.remove("active")}
+function toggleTheme(){document.body.classList.toggle("dark")}
+</script>
 
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-app.js";
-import { getDatabase, ref, push, onValue, serverTimestamp, remove } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-database.js";
+import { getDatabase, ref, push, onValue, remove } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-database.js";
 import { getAuth, signInWithEmailAndPassword, signOut } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-auth.js";
 
-const firebaseConfig = {
-apiKey: "AIzaSyA1IBtb9pbg8l4gCXlorOJ7s3YBrWIHOc4",
-authDomain: "vishalsurya-e20d1.firebaseapp.com",
-databaseURL: "https://vishalsurya-e20d1-default-rtdb.firebaseio.com",
-projectId: "vishalsurya-e20d1",
-storageBucket: "vishalsurya-e20d1.appspot.com",
-messagingSenderId: "194632949134",
-appId: "1:194632949134:web:51529cbba293730fb318df",
-measurementId: "G-BHQTZ1BQ55"
+const firebaseConfig={
+apiKey:"AIzaSyA1IBtb9pbg8l4gCXlorOJ7s3YBrWIHOc4",
+authDomain:"vishalsurya-e20d1.firebaseapp.com",
+databaseURL:"https://vishalsurya-e20d1-default-rtdb.firebaseio.com",
+projectId:"vishalsurya-e20d1",
+storageBucket:"vishalsurya-e20d1.appspot.com",
+messagingSenderId:"194632949134",
+appId:"1:194632949134:web:51529cbba293730fb318df"
 };
 
-const app = initializeApp(firebaseConfig);
-const db = getDatabase(app);
-const auth = getAuth(app);
+const app=initializeApp(firebaseConfig);
+const db=getDatabase(app);
+const auth=getAuth(app);
 
-const blogsContainer = document.getElementById('blogs-container');
-const notif = document.getElementById('notification-box');
-const blurTargets = document.querySelectorAll('.blur-target');
-const dashboardModal = document.getElementById('dashboard-modal');
-const loginSection = document.getElementById('login-section');
-const addBlogSection = document.getElementById('add-blog-section');
-const addBlogBtn = document.getElementById('add-blog-btn');
-const closeNotifBtn = document.getElementById('close-notif-btn');
-const loginBtn = document.getElementById('login-btn');
-const submitBlogBtn = document.getElementById('submit-blog-btn');
-const logoutBtn = document.getElementById('logout-btn');
-const blogsList = document.getElementById('blogs-list');
+const blogsContainer=document.getElementById('blogs-container');
+const dashboardModal=document.getElementById('dashboard-modal');
+const addBlogBtn=document.getElementById('add-blog-btn');
+const loginBtn=document.getElementById('login-btn');
+const submitBlogBtn=document.getElementById('submit-blog-btn');
+const logoutBtn=document.getElementById('logout-btn');
+const blogsList=document.getElementById('blogs-list');
 
-window.onload = ()=>{
-  setTimeout(()=>{
-    notif.classList.add('active');
-    blurTargets.forEach(el=>el.classList.add('blur'));
-  },800);
-}
-
-closeNotifBtn.addEventListener('click',()=>{
-  notif.classList.remove('active');
-  blurTargets.forEach(el=>el.classList.remove('blur'));
-});
-
-addBlogBtn.addEventListener('click',()=>{dashboardModal.style.display='flex';});
+addBlogBtn.onclick=()=>dashboardModal.style.display="flex";
+dashboardModal.onclick=e=>{if(e.target===dashboardModal)dashboardModal.style.display="none"}
 
 function loadBlogs(){
-  const blogsRef = ref(db,'blogs/');
-  onValue(blogsRef,(snapshot)=>{
-    blogsContainer.innerHTML='';
-    blogsList.innerHTML='';
-    const data = snapshot.val();
-    if(data){
-      const blogsArray = Object.entries(data).map(([key,val])=>({id:key,...val}));
-      blogsArray.sort((a,b)=>b.timestamp - a.timestamp);
-      blogsArray.forEach(blog=>{
-        const card = document.createElement('div');
-        card.className='blog-card';
-        card.innerHTML=`<div class="blog-author">${blog.author}</div>
-          <h2>${blog.title}</h2>
-          <p>${blog.summary}</p>
-          <div class="blog-timestamp">${new Date(blog.timestamp).toLocaleString()}</div>`;
-        blogsContainer.appendChild(card);
+onValue(ref(db,'blogs/'),snapshot=>{
+blogsContainer.innerHTML='';
+blogsList.innerHTML='';
+snapshot.forEach(child=>{
+const blog=child.val();
+const id=child.key;
 
-        const row = document.createElement('tr');
-        row.innerHTML=`<td>${blog.title}</td>
-          <td>${blog.summary}</td>
-          <td><button class="action-btn delete-btn" data-id="${blog.id}">Delete</button></td>`;
-        blogsList.appendChild(row);
-      });
+const card=document.createElement('div');
+card.className='blog-card';
+card.innerHTML=`
+<div class="blog-author">${blog.author}</div>
+<h2>${blog.title}</h2>
+<p>${blog.summary}</p>
+<div class="blog-time">${new Date(blog.timestamp).toLocaleString()}</div>`;
+blogsContainer.prepend(card);
 
-      document.querySelectorAll('.delete-btn').forEach(btn=>{
-        btn.addEventListener('click',()=>{
-          const blogId = btn.dataset.id;
-          if(confirm('Are you sure to delete?')) remove(ref(db,'blogs/'+blogId));
-        });
-      });
-    }
-  });
+const row=document.createElement('tr');
+row.innerHTML=`<td>${blog.title}</td>
+<td><button class="delete-btn" data-id="${id}">Delete</button></td>`;
+blogsList.appendChild(row);
+});
+document.querySelectorAll('.delete-btn').forEach(btn=>{
+btn.onclick=()=>{if(confirm('Delete blog?')) remove(ref(db,'blogs/'+btn.dataset.id));}
+});
+});
 }
 loadBlogs();
 
-loginBtn.addEventListener('click',()=>{
-  const email = document.getElementById('admin-email').value;
-  const password = document.getElementById('admin-password').value;
-  signInWithEmailAndPassword(auth,email,password)
-  .then(()=>{loginSection.style.display='none'; addBlogSection.style.display='block'; alert('Login Successful');})
-  .catch(err=>alert(err.message));
-});
+loginBtn.onclick=()=>{
+signInWithEmailAndPassword(auth,
+document.getElementById('admin-email').value,
+document.getElementById('admin-password').value)
+.then(()=>{
+document.getElementById('login-section').style.display='none';
+document.getElementById('add-blog-section').style.display='block';
+})
+.catch(err=>alert(err.message));
+};
 
-submitBlogBtn.addEventListener('click',()=>{
-  const title = document.getElementById('blog-title').value;
-  const summary = document.getElementById('blog-summary').value;
-  const author = document.getElementById('blog-author').value;
-  if(title && summary && author && auth.currentUser){
-    push(ref(db,'blogs/'),{title,summary,author,timestamp:serverTimestamp()})
-    .then(()=>{alert('Blog added'); document.getElementById('blog-title').value=''; document.getElementById('blog-summary').value=''; document.getElementById('blog-author').value=''; dashboardModal.style.display='none';});
-  } else alert('Fill all fields and login');
-});
+submitBlogBtn.onclick=()=>{
+if(!auth.currentUser){alert("Login required");return;}
+const title=document.getElementById('blog-title').value.trim();
+const summary=document.getElementById('blog-summary').value.trim();
+const author=document.getElementById('blog-author').value.trim();
 
-logoutBtn.addEventListener('click',()=>{
-  signOut(auth).then(()=>{addBlogSection.style.display='none'; loginSection.style.display='block'; alert('Logged out');});
-});
+if(!title||!summary||!author){alert("Fill all fields");return;}
 
-dashboardModal.addEventListener('click',(e)=>{if(e.target===dashboardModal) dashboardModal.style.display='none';});
+push(ref(db,'blogs/'),{
+title,summary,author,
+timestamp:Date.now()
+}).then(()=>{
+document.getElementById('blog-title').value='';
+document.getElementById('blog-summary').value='';
+document.getElementById('blog-author').value='';
+dashboardModal.style.display="none";
+});
+};
+
+logoutBtn.onclick=()=>{
+signOut(auth).then(()=>{
+document.getElementById('add-blog-section').style.display='none';
+document.getElementById('login-section').style.display='block';
+});
+};
 </script>
 
 </body>
