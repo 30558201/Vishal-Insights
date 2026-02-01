@@ -3,28 +3,30 @@
 <head>
 <meta charset="UTF-8">
 <title>Vishal Insights</title>
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 
-<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 
 <style>
 :root{
-  --bg:#f8fafc;
-  --card:rgba(255,255,255,0.65);
-  --text:#0f172a;
-  --muted:#64748b;
-  --accent:#2563eb;
-  --border:rgba(0,0,0,0.08);
-  --glass:blur(18px);
+  --bg: #f8fafc;
+  --card: rgba(255,255,255,0.8);
+  --text: #0f172a;
+  --muted: #64748b;
+  --accent: #2563eb;
+  --border: rgba(0,0,0,0.06);
+  --glass: blur(20px) saturate(180%);
+  --shadow: 0 10px 30px -10px rgba(0,0,0,0.1);
 }
 
 body.dark{
-  --bg:#0f172a;
-  --card:rgba(30,41,59,0.6);
-  --text:#f1f5f9;
-  --muted:#94a3b8;
-  --accent:#3b82f6;
-  --border:rgba(255,255,255,0.08);
+  --bg: #0b1120;
+  --card: rgba(30,41,59,0.7);
+  --text: #f1f5f9;
+  --muted: #94a3b8;
+  --accent: #3b82f6;
+  --border: rgba(255,255,255,0.08);
+  --shadow: 0 10px 30px -10px rgba(0,0,0,0.5);
 }
 
 *{margin:0;padding:0;box-sizing:border-box;font-family:'Outfit',sans-serif;}
@@ -32,11 +34,12 @@ body.dark{
 body{
   background:var(--bg);
   color:var(--text);
-  transition:.4s;
+  transition: background 0.4s ease, color 0.4s ease;
   overflow-x:hidden;
+  -webkit-tap-highlight-color: transparent;
 }
 
-/* ===== SPLASH ===== */
+/* ===== SPLASH SCREEN ===== */
 #splash{
   position:fixed;
   inset:0;
@@ -45,113 +48,153 @@ body{
   align-items:center;
   justify-content:center;
   flex-direction:column;
-  z-index:6000;
+  z-index:9999;
+  transition: opacity 0.5s ease, visibility 0.5s;
+}
+
+body.dark #splash {
+    background: #0b1120;
 }
 
 #splash img{
-  width:130px;
-  animation:zoomLogo 1.2s ease forwards;
+  width:120px;
+  border-radius: 20px;
+  box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+  animation:zoomLogo 1.2s cubic-bezier(0.16, 1, 0.3, 1) forwards;
 }
 
 @keyframes zoomLogo{
-  0%{transform:scale(.7);opacity:0;}
-  100%{transform:scale(1);opacity:1;}
+  0%{transform:scale(0.5);opacity:0; filter: blur(10px);}
+  100%{transform:scale(1);opacity:1; filter: blur(0);}
 }
 
 #welcomeText{
-  margin-top:20px;
-  font-size:18px;
+  margin-top:25px;
+  font-size:20px;
   font-weight:600;
+  background: linear-gradient(135deg, var(--text), var(--muted));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
   opacity:0;
-  animation:fadeWelcome 1s ease forwards;
-  animation-delay:1.2s;
+  animation:fadeWelcome 0.8s ease forwards;
+  animation-delay:0.8s;
 }
 
 @keyframes fadeWelcome{
-  to{opacity:1;}
+  to{opacity:1; transform: translateY(0);}
+  from{opacity:0; transform: translateY(10px);}
 }
 
 /* ===== HEADER ===== */
 .header{
   position:fixed;
   top:0;left:0;right:0;
-  height:75px;
+  height:70px;
   backdrop-filter:var(--glass);
+  -webkit-backdrop-filter:var(--glass);
   background:var(--card);
   border-bottom:1px solid var(--border);
   display:flex;
   align-items:center;
-  padding:0 18px;
+  padding:0 20px;
   z-index:1000;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.03);
 }
 
 .menu-btn{
-  font-size:22px;
+  font-size:24px;
   cursor:pointer;
+  padding: 5px;
 }
 
 .header-logo{
-  margin-left:10px;
+  margin-left:12px;
+  display: flex;
+  align-items: center;
 }
 .header-logo img{
-  width:36px;
+  width:32px;
   border-radius:8px;
 }
 
 .spacer{flex:1;}
 
 .welcome-title{
-  font-weight:600;
-  font-size:16px;
+  font-weight:700;
+  font-size:17px;
+  letter-spacing: -0.5px;
 }
 
 /* ===== CONTENT ===== */
 .content{
-  padding:110px 22px 130px;
+  padding:100px 20px 120px;
+  max-width: 800px;
+  margin: 0 auto;
 }
 
 .section-title{
-  font-size:18px;
-  margin-bottom:15px;
-  font-weight:600;
+  font-size:20px;
+  margin-bottom:20px;
+  font-weight:700;
+  letter-spacing: -0.5px;
+  padding-left: 5px;
 }
 
+/* Cards & Animation */
 .card{
   background:var(--card);
   backdrop-filter:var(--glass);
-  padding:22px;
-  border-radius:22px;
+  -webkit-backdrop-filter:var(--glass);
+  padding:25px;
+  border-radius:24px;
   margin-bottom:25px;
   border:1px solid var(--border);
+  box-shadow: var(--shadow);
+  
+  /* Initial State for Animation */
   opacity:0;
-  transform:translateY(40px);
-  transition:.6s ease;
+  transform:translateY(30px) scale(0.98);
+  transition: all 0.6s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 .card.show{
   opacity:1;
-  transform:translateY(0);
+  transform:translateY(0) scale(1);
 }
 
 .card h3{
-  margin-bottom:8px;
+  margin-bottom:10px;
+  font-size: 18px;
+  display: flex;
+  align-items: center;
 }
 
 .card p{
-  font-size:14px;
+  font-size:15px;
+  line-height: 1.6;
   color:var(--muted);
-  margin-bottom:12px;
+  margin-bottom:15px;
+}
+
+/* Game Card Special Style */
+.card.game-card {
+    border: 1px solid rgba(37, 99, 235, 0.2);
+    background: linear-gradient(145deg, var(--card), rgba(37, 99, 235, 0.05));
 }
 
 .btn{
-  display:inline-block;
-  padding:10px 16px;
-  border-radius:25px;
+  display:inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding:12px 24px;
+  border-radius:30px;
   background:var(--accent);
   color:#fff;
   text-decoration:none;
-  font-size:13px;
+  font-size:14px;
+  font-weight: 500;
   transition:.3s;
+  box-shadow: 0 4px 15px rgba(37, 99, 235, 0.3);
 }
 
 .btn:active{
@@ -160,133 +203,178 @@ body{
 
 /* ===== FOOTER ===== */
 .footer{
-  padding:30px;
+  padding:40px 20px;
   text-align:center;
-  border-top:2px solid var(--accent);
-  background:var(--card);
-  backdrop-filter:var(--glass);
-  font-size:13px;
+  background:var(--bg);
+  font-size:14px;
   color:var(--muted);
+  margin-bottom: 80px;
 }
 
-/* ===== BOTTOM NAV (3 ICONS ONLY) ===== */
+/* ===== BOTTOM NAV ===== */
 .bottom-nav{
   position:fixed;
-  bottom:0;left:0;right:0;
-  height:75px;
+  bottom:20px; 
+  left:50%;
+  transform: translateX(-50%);
+  width: 90%;
+  max-width: 400px;
+  height:70px;
   backdrop-filter:var(--glass);
-  background:var(--card);
-  border-top:1px solid var(--border);
+  -webkit-backdrop-filter:var(--glass);
+  background: rgba(var(--card), 0.9);
+  border:1px solid var(--border);
+  border-radius: 35px;
   display:flex;
-  justify-content:space-around;
+  justify-content:space-evenly;
   align-items:center;
+  z-index: 1000;
+  box-shadow: 0 10px 40px rgba(0,0,0,0.1);
 }
 
 .bottom-nav a{
   text-decoration:none;
   color:var(--muted);
   font-size:11px;
+  font-weight: 500;
   display:flex;
   flex-direction:column;
   align-items:center;
+  transition: 0.3s;
+  position: relative;
+  width: 60px;
+}
+
+.bottom-nav a.active, .bottom-nav a:hover {
+    color: var(--accent);
+    transform: translateY(-2px);
 }
 
 .bottom-nav img{
-  width:26px;
+  width:24px;
+  height: 24px;
   margin-bottom:4px;
+  object-fit: cover;
+  border-radius: 6px;
+}
+
+/* Baba Run Special Icon Style in Nav */
+.game-icon-nav {
+    border: 2px solid transparent;
+}
+.bottom-nav a:hover .game-icon-nav {
+    border-color: var(--accent);
 }
 
 /* ===== DRAWER ===== */
 .overlay{
   position:fixed;
   inset:0;
-  background:rgba(0,0,0,.5);
-  display:none;
+  background:rgba(0,0,0,0.6);
+  backdrop-filter: blur(4px);
+  opacity: 0;
+  visibility: hidden;
+  transition: 0.4s;
   z-index:2000;
 }
 
 .drawer{
   position:fixed;
-  left:-280px;
+  left:-300px;
   top:0;
-  width:270px;
-  height:100%;
-  backdrop-filter:var(--glass);
-  background:var(--card);
-  padding:20px;
-  transition:.4s;
+  bottom: 0;
+  width:280px;
+  background:var(--bg);
+  padding:25px;
+  transition: cubic-bezier(0.4, 0, 0.2, 1) 0.4s;
   z-index:3000;
+  box-shadow: 5px 0 30px rgba(0,0,0,0.1);
 }
 
 .drawer.active{left:0;}
-.overlay.active{display:block;}
+.overlay.active{opacity:1; visibility: visible;}
 
 .drawer-top{
   display:flex;
   justify-content:space-between;
-  margin-bottom:20px;
+  align-items: center;
+  margin-bottom:30px;
+}
+
+.drawer-top h3 {
+    font-size: 22px;
 }
 
 .menu-item{
-  display:block;
-  padding:14px;
-  border-radius:14px;
-  margin-bottom:10px;
-  background:var(--bg);
+  display:flex;
+  align-items: center;
+  padding:16px;
+  border-radius:16px;
+  margin-bottom:8px;
+  background: transparent;
   text-decoration:none;
   color:var(--text);
-  font-size:14px;
+  font-size:15px;
+  font-weight: 500;
   transition:.3s;
+  border: 1px solid transparent;
 }
 
 .menu-item:hover{
-  background:var(--accent);
-  color:#fff;
+  background:var(--card);
+  border-color: var(--border);
+  transform: translateX(5px);
+  color: var(--accent);
 }
 
+/* Badges */
 .new-badge{
-  background:#22c55e;
+  background:#10b981;
   color:#fff;
-  font-size:9px;
-  padding:2px 6px;
-  border-radius:6px;
-  margin-left:6px;
-  animation:blink 1s infinite;
+  font-size:10px;
+  font-weight: 700;
+  padding:3px 8px;
+  border-radius:20px;
+  margin-left:auto;
+  box-shadow: 0 2px 10px rgba(16, 185, 129, 0.4);
+  animation:pulseBadge 2s infinite;
 }
 
-@keyframes blink{50%{opacity:.5}}
+@keyframes pulseBadge{
+    0%{box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.7);}
+    70%{box-shadow: 0 0 0 6px rgba(16, 185, 129, 0);}
+    100%{box-shadow: 0 0 0 0 rgba(16, 185, 129, 0);}
+}
 
 .theme-toggle{
-  margin-top:15px;
-  padding:12px;
+  margin-top:30px;
+  padding:16px;
   border-radius:20px;
-  background:var(--bg);
+  background:var(--card);
+  border: 1px solid var(--border);
   cursor:pointer;
   display:flex;
   justify-content:space-between;
   align-items:center;
+  font-weight: 500;
 }
 
-.theme-toggle span{
-  font-size:18px;
-  color:#facc15;
-}
 </style>
 </head>
 
 <body>
 
-<!-- SPLASH -->
 <div id="splash">
-<img src="https://lh3.googleusercontent.com/pw/AP1GczP1FxDyqLI0EVbXpZEhgt9c9LvyJMaTUX4jySqgZ9FUGW0Zzzu8h4yf1y2XpVsmFGpOMMDgNbDF5MtnNfHQbh51Hq1V7kJLmQIJGnxFyi2ospz1ufeepCbpJ_63zAllNYgjQmOZxVhYwuQ9JVlZET86=w865-h900-s-no-gm">
+<img src="https://lh3.googleusercontent.com/pw/AP1GczP1FxDyqLI0EVbXpZEhgt9c9LvyJMaTUX4jySqgZ9FUGW0Zzzu8h4yf1y2XpVsmFGpOMMDgNbDF5MtnNfHQbh51Hq1V7kJLmQIJGnxFyi2ospz1ufeepCbpJ_63zAllNYgjQmOZxVhYwuQ9JVlZET86=w865-h900-s-no-gm" alt="Logo">
 <div id="welcomeText">Welcome to Vishal Insights</div>
 </div>
 
-<!-- HEADER -->
 <div class="header">
-<div class="menu-btn" onclick="openDrawer()">☰</div>
+<div class="menu-btn" onclick="openDrawer()">
+    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="12" x2="21" y2="12"></line><line x1="3" y1="6" x2="21" y2="6"></line><line x1="3" y1="18" x2="21" y2="18"></line></svg>
+</div>
 <div class="header-logo">
-<img src="https://lh3.googleusercontent.com/pw/AP1GczP1FxDyqLI0EVbXpZEhgt9c9LvyJMaTUX4jySqgZ9FUGW0Zzzu8h4yf1y2XpVsmFGpOMMDgNbDF5MtnNfHQbh51Hq1V7kJLmQIJGnxFyi2ospz1ufeepCbpJ_63zAllNYgjQmOZxVhYwuQ9JVlZET86=w865-h900-s-no-gm">
+<img src="https://lh3.googleusercontent.com/pw/AP1GczP1FxDyqLI0EVbXpZEhgt9c9LvyJMaTUX4jySqgZ9FUGW0Zzzu8h4yf1y2XpVsmFGpOMMDgNbDF5MtnNfHQbh51Hq1V7kJLmQIJGnxFyi2ospz1ufeepCbpJ_63zAllNYgjQmOZxVhYwuQ9JVlZET86=w865-h900-s-no-gm" alt="Logo">
 </div>
 <div class="spacer"></div>
 <div class="welcome-title">Vishal Insights</div>
@@ -294,39 +382,34 @@ body{
 
 <div class="content">
 
-<div class="section-title">About Our App</div>
-<div class="card">
+<div class="section-title">Overview</div>
+
+<div class="card show-on-load">
 <p>Vishal Insights is a modern knowledge platform created to share ideas, learning, and innovation in a structured and professional way. Our goal is to combine education, media, and artificial intelligence into one simple and powerful digital space.
-The platform includes Insights TV, where original documentaries and educational videos are published and managed directly by Vishal Surya. It is designed to provide focused, meaningful content similar to a professional streaming experience.
-We also introduce Vimaan AI, an intelligent AI system built to assist, guide, and enhance the learning experience in a smart and practical way.
-The Blogs section is a space for thoughtful articles, insights, and personal perspectives on education, growth, and ideas that matter.
-An organized About section allows visitors to understand the vision, mission, and purpose behind the platform.
-Vishal Insights is built with a clean interface and dark mode support to ensure a smooth and comfortable user experience.
-Several new features are currently under development and will be introduced soon, including a dedicated Educational Page and additional tools designed to expand the learning experience.</p>
+The platform includes Insights TV, where original documentaries and educational videos are published and managed directly by Vishal Surya.</p>
 </div>
 
-<div class="card">
-<h3>Insights TV <span class="new-badge">NEW</span></h3>
-<p>Insights TV is the official video platform of Vishal Insights. It is a dedicated space where original documentaries, educational videos, and knowledge-based content are published and managed directly by Vishal Surya.
-The platform is designed to deliver meaningful and focused content in a structured format, similar to a professional streaming experience. Every video is created with clarity, purpose, and value in mind.
-Insights TV aims to inform, educate, and inspire viewers through well-researched and thoughtfully presented content. It represents quality, originality, and a commitment to continuous learning.</p>
-<a href="insightstv.html" class="btn">Explore</a>
+<div class="card game-card show-on-load">
+<h3>Baba Run <span class="new-badge">NEW GAME</span></h3>
+<p>Experience the thrill! Play the all-new Baba Run game. Jump, dodge, and score high in this exciting adventure integrated directly into Vishal Insights.</p>
+<a href="game.html" class="btn">Play Now</a>
+</div>
+
+<div class="card show-on-load">
+<h3>Insights TV</h3>
+<p>Insights TV is the official video platform of Vishal Insights. It is a dedicated space where original documentaries, educational videos, and knowledge-based content are published.</p>
+<a href="insightstv.html" class="btn">Watch</a>
 </div>
 
 <div class="card">
 <h3>VIMAAN AI</h3>
-<p>Vimaan AI is an intelligent digital assistant built to support learning and clear understanding. It helps users explore topics, answer questions, and gain knowledge in a simple and structured way.
-Designed with a focus on clarity and smart thinking, Vimaan AI aims to make learning faster, easier, and more interactive. It is a growing system that continues to improve and expand its capabilities over time.
-Vimaan AI represents innovation, intelligence, and practical support within the Vishal Insights platform.</p>
+<p>Vimaan AI is an intelligent digital assistant built to support learning and clear understanding. It helps users explore topics, answer questions, and gain knowledge in a simple way.</p>
 <a href="vimaan.html" class="btn">Launch</a>
 </div>
 
 <div class="card">
 <h3>Blogs</h3>
-<p>The Blogs section of Vishal Insights is a space for thoughtful ideas, articles, and meaningful discussions. Here, Vishal shares perspectives on education, growth, innovation, and topics that inspire learning and critical thinking.
-This section is created to encourage knowledge sharing and deeper understanding through well-structured and clear writing.
-Readers are also welcome to share their thoughts and ideas. You can submit your views or articles by emailing us at vishalsurya2025@gmail.com. Selected contributions may be reviewed and considered for publication.
-The Blogs section reflects our commitment to open thinking, creativity, and continuous learning.</p>
+<p>The Blogs section is a space for thoughtful ideas, articles, and meaningful discussions. Here, Vishal shares perspectives on education, growth, and innovation.</p>
 <a href="blogs.html" class="btn">Read</a>
 </div>
 
@@ -338,19 +421,19 @@ Email: vishalsurya2025@gmail.com
 </div>
 
 <div class="bottom-nav">
-<a href="index.html">
-<img src="https://cdn-icons-png.flaticon.com/512/61/61972.png">
+<a href="index.html" class="active">
+<img src="https://cdn-icons-png.flaticon.com/512/1946/1946488.png" alt="Home">
 Home
 </a>
 
 <a href="insightstv.html">
-<img src="https://img.icons8.com/?size=100&id=9975&format=png&color=000000">
+<img src="https://cdn-icons-png.flaticon.com/512/3163/3163478.png" alt="TV">
 TV
 </a>
 
-<a href="vimaan.html">
-<img src="https://lh3.googleusercontent.com/pw/AP1GczOv56q0tWolEw8CDstNR9chnanuQV06fhlFHcQ_mci0KSvcB2UeVtAWcuWiBPsC01cvHOf5BIVH6kDKEYZqKpbzQKcXabDudNkUEv6lxMVk8b5RqQoCIqCR0Ridwlsl04GkhAkbsFgY8FY0TZ1CE4Z2=w900-h900-s-no-gm">
-AI
+<a href="game.html">
+<img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcT2iNWKM1BX4RUCWnJIMAPK341AJ23l5ih1cQ&s" class="game-icon-nav" alt="Game">
+Baba Run
 </a>
 </div>
 
@@ -359,12 +442,17 @@ AI
 <div class="drawer" id="drawer">
 <div class="drawer-top">
 <h3>Menu</h3>
-<span onclick="closeDrawer()" style="cursor:pointer;">✕</span>
+<span onclick="closeDrawer()" style="cursor:pointer; font-size: 24px;">&times;</span>
 </div>
 
 <a href="index.html" class="menu-item">Home</a>
+
+<a href="game.html" class="menu-item" style="background: rgba(16, 185, 129, 0.1); border: 1px solid rgba(16, 185, 129, 0.2);">
+    Baba Run <span class="new-badge">NEW</span>
+</a>
+
 <a href="about.html" class="menu-item">About</a>
-<a href="insightstv.html" class="menu-item">Insights TV <span class="new-badge">NEW</span></a>
+<a href="insightstv.html" class="menu-item">Insights TV</a>
 <a href="vimaan.html" class="menu-item">VIMAAN AI</a>
 <a href="blogs.html" class="menu-item">Blogs</a>
 <a href="feedback.html" class="menu-item">Feedback</a>
@@ -376,30 +464,70 @@ Dark Mode <span>🌙</span>
 </div>
 
 <script>
-setTimeout(()=>{document.getElementById('splash').style.display='none';},3000);
+// Logic to hide splash screen and trigger animations
+window.addEventListener('load', () => {
+    setTimeout(() => {
+        const splash = document.getElementById('splash');
+        splash.style.opacity = '0';
+        splash.style.visibility = 'hidden';
+        
+        // Trigger initial animations immediately after splash
+        revealContent();
+    }, 3000);
+});
 
+// Drawer Functions
 function openDrawer(){
-document.getElementById("drawer").classList.add("active");
-document.querySelector(".overlay").classList.add("active");
-navigator.vibrate?.(40);
+    document.getElementById("drawer").classList.add("active");
+    document.querySelector(".overlay").classList.add("active");
+    if(navigator.vibrate) navigator.vibrate(30);
 }
 function closeDrawer(){
-document.getElementById("drawer").classList.remove("active");
-document.querySelector(".overlay").classList.remove("active");
-}
-function toggleTheme(){
-document.body.classList.toggle("dark");
+    document.getElementById("drawer").classList.remove("active");
+    document.querySelector(".overlay").classList.remove("active");
 }
 
-/* Scroll reveal */
-const cards=document.querySelectorAll('.card');
-window.addEventListener('scroll',()=>{
-cards.forEach(card=>{
-if(card.getBoundingClientRect().top<window.innerHeight-50){
-card.classList.add('show');
+// Dark Mode Toggle
+function toggleTheme(){
+    document.body.classList.toggle("dark");
+    // Optional: Save preference
+    localStorage.setItem('theme', document.body.classList.contains('dark') ? 'dark' : 'light');
 }
-});
-});
+
+// Check saved theme
+if(localStorage.getItem('theme') === 'dark'){
+    document.body.classList.add('dark');
+}
+
+// Professional Scroll Reveal (Intersection Observer)
+// This fixes the issue of content not showing until scroll
+const observerOptions = {
+    threshold: 0.1,
+    rootMargin: "0px 0px -50px 0px"
+};
+
+const observer = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+        if (entry.isIntersecting) {
+            entry.target.classList.add('show');
+            observer.unobserve(entry.target); // Only animate once
+        }
+    });
+}, observerOptions);
+
+function revealContent() {
+    const cards = document.querySelectorAll('.card');
+    cards.forEach((card, index) => {
+        // If it's one of the top cards, show immediately with staggered delay
+        if (index < 3) {
+            setTimeout(() => {
+                card.classList.add('show');
+            }, index * 150); // Stagger effect
+        }
+        // Observe all cards for scroll effects
+        observer.observe(card);
+    });
+}
 </script>
 
 </body>
