@@ -49,7 +49,7 @@ body{
   justify-content:center;
   flex-direction:column;
   z-index:9999;
-  transition: opacity 0.8s ease, visibility 0.8s;
+  transition: opacity 0.5s ease, visibility 0.5s;
 }
 body.dark #splash { background: #0b1120; }
 
@@ -74,46 +74,6 @@ body.dark #splash { background: #0b1120; }
   animation:fadeWelcome 0.8s ease forwards 0.5s;
 }
 @keyframes fadeWelcome{ to{opacity:1; transform: translateY(0);} from{opacity:0; transform: translateY(10px);} }
-
-/* ===== VIDEO INTRO OVERLAY ===== */
-#videoIntro {
-    position: fixed;
-    inset: 0;
-    background: #000;
-    z-index: 9000; /* Lower than splash (9999) but higher than content */
-    display: none;
-    opacity: 0;
-    transition: opacity 0.8s ease;
-    align-items: center;
-    justify-content: center;
-}
-
-#videoIntro video {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-}
-
-.close-video-btn {
-    position: absolute;
-    top: 25px;
-    right: 25px;
-    width: 40px;
-    height: 40px;
-    background: rgba(0, 0, 0, 0.5);
-    backdrop-filter: blur(10px);
-    border: 1px solid rgba(255, 255, 255, 0.2);
-    border-radius: 50%;
-    color: white;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 20px;
-    cursor: pointer;
-    z-index: 9001;
-    transition: transform 0.2s;
-}
-.close-video-btn:active { transform: scale(0.9); }
 
 /* ===== HEADER ===== */
 .header{
@@ -146,13 +106,10 @@ body.dark .header { background: rgba(30, 41, 59, 0.8); }
 
 /* ===== CONTENT ===== */
 .content{
-  padding: 90px 20px 140px;
+  padding: 90px 20px 140px; /* Extra bottom padding for mobile scroll */
   max-width: 700px;
   margin: 0 auto;
-  opacity: 0; /* Hidden initially */
-  transition: opacity 1s ease;
 }
-.content.show-content { opacity: 1; }
 
 .section-title{
   font-size:14px;
@@ -173,85 +130,187 @@ body.dark .header { background: rgba(30, 41, 59, 0.8); }
   box-shadow: var(--shadow);
   position: relative;
   overflow: hidden;
+  
+  /* Animation Setup */
   opacity: 0;
   transform: translateY(20px);
   transition: opacity 0.6s ease, transform 0.6s ease;
 }
 
-.card.visible { opacity: 1; transform: translateY(0); }
+/* Visible State */
+.card.visible {
+  opacity: 1;
+  transform: translateY(0);
+}
 
-.card h3{ margin-bottom:8px; font-size: 19px; display: flex; align-items: center; justify-content: space-between; }
-.card p{ font-size:15px; line-height: 1.6; color:var(--muted); margin-bottom:15px; }
+.card h3{
+  margin-bottom:8px;
+  font-size: 19px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
 
+.card p{
+  font-size:15px;
+  line-height: 1.6;
+  color:var(--muted);
+  margin-bottom:15px;
+}
+
+/* GAME CARD SPECIAL */
 .card.game-card {
   border: 1px solid rgba(37, 99, 235, 0.3);
   background: linear-gradient(145deg, var(--card) 0%, rgba(37, 99, 235, 0.08) 100%);
 }
 
 .btn{
-  display:inline-flex; align-items: center; justify-content: center;
-  height: 40px; padding: 0 24px; border-radius:20px;
-  background:var(--accent); color:#fff; text-decoration:none;
-  font-size:14px; font-weight: 600; box-shadow: 0 4px 12px rgba(37, 99, 235, 0.25);
+  display:inline-flex;
+  align-items: center;
+  justify-content: center;
+  height: 40px;
+  padding: 0 24px;
+  border-radius:20px;
+  background:var(--accent);
+  color:#fff;
+  text-decoration:none;
+  font-size:14px;
+  font-weight: 600;
+  box-shadow: 0 4px 12px rgba(37, 99, 235, 0.25);
   transition: 0.2s;
 }
 .btn:active{ transform:scale(0.96); }
 
 /* ===== BOTTOM NAVIGATION ===== */
 .bottom-nav{
-  position:fixed; bottom:0; left:0; right:0; height:80px;
-  background: var(--card); border-top:1px solid var(--border);
-  display:flex; justify-content:space-around; align-items:center;
-  z-index: 1000; padding-bottom: 10px; box-shadow: 0 -5px 20px rgba(0,0,0,0.05);
+  position:fixed;
+  bottom:0; left:0; right:0;
+  height:80px;
+  background: var(--card);
+  border-top:1px solid var(--border);
+  display:flex;
+  justify-content:space-around;
+  align-items:center;
+  z-index: 1000;
+  padding-bottom: 10px; /* Safe area for modern phones */
+  box-shadow: 0 -5px 20px rgba(0,0,0,0.05);
 }
 
 .bottom-nav a{
-  text-decoration:none; color:var(--muted); font-size:12px; font-weight: 500;
-  display:flex; flex-direction:column; align-items:center; justify-content: center;
-  width: 33%; transition: 0.3s;
+  text-decoration:none;
+  color:var(--muted);
+  font-size:12px;
+  font-weight: 500;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  justify-content: center;
+  width: 33%;
+  transition: 0.3s;
 }
-.bottom-nav a.active { color: var(--accent); }
-.bottom-nav img { width: 24px; height: 24px; margin-bottom: 6px; transition: 0.3s; object-fit: contain; }
 
-.baba-icon { width: 42px !important; height: 42px !important; margin-bottom: 2px !important; border-radius: 8px; border: 2px solid transparent; }
-.bottom-nav a.game-link { color: var(--accent); font-weight: 700; }
+.bottom-nav a.active { color: var(--accent); }
+
+.bottom-nav img {
+  width: 24px;
+  height: 24px;
+  margin-bottom: 6px;
+  transition: 0.3s;
+  object-fit: contain;
+}
+
+/* BABA RUN SPECIAL ICON FIX */
+.baba-icon {
+  width: 42px !important;  /* Increased Size */
+  height: 42px !important; /* Increased Size */
+  margin-bottom: 2px !important;
+  border-radius: 8px;
+  border: 2px solid transparent;
+}
+.bottom-nav a.game-link {
+    color: var(--accent);
+    font-weight: 700;
+}
 
 /* ===== DRAWER MENU ===== */
 .overlay{
-  position:fixed; inset:0; background:rgba(0,0,0,0.6); opacity: 0;
-  visibility: hidden; transition: 0.3s; z-index:2000; backdrop-filter: blur(4px);
+  position:fixed;
+  inset:0;
+  background:rgba(0,0,0,0.6);
+  opacity: 0;
+  visibility: hidden;
+  transition: 0.3s;
+  z-index:2000;
+  backdrop-filter: blur(4px);
 }
 
 .drawer{
-  position:fixed; left:-100%; top:0; bottom: 0; width:80%; max-width: 300px;
-  background:var(--bg); padding:25px; transition: 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-  z-index:3000; box-shadow: 5px 0 30px rgba(0,0,0,0.2);
+  position:fixed;
+  left:-100%;
+  top:0; bottom: 0;
+  width:80%;
+  max-width: 300px;
+  background:var(--bg);
+  padding:25px;
+  transition: 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  z-index:3000;
+  box-shadow: 5px 0 30px rgba(0,0,0,0.2);
 }
+
 .drawer.active{left:0;}
 .overlay.active{opacity:1; visibility: visible;}
 
-.drawer-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px; }
+.drawer-header {
+    display: flex; justify-content: space-between; align-items: center;
+    margin-bottom: 30px;
+}
 .drawer-header h3 { font-size: 24px; }
 
 .menu-item{
-  display:flex; align-items: center; padding:15px; border-radius:12px;
-  margin-bottom:8px; text-decoration:none; color:var(--text);
-  font-size:16px; font-weight: 500; transition: 0.2s;
+  display:flex; align-items: center;
+  padding:15px;
+  border-radius:12px;
+  margin-bottom:8px;
+  text-decoration:none;
+  color:var(--text);
+  font-size:16px;
+  font-weight: 500;
+  transition: 0.2s;
 }
-.menu-item:hover, .menu-item.highlight { background: var(--card); color: var(--accent); }
+.menu-item:hover, .menu-item.highlight {
+  background: var(--card);
+  color: var(--accent);
+}
 
 .new-badge{
-  background:#10b981; color:#fff; font-size:10px; font-weight: 700;
-  padding:4px 8px; border-radius:6px; margin-left:auto; box-shadow: 0 0 10px rgba(16, 185, 129, 0.4);
+  background:#10b981;
+  color:#fff;
+  font-size:10px;
+  font-weight: 700;
+  padding:4px 8px;
+  border-radius:6px;
+  margin-left:auto;
+  box-shadow: 0 0 10px rgba(16, 185, 129, 0.4);
 }
 
 .theme-toggle{
-  margin-top:30px; padding:15px; border-radius:15px; background:var(--card);
-  border: 1px solid var(--border); display:flex; justify-content:space-between;
-  align-items:center; font-weight: 600; cursor: pointer;
+  margin-top:30px;
+  padding:15px;
+  border-radius:15px;
+  background:var(--card);
+  border: 1px solid var(--border);
+  display:flex; justify-content:space-between; align-items:center;
+  font-weight: 600; cursor: pointer;
 }
 
-.footer { text-align: center; font-size: 13px; color: var(--muted); padding: 20px; margin-top: 20px; }
+/* Footer */
+.footer {
+    text-align: center;
+    font-size: 13px;
+    color: var(--muted);
+    padding: 20px;
+    margin-top: 20px;
+}
 
 </style>
 </head>
@@ -261,12 +320,6 @@ body.dark .header { background: rgba(30, 41, 59, 0.8); }
 <div id="splash">
 <img src="https://lh3.googleusercontent.com/pw/AP1GczP1FxDyqLI0EVbXpZEhgt9c9LvyJMaTUX4jySqgZ9FUGW0Zzzu8h4yf1y2XpVsmFGpOMMDgNbDF5MtnNfHQbh51Hq1V7kJLmQIJGnxFyi2ospz1ufeepCbpJ_63zAllNYgjQmOZxVhYwuQ9JVlZET86=w865-h900-s-no-gm" alt="Logo">
 <div id="welcomeText">Vishal Insights</div>
-</div>
-
-<div id="videoIntro">
-    <div class="close-video-btn" onclick="endVideo()">✕</div>
-    <video id="introVid" playsinline muted>
-        </video>
 </div>
 
 <div class="header">
@@ -280,7 +333,7 @@ body.dark .header { background: rgba(30, 41, 59, 0.8); }
     <div class="welcome-title">Vishal Insights</div>
 </div>
 
-<div class="content" id="mainContent">
+<div class="content">
 
     <div class="section-title">Latest Updates</div>
 
@@ -314,7 +367,7 @@ body.dark .header { background: rgba(30, 41, 59, 0.8); }
     </div>
 
     <div class="footer">
-        © 2025 Vishal Insights<br>
+        &copy; 2025 Vishal Insights<br>
         vishalsurya2025@gmail.com
     </div>
 
@@ -341,7 +394,7 @@ body.dark .header { background: rgba(30, 41, 59, 0.8); }
 <div class="drawer" id="drawer">
     <div class="drawer-header">
         <h3>Menu</h3>
-        <span onclick="closeDrawer()" style="cursor:pointer; font-size: 28px;">×</span>
+        <span onclick="closeDrawer()" style="cursor:pointer; font-size: 28px;">&times;</span>
     </div>
 
     <a href="index.html" class="menu-item">Home</a>
@@ -358,64 +411,18 @@ body.dark .header { background: rgba(30, 41, 59, 0.8); }
 </div>
 
 <script>
-    // --- PROFESSIONAL INTRO SEQUENCE ---
+    // Splash Screen Logic
     window.addEventListener('load', () => {
-        // Step 1: Wait for Splash (2.5s)
         setTimeout(() => {
-            const splash = document.getElementById('splash');
-            const videoLayer = document.getElementById('videoIntro');
-            const video = document.getElementById('introVid');
-
-            // Google Drive Direct Link Logic
-            // ID extracted from: https://drive.google.com/file/d/1lpmGEu0HeTMN6Q0LVT8sK3Ate5hC11O5/view?usp=drivesdk
-            const videoId = "1lpmGEu0HeTMN6Q0LVT8sK3Ate5hC11O5";
-            video.src = `https://drive.google.com/uc?export=download&id=${videoId}`;
+            document.getElementById('splash').style.opacity = '0';
+            document.getElementById('splash').style.visibility = 'hidden';
             
-            // Step 2: Fade Out Splash, Fade In Video
-            splash.style.opacity = '0';
-            setTimeout(() => {
-                splash.style.visibility = 'hidden';
-                videoLayer.style.display = 'flex';
-                
-                // Small delay to ensure display:flex is applied before opacity transition
-                setTimeout(() => {
-                    videoLayer.style.opacity = '1';
-                    
-                    // Step 3: Play Video
-                    // Note: 'muted' is required for auto-play on mobile browsers
-                    video.play().catch(error => {
-                        console.log("Auto-play prevented by browser, skipping to content.");
-                        endVideo(); // Fallback if autoplay fails
-                    });
-                }, 50);
-            }, 500);
-
-            // Step 4: Auto End when video finishes
-            video.onended = function() {
-                endVideo();
-            };
-
+            // Trigger Animation for Cards
+            revealCards();
         }, 2500);
     });
 
-    function endVideo() {
-        const videoLayer = document.getElementById('videoIntro');
-        const video = document.getElementById('introVid');
-        const mainContent = document.getElementById('mainContent');
-
-        // Fade out Video
-        videoLayer.style.opacity = '0';
-        video.pause();
-
-        setTimeout(() => {
-            videoLayer.style.display = 'none';
-            // Reveal Main Content smoothly
-            mainContent.classList.add('show-content');
-            revealCards();
-        }, 800);
-    }
-
-    // --- EXISTING LOGIC ---
+    // Drawer Logic
     function openDrawer(){
         document.getElementById("drawer").classList.add("active");
         document.querySelector(".overlay").classList.add("active");
@@ -426,23 +433,26 @@ body.dark .header { background: rgba(30, 41, 59, 0.8); }
         document.querySelector(".overlay").classList.remove("active");
     }
 
+    // Theme Logic
     function toggleTheme(){
         document.body.classList.toggle("dark");
         localStorage.setItem('theme', document.body.classList.contains('dark') ? 'dark' : 'light');
     }
     if(localStorage.getItem('theme') === 'dark') document.body.classList.add('dark');
 
-    // Reveal Cards with Stagger Effect
+    // Force Reveal All Content (Mobile First Fix)
+    // Instead of waiting for scroll, we reveal all content shortly after load
+    // This ensures nothing stays hidden on mobile.
     function revealCards() {
         const cards = document.querySelectorAll('.card');
         cards.forEach((card, index) => {
             setTimeout(() => {
                 card.classList.add('visible');
-            }, index * 100); 
+            }, index * 100); // Cascade effect
         });
     }
 
-    // Scroll Observer
+    // Backup: Intersection Observer just in case
     const observer = new IntersectionObserver((entries) => {
         entries.forEach(entry => {
             if(entry.isIntersecting) entry.target.classList.add('visible');
