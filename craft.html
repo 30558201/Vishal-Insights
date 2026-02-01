@@ -1,0 +1,218 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <title>Baba Craft</title>
+    
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <meta name="theme-color" content="#ffffff">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="description" content="Baba Craft - Professional Mobile Sandbox">
+
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
+    
+    <style>
+        /* --- 1. MINIMALIST PROFESSIONAL THEME --- */
+        :root {
+            --text-dark: #111111;
+            --text-grey: #666666;
+            --bg-white: #ffffff;
+            --accent: #000000;
+        }
+
+        body, html { 
+            margin: 0; padding: 0; width: 100%; height: 100%; 
+            background: #000; /* Black background behind canvas */
+            font-family: 'Inter', sans-serif; 
+            overflow: hidden; 
+            user-select: none; 
+        }
+
+        /* --- 2. LANDSCAPE ENFORCER (Highest Priority) --- */
+        #rotate-lock {
+            display: none; /* Hidden by default */
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: #000000; 
+            z-index: 999999; /* Above Everything */
+            color: #fff; 
+            flex-direction: column; justify-content: center; align-items: center;
+            text-align: center;
+        }
+
+        .rotate-icon {
+            font-size: 40px; margin-bottom: 20px;
+            animation: rotatePhone 2s infinite ease-in-out;
+        }
+
+        .rotate-text {
+            font-size: 14px; font-weight: 600; letter-spacing: 1px; text-transform: uppercase;
+        }
+
+        /* Show only on Portrait Mobile */
+        @media screen and (max-width: 900px) and (orientation: portrait) { 
+            #rotate-lock { display: flex; } 
+        }
+
+        @keyframes rotatePhone { 
+            0%, 100% { transform: rotate(0deg); } 
+            50% { transform: rotate(-90deg); } 
+        }
+
+        /* --- 3. SPLASH SCREEN (Clean & Simple) --- */
+        #splash-screen {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: var(--bg-white); 
+            z-index: 10000; /* Below Rotate Lock, Above Game */
+            display: flex; flex-direction: column; justify-content: center; align-items: center;
+            transition: opacity 0.5s ease;
+        }
+
+        .splash-logo {
+            width: 80px; height: 80px; 
+            border-radius: 18px; /* App Icon Shape */
+            margin-bottom: 25px;
+            box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+            object-fit: cover;
+        }
+
+        .splash-title {
+            font-size: 24px; font-weight: 800; color: var(--text-dark);
+            letter-spacing: -0.5px; margin-bottom: 10px;
+        }
+
+        /* The Loading Line */
+        .progress-container {
+            width: 150px; height: 3px; background: #f0f0f0; 
+            border-radius: 2px; overflow: hidden; margin-top: 20px;
+        }
+
+        .progress-bar {
+            width: 0%; height: 100%; background: #000;
+            animation: fillBar 5s linear forwards; /* Exact 5 Seconds */
+        }
+
+        /* Developer Footer - SIMPLE & CLEAN */
+        .dev-footer {
+            position: absolute; bottom: 40px; text-align: center; width: 100%;
+        }
+        
+        .dev-by {
+            font-size: 10px; color: var(--text-grey); 
+            text-transform: uppercase; letter-spacing: 1.5px; margin-bottom: 4px;
+        }
+        
+        .dev-name {
+            font-size: 14px; color: var(--text-dark); 
+            font-weight: 700; text-transform: uppercase; letter-spacing: 1px;
+        }
+
+        @keyframes fillBar { 0% { width: 0%; } 100% { width: 100%; } }
+
+        /* --- 4. GAME & HUD --- */
+        #game-container { 
+            width: 100vw; height: 100vh; 
+            display: flex; justify-content: center; align-items: center; 
+            background: #87CEEB; 
+        }
+        canvas { display: block; width: 100%; height: 100%; }
+
+        /* Back Button - Minimalist Pill */
+        .home-btn {
+            position: absolute; top: 20px; left: 20px; z-index: 100;
+            background: rgba(255, 255, 255, 0.9); 
+            padding: 10px 20px; border-radius: 30px;
+            text-decoration: none; display: flex; align-items: center; gap: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+            font-weight: 600; color: #000; font-size: 13px;
+            border: 1px solid rgba(0,0,0,0.05);
+            transition: transform 0.1s;
+        }
+        .home-btn:active { transform: scale(0.95); }
+
+    </style>
+</head>
+<body>
+
+    <div id="rotate-lock">
+        <div class="rotate-icon">📱</div>
+        <div class="rotate-text">Please Rotate Device</div>
+    </div>
+
+    <div id="splash-screen">
+        <img src="https://lh3.googleusercontent.com/pw/AP1GczO7Otqwmz752LMYwNw1n1HayKE97IDf3M8axbMhuJkBoODtD9-8Hy4EclSRegkaOhlg46LyxvykqmW2brLYrP5bjSfVcL0h7Uk9mPRZgHn49MIq00Hng-i5KsU-sLT2I0pI5OxzjUwxRVqnJ_KL1RwL=w714-h692-s-no-gm" 
+             referrerpolicy="no-referrer"
+             onerror="this.src='https://via.placeholder.com/80/000000/FFFFFF?text=B'" 
+             class="splash-logo">
+        
+        <div class="splash-title">BABA CRAFT</div>
+        
+        <div class="progress-container">
+            <div class="progress-bar"></div>
+        </div>
+
+        <div class="dev-footer">
+            <div class="dev-by">Developed By</div>
+            <div class="dev-name">Vishal Surya</div>
+        </div>
+    </div>
+
+    <a href="https://30558201.github.io/Vishal-Insights/index.html" class="home-btn">
+        <span>←</span> HOME
+    </a>
+
+    <div id="game-container">
+        <canvas class="emscripten" id="canvas" oncontextmenu="event.preventDefault()" tabindex="-1"></canvas>
+    </div>
+
+    <script type='text/javascript'>
+        
+        // --- TIMER LOGIC (Strict 5 Seconds) ---
+        (function() {
+            setTimeout(function() {
+                var splash = document.getElementById('splash-screen');
+                splash.style.opacity = '0';
+                setTimeout(function() { 
+                    splash.style.display = 'none'; 
+                }, 500); // Fade out duration
+            }, 5000); 
+        })();
+
+        // --- GAME ENGINE SETUP ---
+        function resizeGameCanvas() {
+            var cc_canv = document.getElementById('canvas');
+            if (!cc_canv) return;
+            var dpi = window.devicePixelRatio || 1;
+            cc_canv.style.width = window.innerWidth + 'px';
+            cc_canv.style.height = window.innerHeight + 'px';
+            cc_canv.width = window.innerWidth * dpi;
+            cc_canv.height = window.innerHeight * dpi;
+        }
+
+        // Database Handling
+        var idb = window.indexedDB || window.mozIndexedDB || window.webkitIndexedDB || window.msIndexedDB;
+        if (!idb) { window.mozIndexedDB = {}; }
+        function preloadIndexedDB() { if (typeof _interop_LoadIndexedDB === 'function') _interop_LoadIndexedDB(); }
+
+        window.addEventListener('resize', resizeGameCanvas);
+        
+        // Module Definition
+        var Module = {
+            preRun: [ preloadIndexedDB, resizeGameCanvas ],
+            postRun: [],
+            arguments: ['Singleplayer'],
+            print: function(text) { console.log(text); },
+            printErr: function(text) { console.error(text); },
+            canvas: document.getElementById('canvas'),
+            setStatus: function(text) { console.log(text); }, // Silent mode for UI
+            totalDependencies: 0,
+            monitorRunDependencies: function(left) { }
+        };
+
+        // Suppress Errors visually
+        window.onerror = function() { return false; };
+    </script>
+
+    <script async crossorigin type="text/javascript" src="https://cdn.classicube.net/client/latest/ClassiCube.js"></script>
+
+</body>
+</html>
