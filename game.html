@@ -1,0 +1,505 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Vishal Surya: Baba Run Ultimate</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@700&family=Orbitron:wght@600&display=swap');
+
+        * { margin: 0; padding: 0; box-sizing: border-box; touch-action: none; user-select: none; -webkit-user-select: none; }
+        
+        body { 
+            background-color: #02050a; 
+            overflow: hidden; 
+            font-family: 'Orbitron', sans-serif;
+        }
+
+        canvas { display: block; width: 100vw; height: 100vh; }
+
+        /* --- UI OVERLAY --- */
+        .screen {
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            display: flex; flex-direction: column; 
+            justify-content: center; align-items: center;
+            background: rgba(2, 6, 18, 0.95);
+            z-index: 100; transition: opacity 0.3s;
+        }
+
+        h1 {
+            font-family: 'Cinzel', serif; font-size: clamp(2rem, 7vw, 4.5rem); 
+            color: #FFD700; text-shadow: 0 0 25px #FF4500;
+            margin-bottom: 10px; text-align: center; letter-spacing: 2px;
+        }
+
+        p { color: #00ffff; font-size: clamp(0.9rem, 3.5vw, 1.2rem); margin-bottom: 25px; text-align: center; letter-spacing: 1px; }
+
+        /* --- BUTTONS --- */
+        .btn-container {
+            display: flex; flex-direction: column; gap: 15px; align-items: center; width: 100%;
+        }
+
+        .btn-play {
+            background: linear-gradient(90deg, #FFD700, #ff8c00);
+            border: 2px solid #FFD700; padding: 15px 50px; 
+            font-size: 1.3rem; font-weight: bold; color: #000;
+            border-radius: 50px; cursor: pointer; width: 260px;
+            box-shadow: 0 0 25px rgba(255, 215, 0, 0.4);
+            font-family: 'Cinzel', serif; text-transform: uppercase;
+            animation: pulse 1.5s infinite; transition: transform 0.2s;
+        }
+        .btn-play:active { transform: scale(0.95); }
+
+        /* HOME BUTTON RESTORED */
+        .btn-home {
+            background: rgba(0, 255, 255, 0.1); border: 2px solid #00ffff;
+            padding: 12px 40px; font-size: 1rem; color: #00ffff;
+            border-radius: 50px; cursor: pointer; text-decoration: none;
+            font-family: 'Cinzel', serif; text-transform: uppercase;
+            transition: 0.3s; width: 260px; text-align: center;
+            display: flex; justify-content: center; align-items: center;
+            backdrop-filter: blur(5px);
+        }
+        .btn-home:hover { background: rgba(0, 255, 255, 0.3); box-shadow: 0 0 15px #00ffff; color: #fff; }
+
+        @keyframes pulse { 0% { transform: scale(1); } 50% { transform: scale(1.03); } 100% { transform: scale(1); } }
+
+        /* --- HUD --- */
+        #hud {
+            position: absolute; top: 15px; left: 15px; z-index: 50;
+            color: #fff; font-size: 1.2rem; display: none; pointer-events: none;
+            text-shadow: 1px 1px 2px black;
+        }
+        .bar-wrap {
+            width: 130px; height: 8px; background: rgba(255,255,255,0.2);
+            margin-top: 5px; border-radius: 4px; overflow: hidden; display: none;
+        }
+        .bar-fill { height: 100%; width: 100%; transition: width 0.1s linear; }
+
+        /* --- SOUNDS --- */
+        audio { display: none; }
+
+    </style>
+</head>
+<body>
+
+    <audio id="sfxJump" src="https://assets.mixkit.co/active_storage/sfx/2571/2571-preview.mp3"></audio>
+    <audio id="sfxOut" src="https://assets.mixkit.co/active_storage/sfx/251/251-preview.mp3"></audio>
+    <audio id="sfxPower" src="https://assets.mixkit.co/active_storage/sfx/2019/2019-preview.mp3"></audio>
+
+    <div id="hud">
+        SCORE: <span id="scoreVal" style="color: #FFD700;">0</span>
+        <div id="shieldBar" class="bar-wrap"><div class="bar-fill" style="background: #00ff00;"></div></div>
+        <div id="speedBar" class="bar-wrap"><div class="bar-fill" style="background: #00ffff;"></div></div>
+    </div>
+
+    <div id="startScreen" class="screen">
+        <h2 style="color: #00ffff; font-size: 0.9rem; letter-spacing: 4px; margin-bottom: 8px;">VISHAL SURYA PRESENTS</h2>
+        <h1>BABA RUN</h1>
+        <p>Sheela ko bachao! Tap to Jump.</p>
+        <div class="btn-container">
+            <button class="btn-play" onclick="initGame()">TAP TO START</button>
+            <a href="https://30558201.github.io/Vishal-Insights/index.html" class="btn-home">HOME PAGE</a>
+        </div>
+    </div>
+
+    <div id="gameOverScreen" class="screen" style="display: none;">
+        <h1 style="color: #ff3333;">CAUGHT!</h1>
+        <p>Baba ne Sheela ko pakad liya.</p>
+        <h2 style="color: #fff; margin-bottom: 20px;">Score: <span id="finalScore" style="color:#FFD700">0</span></h2>
+        
+        <div class="btn-container">
+            <button class="btn-play" onclick="resetGame()">RETRY</button>
+            <a href="https://30558201.github.io/Vishal-Insights/index.html" class="btn-home">HOME PAGE</a>
+        </div>
+    </div>
+
+    <canvas id="canvas"></canvas>
+
+    <script>
+        const canvas = document.getElementById('canvas');
+        const ctx = canvas.getContext('2d');
+
+        // --- IMAGES ---
+        const imgBaba = new Image();
+        imgBaba.src = 'https://lh3.googleusercontent.com/pw/AP1GczNXQAQW6CWux6C0vmMOlBmxK5qg_KAb5qeKtPZa-ZclQ0ghD9NwUYKRPm2dyndZ8RbgV8kK0acWOL710nBE_tQ366FMBcLGctO6v0Kx_S_a0YED-lBzssa5twcBi3-vpdnl8-eM9JMWa7nTR_DuvRyv=w515-h900-s-no-gm'; 
+        
+        const imgSheela = new Image();
+        imgSheela.src = 'https://lh3.googleusercontent.com/pw/AP1GczO-uCqQEEwpzB3OWyGgfle0Wx9Z1hj63UKeu8ZOb5e6hUjPGIB5vRpq7_koNdNKxqZn7yiCYmANXpxf7AS0RePbQk3QFVJg5Vaf_FwDDX7-UwQcTXOz6db321AL18TWXviJtDBwP6Vo07aBJaI_oP4A=w563-h900-s-no-gm';
+
+        // --- GAME VARIABLES ---
+        let width, height, scale, groundY;
+        let state = 'MENU'; 
+        let score = 0, frame = 0;
+        let speed = 0, baseSpeed = 0;
+        
+        // Powerups (5 Seconds)
+        let shieldTimer = 0, speedTimer = 0;
+        const POWER_TIME = 300;
+
+        // Entities
+        const player = { x:0, y:0, w:0, h:0, dy:0, jump:0, grav:0, grounded:false };
+        const baba = { x:0, y:0, w:0, h:0, targetX:0 };
+        
+        let obstacles = [];
+        let powerups = [];
+        let stars = [];
+
+        // --- SOUNDS ---
+        const sfxJump = document.getElementById('sfxJump');
+        const sfxOut = document.getElementById('sfxOut');
+        const sfxPower = document.getElementById('sfxPower');
+
+        function playSound(sound) {
+            try { sound.currentTime = 0; sound.play(); } catch(e){}
+        }
+
+        // --- RESIZE & INIT ---
+        function resize() {
+            width = canvas.width = window.innerWidth;
+            height = canvas.height = window.innerHeight;
+            
+            // Adjust scale logic for better visibility on mobile
+            scale = Math.min(width / 600, height / 900); 
+            
+            // Ground level: 70% down the screen (Better view)
+            groundY = height * 0.70;
+
+            // Player (Sheela)
+            player.w = 55 * scale;   
+            player.h = 70 * scale;   
+            player.x = width * 0.3;  
+            player.grav = 0.8 * scale; // Faster gravity for snappy jumps
+            player.jump = -14 * scale; 
+
+            // Baba
+            baba.w = 60 * scale;
+            baba.h = 75 * scale;
+            baba.x = width * 0.05;
+            baba.targetX = width * 0.05;
+
+            if(state === 'MENU') createStars();
+        }
+
+        // --- NEW PROFESSIONAL STAR SYSTEM ---
+        function createStars() {
+            stars = [];
+            for(let i=0; i<80; i++) {
+                stars.push({
+                    x: Math.random()*width, 
+                    y: Math.random()*(groundY - 50),
+                    r: Math.random() * 2, // Varied size
+                    a: Math.random(), // Varied opacity
+                    blinkSpeed: 0.01 + Math.random() * 0.04 // Twinkle speed
+                });
+            }
+        }
+
+        window.addEventListener('resize', resize);
+        resize(); createStars();
+
+        // --- GAME CONTROL ---
+        window.initGame = function() {
+            document.getElementById('startScreen').style.display = 'none';
+            document.getElementById('hud').style.display = 'block';
+            resetLogic();
+            state = 'PLAYING';
+            loop();
+        };
+
+        window.resetGame = function() {
+            document.getElementById('gameOverScreen').style.display = 'none';
+            resetLogic();
+            state = 'PLAYING';
+        };
+
+        function resetLogic() {
+            score = 0; frame = 0;
+            // INCREASED INITIAL SPEED (Fast Start)
+            baseSpeed = 9 * scale; 
+            speed = baseSpeed;
+            shieldTimer = 0; speedTimer = 0;
+            obstacles = []; powerups = [];
+            
+            player.y = groundY - player.h; player.dy = 0;
+            baba.x = width * 0.05; baba.targetX = width * 0.05;
+        }
+
+        // --- UPDATE LOOP ---
+        function update() {
+            if(state !== 'PLAYING') {
+                if(state === 'CAUGHT') animateCatch();
+                return;
+            }
+
+            frame++; score++;
+            document.getElementById('scoreVal').innerText = Math.floor(score/10);
+            
+            // AGGRESSIVE SPEED SCALING (Badhti jayegi)
+            if(frame % 300 === 0) { 
+                baseSpeed += (0.6 * scale); 
+                // Cap speed so it's playable
+                if(baseSpeed > 18 * scale) baseSpeed = 18 * scale;
+            }
+
+            // Powerups Logic
+            if(shieldTimer > 0) {
+                shieldTimer--;
+                document.getElementById('shieldBar').style.display = 'block';
+                document.querySelector('#shieldBar .bar-fill').style.width = (shieldTimer/POWER_TIME)*100 + '%';
+            } else document.getElementById('shieldBar').style.display = 'none';
+
+            if(speedTimer > 0) {
+                speedTimer--;
+                speed = baseSpeed * 1.5; 
+                baba.targetX = -150 * scale; 
+                document.getElementById('speedBar').style.display = 'block';
+                document.querySelector('#speedBar .bar-fill').style.width = (speedTimer/POWER_TIME)*100 + '%';
+            } else {
+                speed = baseSpeed;
+                document.getElementById('speedBar').style.display = 'none';
+                if(baba.targetX < 0) baba.targetX = width * 0.05;
+            }
+
+            // Physics
+            player.dy += player.grav;
+            player.y += player.dy;
+            if(player.y > groundY - player.h) {
+                player.y = groundY - player.h;
+                player.dy = 0;
+                player.grounded = true;
+            }
+
+            // Baba Logic
+            let hover = Math.sin(frame * 0.1) * (3 * scale);
+            baba.x += (baba.targetX - baba.x) * 0.1;
+            baba.y = (groundY - baba.h) + hover;
+
+            // --- IMPROVED SPAWNING LOGIC (Varied & Fast) ---
+            // Spawn Rate: Higher speed = Faster spawn. 
+            // Min distance roughly 100-150 frames at 60fps (~2 seconds)
+            let spawnThreshold = Math.max(60, Math.floor(800 / (speed/scale))); 
+            
+            if(frame % spawnThreshold === 0) {
+                let rand = Math.random();
+                let type;
+                
+                // 40% Small Rock, 30% Big Rock, 20% River, 10% Fallen Tree
+                if (rand < 0.4) type = 'rock_small';
+                else if (rand < 0.7) type = 'rock_big';
+                else if (rand < 0.9) type = 'river';
+                else type = 'tree';
+
+                // Dimensions
+                let w, h, yPos;
+                yPos = groundY;
+
+                if (type === 'rock_small') { w = 40*scale; h = 40*scale; }
+                else if (type === 'rock_big') { w = 60*scale; h = 70*scale; }
+                else if (type === 'river') { w = 150*scale; h = 60*scale; }
+                else if (type === 'tree') { w = 100*scale; h = 35*scale; } // Low & Wide
+
+                obstacles.push({ x: width, y: yPos, w: w, h: h, type: type });
+            }
+
+            // Powerups (Rare)
+            if(frame % 250 === 0 && Math.random() > 0.85) {
+                let type = Math.random() > 0.5 ? 'shield' : 'speed';
+                powerups.push({
+                    x: width, y: groundY - (120*scale) - Math.random()*(80*scale),
+                    w: 40*scale, h: 40*scale, type: type
+                });
+            }
+
+            // Movement & Collision
+            obstacles.forEach((obs, i) => {
+                obs.x -= speed;
+                
+                // Precise Hitbox
+                let padding = 10 * scale;
+                let px = player.x + padding;
+                let py = player.y + padding;
+                let pw = player.w - (padding*2);
+                let ph = player.h - (padding*2);
+
+                // Obstacle Hitbox
+                let ox = obs.x + (5*scale);
+                let oy = (obs.type === 'tree') ? groundY - obs.h : groundY; // Tree sits on ground? No, rect draws down
+                // Adjust Y check based on type
+                let obsHitY = (obs.type === 'tree' || obs.type === 'rock_small' || obs.type === 'rock_big') ? groundY - obs.h : groundY + (10*scale);
+                let obsHitH = obs.h;
+
+                // Simple Rect Collision
+                if(px < obs.x + obs.w - padding &&
+                   px + pw > obs.x + padding &&
+                   py + ph > (obs.type === 'river' ? groundY : groundY - obs.h + padding)) {
+                    
+                    if(shieldTimer > 0) {
+                        shieldTimer = 0; obstacles.splice(i, 1); playSound(sfxPower);
+                    } else {
+                        state = 'CAUGHT'; baba.targetX = player.x - (15*scale); playSound(sfxOut);
+                    }
+                }
+                if(obs.x + obs.w < 0) obstacles.splice(i, 1);
+            });
+
+            powerups.forEach((p, i) => {
+                p.x -= speed;
+                if(player.x < p.x + p.w && player.x + player.w > p.x &&
+                   player.y < p.y + p.h && player.y + player.h > p.y) {
+                    if(p.type==='shield') shieldTimer = POWER_TIME;
+                    else speedTimer = POWER_TIME;
+                    playSound(sfxPower);
+                    powerups.splice(i, 1);
+                }
+                if(p.x + p.w < 0) powerups.splice(i, 1);
+            });
+        }
+
+        function animateCatch() {
+            baba.x += (player.x - baba.x) * 0.15;
+            if(Math.abs(baba.x - player.x) < 5 * scale) {
+                state = 'GAMEOVER';
+                document.getElementById('finalScore').innerText = Math.floor(score/10);
+                document.getElementById('gameOverScreen').style.display = 'flex';
+            }
+        }
+
+        // --- DRAW ---
+        function draw() {
+            // 1. Background Gradient (Deep Night)
+            let grad = ctx.createLinearGradient(0,0,0,height);
+            grad.addColorStop(0, '#020210'); // Darkest Blue
+            grad.addColorStop(1, '#000000');
+            ctx.fillStyle = grad; ctx.fillRect(0,0,width,height);
+
+            // 2. Stars (Improved Twinkle)
+            stars.forEach(s => {
+                // Twinkle effect using Sine wave
+                let alpha = s.a + Math.sin(frame * s.blinkSpeed) * 0.3;
+                if(alpha < 0) alpha = 0.1;
+                if(alpha > 1) alpha = 1;
+                
+                ctx.globalAlpha = alpha;
+                ctx.fillStyle = '#fff';
+                ctx.beginPath(); ctx.arc(s.x, s.y, s.r, 0, Math.PI*2); ctx.fill();
+            });
+            ctx.globalAlpha=1;
+
+            // 3. Moon (High Quality Glow)
+            let moonX = width - (80*scale);
+            let moonY = 80*scale;
+            let moonR = 35*scale;
+
+            // Outer Glow
+            let glow = ctx.createRadialGradient(moonX, moonY, moonR, moonX, moonY, moonR * 3);
+            glow.addColorStop(0, 'rgba(255, 255, 240, 0.3)');
+            glow.addColorStop(1, 'rgba(255, 255, 240, 0)');
+            ctx.fillStyle = glow; ctx.beginPath(); ctx.arc(moonX, moonY, moonR * 3, 0, Math.PI*2); ctx.fill();
+
+            // Inner Moon
+            ctx.fillStyle = '#fffff0'; // Ivory
+            ctx.shadowBlur = 20; ctx.shadowColor = '#ffffaa';
+            ctx.beginPath(); ctx.arc(moonX, moonY, moonR, 0, Math.PI*2); ctx.fill();
+            ctx.shadowBlur = 0;
+
+            // 4. Ground
+            ctx.fillStyle='#111'; ctx.fillRect(0, groundY, width, height-groundY);
+            // Texture (Moving Lines)
+            ctx.fillStyle='rgba(255,255,255,0.05)';
+            let offset = (frame * speed) % (40*scale);
+            for(let i=-offset; i<width; i+=(40*scale)) {
+                ctx.fillRect(i, groundY, 2*scale, height-groundY);
+            }
+            // Top Edge
+            ctx.fillStyle='rgba(0,255,255,0.15)'; ctx.fillRect(0, groundY, width, 2*scale);
+
+            // 5. Obstacles
+            obstacles.forEach(obs => {
+                if(obs.type === 'river') {
+                    // River Visuals
+                    ctx.fillStyle='#0077be'; ctx.fillRect(obs.x, groundY+(10*scale), obs.w, obs.h);
+                    ctx.strokeStyle='rgba(255,255,255,0.6)'; ctx.lineWidth=2*scale; ctx.beginPath();
+                    for(let k=0; k<obs.w; k+=10*scale) {
+                        ctx.moveTo(obs.x+k, groundY+(15*scale));
+                        ctx.lineTo(obs.x+k+(5*scale), groundY+(15*scale)+Math.sin(frame*0.2+k)*(3*scale));
+                    }
+                    ctx.stroke();
+                } 
+                else if (obs.type === 'tree') {
+                    // Fallen Tree (Brown Log)
+                    ctx.fillStyle='#5C4033'; // Dark Wood
+                    ctx.fillRect(obs.x, groundY-obs.h, obs.w, obs.h);
+                    // Detail lines
+                    ctx.fillStyle='#3e2b22';
+                    ctx.fillRect(obs.x+10, groundY-obs.h+5, obs.w-20, 5);
+                }
+                else {
+                    // Rocks (Big/Small)
+                    ctx.fillStyle='#555'; 
+                    ctx.beginPath(); ctx.arc(obs.x+obs.w/2, groundY, obs.w/2, 0, Math.PI, true); ctx.fill();
+                    // Rock Texture
+                    ctx.fillStyle='#333'; 
+                    ctx.beginPath(); ctx.arc(obs.x+obs.w/3, groundY-(obs.h*0.2), obs.w/4, 0, Math.PI*2); ctx.fill();
+                }
+            });
+
+            // 6. Powerups
+            powerups.forEach(p => {
+                ctx.shadowBlur=15; ctx.shadowColor = p.type==='shield'?'#00ff00':'#00ffff';
+                ctx.fillStyle = p.type==='shield'?'#00ff00':'#00ffff';
+                ctx.beginPath(); ctx.arc(p.x+p.w/2, p.y+p.h/2, p.w/2, 0, Math.PI*2); ctx.fill();
+                ctx.shadowBlur=0;
+                ctx.fillStyle='#000'; ctx.font=`bold ${12*scale}px Arial`; ctx.textAlign='center';
+                ctx.fillText(p.type==='shield'?'S':'⚡', p.x+p.w/2, p.y+p.h/2+(4*scale));
+            });
+
+            // 7. Characters
+            
+            // Draw Baba
+            ctx.shadowBlur=15; ctx.shadowColor='red';
+            if(imgBaba.complete && imgBaba.naturalHeight !== 0) {
+                ctx.drawImage(imgBaba, baba.x, baba.y, baba.w, baba.h);
+            } else {
+                ctx.fillStyle='orange'; ctx.fillRect(baba.x, baba.y, baba.w, baba.h);
+            }
+
+            // Draw Sheela
+            let aura = shieldTimer>0 ? '#00ff00' : (speedTimer>0 ? '#00ffff' : 'gold');
+            ctx.shadowColor=aura; ctx.shadowBlur = (shieldTimer>0 || speedTimer>0) ? 20 : 10;
+            if(state==='CAUGHT') ctx.globalAlpha=0.6;
+
+            if(imgSheela.complete && imgSheela.naturalHeight !== 0) {
+                ctx.drawImage(imgSheela, player.x, player.y, player.w, player.h);
+            } else {
+                ctx.fillStyle='yellow'; ctx.fillRect(player.x, player.y, player.w, player.h);
+            }
+            
+            ctx.globalAlpha=1; ctx.shadowBlur=0;
+        }
+
+        function loop() {
+            if(state !== 'MENU') {
+                update();
+                draw();
+                if(state !== 'GAMEOVER_DONE') requestAnimationFrame(loop);
+            }
+        }
+
+        // --- INPUT ---
+        function jumpAction(e) {
+            if(e.type === 'touchstart') e.preventDefault();
+            if(state === 'PLAYING' && player.grounded) {
+                player.dy = player.jump;
+                player.grounded = false;
+                playSound(sfxJump);
+            }
+        }
+
+        window.addEventListener('keydown', e => { if(e.code==='Space' || e.code==='ArrowUp') jumpAction(e); });
+        canvas.addEventListener('mousedown', jumpAction);
+        canvas.addEventListener('touchstart', jumpAction, {passive: false});
+
+    </script>
+</body>
+</html>
