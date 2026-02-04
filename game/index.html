@@ -1,566 +1,687 @@
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
-<html xmlns="http://www.w3.org/1999/xhtml">
+<!DOCTYPE html>
+<html lang="en">
 <head>
-	<title>Monopoly</title>
-	<meta http-equiv="Content-type" content="text/html;charset=UTF-8" />
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Vishal Empire: The Royal Grounds</title>
+    
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=Poppins:wght@400;600;800&family=Cinzel:wght@700;900&display=swap" rel="stylesheet">
+    
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/tween.js/18.6.4/tween.umd.js"></script>
 
-	<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
-	<script type="text/javascript" src="classicedition.js"></script>
-	<!-- Comment out the previous line and uncomment the next one to enable the New York City Edition -->
-	<!-- <script type="text/javascript" src="newyorkcityedition.js"></script> -->
-	<script type="text/javascript" src="ai.js"></script>
-	<script type="text/javascript" src="monopoly.js"></script>
-	<link rel="stylesheet" type="text/css" href="styles.css" />
+    <style>
+        :root {
+            --primary: #1a237e;
+            --gold: #FFD700;
+            --glass: rgba(255, 255, 255, 0.95);
+            --shadow: 0 10px 30px rgba(0,0,0,0.3);
+        }
+
+        body { margin: 0; overflow: hidden; background-color: #87CEEB; font-family: 'Poppins', sans-serif; }
+        
+        /* --- DYNAMIC SKY --- */
+        #sky-gradient {
+            position: absolute; width: 100%; height: 100%;
+            background: linear-gradient(to bottom, #4facfe 0%, #00f2fe 100%);
+            z-index: 0; pointer-events: none;
+        }
+
+        /* --- UI LAYER --- */
+        #ui-layer { position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 10; pointer-events: none; }
+        .interactive { pointer-events: auto; }
+        #game-canvas { position: absolute; z-index: 1; top: 0; left: 0; }
+
+        /* Start Screen */
+        #start-screen {
+            position: fixed; width: 100%; height: 100%; z-index: 5000;
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
+        }
+        .brand-logo { 
+            width: 150px; height: 150px; border-radius: 50%; 
+            border: 5px solid var(--gold); box-shadow: 0 0 40px rgba(255, 215, 0, 0.6);
+            margin-bottom: 20px; object-fit: cover;
+        }
+        .brand-title {
+            font-family: 'Cinzel', serif; font-size: 4rem; color: #1a237e;
+            text-shadow: 2px 2px 0px #FFD700; margin: 0;
+        }
+        .start-btn {
+            margin-top: 30px; padding: 15px 60px; font-size: 1.5rem;
+            background: linear-gradient(45deg, #FFD700, #FDB931); border: none;
+            color: #000; font-weight: 800; border-radius: 50px; cursor: pointer;
+            box-shadow: 0 10px 25px rgba(212, 175, 55, 0.5); transition: transform 0.2s;
+        }
+        .start-btn:hover { transform: scale(1.05); }
+
+        /* Player HUD Panels */
+        .hud-panel {
+            position: absolute; width: 240px; padding: 10px 15px;
+            background: var(--glass); border-radius: 15px;
+            box-shadow: var(--shadow); border: 2px solid white;
+            display: flex; align-items: center; transition: 0.3s;
+            cursor: pointer;
+        }
+        .hud-panel:hover { transform: translateY(-5px); }
+        .hud-panel.active { border: 3px solid #00e676; background: #fff; transform: scale(1.05); }
+
+        #p1-hud { bottom: 30px; left: 30px; border-left: 8px solid #d50000; }
+        #p2-hud { top: 30px; left: 30px; border-left: 8px solid #2962ff; }
+        #p3-hud { top: 30px; right: 30px; border-left: 8px solid #00c853; }
+        #p4-hud { bottom: 30px; right: 30px; border-left: 8px solid #ffab00; }
+
+        .p-icon { width: 50px; height: 50px; background: #eee; border-radius: 50%; display: flex; justify-content: center; align-items: center; font-size: 1.5rem; margin-right: 15px; border: 2px solid #ddd; }
+        .p-name { font-weight: 700; font-size: 0.9rem; color: #333; }
+        .p-money { font-family: 'Playfair Display', serif; font-weight: bold; font-size: 1.3rem; color: #1b5e20; }
+
+        /* ATM CARD ANIMATION (Slower & Bigger) */
+        #atm-container {
+            position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
+            width: 500px; height: 350px; pointer-events: none; z-index: 2000; display: none;
+        }
+        .atm-card {
+            width: 320px; height: 200px; background: linear-gradient(135deg, #111, #333);
+            border-radius: 15px; position: absolute; left: 90px; top: -250px;
+            border: 2px solid var(--gold); box-shadow: 0 20px 50px rgba(0,0,0,0.6);
+            display: flex; flex-direction: column; justify-content: flex-end; padding: 20px;
+            color: var(--gold); font-family: 'Courier New', monospace;
+        }
+        .card-chip { width: 50px; height: 40px; background: linear-gradient(45deg, #FFD700, #FDB931); border-radius: 6px; margin-bottom: 20px; }
+        .card-number { font-size: 1.2rem; letter-spacing: 2px; margin-bottom: 10px; text-shadow: 0 1px 1px #000; }
+        .card-holder { font-size: 0.9rem; text-transform: uppercase; }
+        .transaction-alert {
+            position: absolute; right: 20px; top: 20px; font-size: 2rem; font-weight: bold;
+        }
+        
+        /* The Slow Motion Swipe Animation */
+        .swipe-action { animation: slowSwipe 3s cubic-bezier(0.25, 1, 0.5, 1) forwards; }
+        
+        @keyframes slowSwipe {
+            0% { top: -250px; opacity: 0; transform: rotate(5deg); }
+            20% { top: 40px; opacity: 1; transform: rotate(0deg); } /* Entry */
+            80% { top: 40px; opacity: 1; transform: rotate(0deg); } /* Pause for reading */
+            100% { top: 400px; opacity: 0; transform: rotate(-5deg); } /* Exit */
+        }
+
+        /* LUXURY PROPERTY DEED (Ticket) */
+        #deed-overlay {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.5); z-index: 1500; display: none;
+            align-items: center; justify-content: center; backdrop-filter: blur(5px);
+        }
+        .deed-card {
+            width: 340px; background: #fff; border-radius: 10px; overflow: hidden;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.4); animation: popIn 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            font-family: 'Poppins', sans-serif;
+        }
+        @keyframes popIn { from { transform: scale(0.8); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+
+        .deed-header {
+            padding: 20px; text-align: center; color: white; font-weight: 800;
+            font-size: 1.8rem; letter-spacing: 1px; text-transform: uppercase;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.3);
+            border-bottom: 4px solid rgba(0,0,0,0.2);
+        }
+        .deed-body { padding: 20px; color: #333; text-align: center; }
+        .rent-row { display: flex; justify-content: space-between; padding: 5px 0; border-bottom: 1px dashed #eee; font-size: 0.9rem; }
+        .rent-price { font-weight: bold; }
+        .deed-price-tag { 
+            margin: 15px 0; font-size: 2.2rem; color: #2e7d32; font-weight: 900; 
+            font-family: 'Playfair Display'; 
+        }
+        .deed-buttons { display: flex; border-top: 1px solid #eee; }
+        .btn-action { 
+            flex: 1; padding: 18px; border: none; font-weight: bold; font-size: 1rem; cursor: pointer; 
+            transition: 0.2s; text-transform: uppercase;
+        }
+        .btn-buy { background: #2e7d32; color: white; }
+        .btn-pass { background: #c62828; color: white; }
+        .btn-action:hover { filter: brightness(1.1); }
+
+        /* DICE BUTTON */
+        #dice-btn {
+            position: absolute; bottom: 40px; left: 50%; transform: translateX(-50%);
+            width: 80px; height: 80px; background: white; border-radius: 20px;
+            display: none; align-items: center; justify-content: center; font-size: 3rem;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3); cursor: pointer; z-index: 100;
+            animation: pulse 2s infinite;
+        }
+        @keyframes pulse { 0% { transform: translateX(-50%) scale(1); } 50% { transform: translateX(-50%) scale(1.1); } 100% { transform: translateX(-50%) scale(1); } }
+
+        /* Home Button on Board */
+        #board-home {
+            position: absolute; top: 20px; left: 50%; transform: translateX(-50%);
+            background: rgba(255, 255, 255, 0.8); padding: 8px 20px; border-radius: 30px;
+            text-decoration: none; color: #1a237e; font-weight: bold; border: 2px solid #1a237e;
+            pointer-events: auto; z-index: 100; font-size: 0.9rem;
+        }
+
+        /* Profile Modal */
+        #profile-modal {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.8); z-index: 3000; display: none;
+            align-items: center; justify-content: center;
+        }
+        .profile-card {
+            width: 500px; height: 400px; background: #fff; border-radius: 20px;
+            display: flex; flex-direction: column; padding: 30px;
+        }
+        .profile-head { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; border-bottom: 2px solid #eee; padding-bottom: 10px; }
+        .asset-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; overflow-y: auto; }
+        .mini-asset { padding: 10px; border-radius: 5px; color: white; text-align: center; font-size: 0.8rem; font-weight: bold; }
+
+    </style>
 </head>
-
 <body>
-	<div id="popupbackground"></div>
-	<div id="popupwrap">
-		<div id="popup">
-			<div style="position: relative;">
-				<!-- <img id="popupclose" src="Images/close.png" title="Close" alt="x" onclick="hide('popupbackground'); hide('popupwrap');" /> -->
-				<div id="popuptext"></div>
-				<div id="popupdrag"></div>
-			</div>
-		</div>
-	</div>
 
-	<div id="statsbackground"></div>
-	<div id="statswrap">
-		<div id="stats">
-			<div style="position: relative;">
-				<img id="statsclose" src="images/close.png" title="Close" alt="x" />
-				<div id="statstext"></div>
-				<div id="statsdrag"></div>
-			</div>
-		</div>
-	</div>
+    <div id="start-screen" class="interactive">
+        <img src="https://lh3.googleusercontent.com/pw/AP1GczOcqdD7BLuOkY-PFByc9ZCFzjXJOgLdeIf4uKJw_PW59dPdtynyCT6zSLYg_k4cDXDIfDQrpZXm9Ul6Sx280z_PUTwAlbsQF76xfL12-EvtDq1SqIpMrSVGQSD9CKA4vC2bi4ioTNzASqTeh7JXq9ec=w271-h271-s-no-gm" class="brand-logo" alt="Logo">
+        <h1 class="brand-title">VISHAL EMPIRE</h1>
+        <p style="color: #555; letter-spacing: 3px; font-weight: 600;">LUXURY REAL ESTATE EDITION</p>
+        <button class="start-btn" onclick="initGame()">ENTER THE GROUNDS</button>
+        <div style="margin-top: 20px;">
+            <a href="https://30558201.github.io/Vishal-Insights/index.html" style="color:#1a237e; font-weight:bold; text-decoration:none;">VISIT OFFICIAL WEBSITE</a>
+        </div>
+    </div>
 
-	<p id="noscript">
-		Note: This page will not function without JavaScript.
-	</p>
+    <div id="ui-layer">
+        
+        <a href="https://30558201.github.io/Vishal-Insights/index.html" id="board-home">GO TO HOME</a>
 
-	<div id="refresh">
-		Refresh this page to start a new game.
-	</div>
+        <div id="p1-hud" class="hud-panel interactive" onclick="openProfile(0)">
+            <div class="p-icon">👑</div>
+            <div>
+                <div class="p-name">Samrat Vikram</div>
+                <div class="p-money" id="money-0">₹1500</div>
+            </div>
+        </div>
 
-	<!-- <div id="enlarge"></div> -->
+        <div id="p2-hud" class="hud-panel interactive" onclick="openProfile(1)">
+            <div class="p-icon">🛡️</div>
+            <div>
+                <div class="p-name">Shivaji Maharaj</div>
+                <div class="p-money" id="money-1">₹1500</div>
+            </div>
+        </div>
 
-	<div id="deed">
-		<div id="deed-normal" style="display: none;">
-			<div id="deed-header">
-				<div style="margin: 5px; font-size: 11px;">T I T L E&nbsp;&nbsp;D E E D</div>
-				<div id="deed-name"></div>
-			</div>
-			<table id="deed-table">
-				<tr>
-					<td colspan="2">
-						RENT&nbsp;$<span id="deed-baserent">12</span>.
-					</td>
-				</tr>
-				<tr>
-					<td style="text-align: left;">With 1 House</td>
-					<td style="text-align: right;">$&nbsp;&nbsp;&nbsp;<span id="deed-rent1">60</span>.</td>
-				</tr>
-				<tr>
-					<td style="text-align: left;">With 2 Houses</td>
-					<td style="text-align: right;"><span id="deed-rent2">180</span>.</td>
-				</tr>
-				<tr>
-					<td style="text-align: left;">With 3 Houses</td>
-					<td style="text-align: right;"><span id="deed-rent3">500</span>.</td>
-				</tr>
-				<tr>
-					<td style="text-align: left;">With 4 Houses</td>
-					<td style="text-align: right;"><span id="deed-rent4">700</span>.</td>
-				</tr>
-				<tr>
-					<td colspan="2">
-						<div style="margin-bottom: 8px;">With HOTEL $<span id="deed-rent5">900</span>.</div>
-						<div>Mortgage Value $<span id="deed-mortgage">80</span>.</div>
-						<div>Houses cost $<span id="deed-houseprice">100</span>. each</div>
-						<div>Hotels, $<span id="deed-hotelprice">100</span>. plus 4 houses</div>
-						<div style="font-size: 9px; font-style: italic; margin-top: 5px;">If a player owns ALL the Lots of any Color-Group, the rent is Doubled on Unimproved Lots in that group.</div>
-					</td>
-				</tr>
-			</table>
-		</div>
+        <div id="p3-hud" class="hud-panel interactive" onclick="openProfile(2)">
+            <div class="p-icon">⚔️</div>
+            <div>
+                <div class="p-name">Maharana Pratap</div>
+                <div class="p-money" id="money-2">₹1500</div>
+            </div>
+        </div>
 
-		<div id="deed-mortgaged">
-			<div id="deed-mortgaged-name"></div>
-			<p>&bull;</p>
-			<div>MORTGAGED</div>
-			<div> for $<span id="deed-mortgaged-mortgage">80</span></div>
-			<p>&bull;</p>
-			<div style="font-style: italic; font-size: 13px; margin: 10px;">Card must be turned this side up if property is mortgaged</div>
-		</div>
+        <div id="p4-hud" class="hud-panel interactive" onclick="openProfile(3)">
+            <div class="p-icon">🐘</div>
+            <div>
+                <div class="p-name">Raja Porus</div>
+                <div class="p-money" id="money-3">₹1500</div>
+            </div>
+        </div>
 
-		<div id="deed-special">
-			<div id="deed-special-name"></div>
-			<div id="deed-special-text"></div>
-			<div id="deed-special-footer">
-				Mortgage Value
-				<span style="float: right;">$<span id="deed-special-mortgage">100</span>.</span>
-			</div>
-		</div>
-	</div>
+        <div id="dice-btn" class="interactive" onclick="rollDice()">🎲</div>
 
-	<table id="board">
-		<tr>
-			<td class="cell board-corner" id="cell20"></td>
-			<td class="cell board-top" id="cell21"></td>
-			<td class="cell board-top" id="cell22"></td>
-			<td class="cell board-top" id="cell23"></td>
-			<td class="cell board-top" id="cell24"></td>
-			<td class="cell board-top" id="cell25"></td>
-			<td class="cell board-top" id="cell26"></td>
-			<td class="cell board-top" id="cell27"></td>
-			<td class="cell board-top" id="cell28"></td>
-			<td class="cell board-top" id="cell29"></td>
-			<td class="cell board-corner" id="cell30"></td>
-		</tr><tr>
-			<td class="cell board-left" id="cell19"></td>
-			<td colspan="9" class="board-center"></td>
-			<td class="cell board-right" id="cell31"></td>
-		</tr><tr>
-			<td class="cell board-left" id="cell18"></td>
-			<td colspan="9" class="board-center"></td>
-			<td class="cell board-right" id="cell32"></td>
-		</tr><tr>
-			<td class="cell board-left" id="cell17"></td>
-			<td colspan="9" class="board-center"></td>
-			<td class="cell board-right" id="cell33"></td>
-		</tr><tr>
-			<td class="cell board-left" id="cell16"></td>
-			<td colspan="9" class="board-center"></td>
-			<td class="cell board-right" id="cell34"></td>
-		</tr><tr>
-			<td class="cell board-left" id="cell15"></td>
-			<td colspan="9" class="board-center"></td>
-			<td class="cell board-right" id="cell35"></td>
-		</tr><tr>
-			<td class="cell board-left" id="cell14"></td>
-			<td colspan="9" class="board-center"></td>
-			<td class="cell board-right" id="cell36"></td>
-		</tr><tr>
-			<td class="cell board-left" id="cell13"></td>
-			<td colspan="9" class="board-center"></td>
-			<td class="cell board-right" id="cell37"></td>
-		</tr><tr>
-			<td class="cell board-left" id="cell12"></td>
-			<td colspan="9" class="board-center"></td>
-			<td class="cell board-right" id="cell38"></td>
-		</tr><tr>
-			<td class="cell board-left" id="cell11"></td>
-			<td colspan="9" class="board-center">
-				<div id="jail"></div>
-			</td>
-			<td class="cell board-right" id="cell39"></td>
-		</tr><tr>
-			<td class="cell board-corner" id="cell10"></td>
-			<td class="cell board-bottom" id="cell9"></td>
-			<td class="cell board-bottom" id="cell8"></td>
-			<td class="cell board-bottom" id="cell7"></td>
-			<td class="cell board-bottom" id="cell6"></td>
-			<td class="cell board-bottom" id="cell5"></td>
-			<td class="cell board-bottom" id="cell4"></td>
-			<td class="cell board-bottom" id="cell3"></td>
-			<td class="cell board-bottom" id="cell2"></td>
-			<td class="cell board-bottom" id="cell1"></td>
-			<td class="cell board-corner" id="cell0"></td>
-		</tr>
-	</table>
+    </div>
 
-	<div id="moneybarwrap">
-		<div id="moneybar">
-			<table>
-				<tr id="moneybarrow1" class="money-bar-row">
-					<td class="moneybararrowcell"><img src="images/arrow.png" id="p1arrow" class="money-bar-arrow" alt=">"/></td>
-					<td id="p1moneybar" class="moneybarcell">
-						<div><span id="p1moneyname" >Player 1</span>:</div>
-						<div>$<span id="p1money">1500</span></div>
-					</td>
-				</tr>
-				<tr id="moneybarrow2" class="money-bar-row">
-					<td class="moneybararrowcell"><img src="images/arrow.png" id="p2arrow" class="money-bar-arrow" alt=">" /></td>
-					<td id="p2moneybar" class="moneybarcell">
-						<div><span id="p2moneyname" >Player 2</span>:</div>
-						<div>$<span id="p2money">1500</span></div>
-					</td>
-				</tr>
-				<tr id="moneybarrow3" class="money-bar-row">
-					<td class="moneybararrowcell"><img src="images/arrow.png" id="p3arrow" class="money-bar-arrow" alt=">" /></td>
-					<td id="p3moneybar" class="moneybarcell">
-						<div><span id="p3moneyname" >Player 3</span>:</div>
-						<div>$<span id="p3money">1500</span></div>
-					</td>
-				</tr>
-				<tr id="moneybarrow4" class="money-bar-row">
-					<td class="moneybararrowcell"><img src="images/arrow.png" id="p4arrow" class="money-bar-arrow" alt=">" /></td>
-					<td id="p4moneybar" class="moneybarcell">
-						<div><span id="p4moneyname" >Player 4</span>:</div>
-						<div>$<span id="p4money">1500</span></div>
-					</td>
-				</tr>
-				<tr id="moneybarrow5" class="money-bar-row">
-					<td class="moneybararrowcell"><img src="images/arrow.png" id="p5arrow" class="money-bar-arrow" alt=">" /></td>
-					<td id="p5moneybar" class="moneybarcell">
-						<div><span id="p5moneyname" >Player 5</span>:</div>
-						<div>$<span id="p5money">1500</span></div>
-					</td>
-				</tr>
-				<tr id="moneybarrow6" class="money-bar-row">
-					<td class="moneybararrowcell"><img src="images/arrow.png" id="p6arrow" class="money-bar-arrow" alt=">" /></td>
-					<td id="p6moneybar" class="moneybarcell">
-						<div><span id="p6moneyname" >Player 6</span>:</div>
-						<div>$<span id="p6money">1500</span></div>
-					</td>
-				</tr>
-				<tr id="moneybarrow7" class="money-bar-row">
-					<td class="moneybararrowcell"><img src="images/arrow.png" id="p7arrow" class="money-bar-arrow" alt=">" /></td>
-					<td id="p7moneybar" class="moneybarcell">
-						<div><span id="p7moneyname" >Player 7</span>:</div>
-						<div>$<span id="p7money">1500</span></div>
-					</td>
-				</tr>
-				<tr id="moneybarrow8" class="money-bar-row">
-					<td class="moneybararrowcell"><img src="images/arrow.png" id="p8arrow" class="money-bar-arrow" alt=">" /></td>
-					<td id="p8moneybar" class="moneybarcell">
-						<div><span id="p8moneyname" >Player 8</span>:</div>
-						<div>$<span id="p8money">1500</span></div>
-					</td>
-				</tr>
-				<tr id="moneybarrowbutton">
-					<td class="moneybararrowcell">&nbsp;</td>
-					<td style="border: none;">
-						<input type="button" id="viewstats" value="View stats" title="View a pop-up window that shows a list of each player's properties." />
-					</td>
-				</tr>
-			</table>
-		</div>
-	</div>
+    <div id="atm-container">
+        <div class="atm-card" id="atm-card-el">
+            <div class="transaction-alert" id="trans-amt">- ₹200</div>
+            <div class="card-chip"></div>
+            <div class="card-number">**** **** 8201</div>
+            <div class="card-holder" id="trans-name">VIKRAM</div>
+        </div>
+    </div>
 
-	<div id="setup">
-		<div style="margin-bottom: 20px;">
-			Select number of players.
-			<select id="playernumber" title="Select the number of players for the game.">
-				<option>2</option>
-				<option>3</option>
-				<option selected="selected">4</option>
-				<option>5</option>
-				<option>6</option>
-				<option>7</option>
-				<option>8</option>
-			</select>
-		</div>
+    <div id="deed-overlay" class="interactive">
+        <div class="deed-card">
+            <div class="deed-header" id="deed-header">MUMBAI</div>
+            <div class="deed-body">
+                <div class="rent-row"><span>Rent Site</span> <span class="rent-price" id="r-base">₹20</span></div>
+                <div class="rent-row"><span>1 House</span> <span class="rent-price" id="r-1">₹100</span></div>
+                <div class="rent-row"><span>2 Houses</span> <span class="rent-price" id="r-2">₹300</span></div>
+                <div class="rent-row"><span>3 Houses</span> <span class="rent-price" id="r-3">₹750</span></div>
+                <div class="rent-row"><span>HOTEL</span> <span class="rent-price" id="r-hotel">₹1200</span></div>
+                
+                <div style="margin-top: 10px; font-size: 0.8rem; color: #777;">ASSET VALUE</div>
+                <div class="deed-price-tag" id="deed-price">₹240</div>
+            </div>
+            <div class="deed-buttons">
+                <button class="btn-action btn-buy" onclick="handleTransaction(true)">PURCHASE</button>
+                <button class="btn-action btn-pass" onclick="handleTransaction(false)">DECLINE</button>
+            </div>
+        </div>
+    </div>
 
-		<div id="player1input" class="player-input">
-			Player 1: <input type="text" id="player1name" title="Player name" maxlength="16" value="Player 1" />
-			<select id="player1color" title="Player color">
-				<option style="color: aqua;">Aqua</option>
-				<option style="color: black;">Black</option>
-				<option style="color: blue;">Blue</option>
-				<option style="color: fuchsia;">Fuchsia</option>
-				<option style="color: gray;">Gray</option>
-				<option style="color: green;">Green</option>
-				<option style="color: lime;">Lime</option>
-				<option style="color: maroon;">Maroon</option>
-				<option style="color: navy;">Navy</option>
-				<option style="color: olive;">Olive</option>
-				<option style="color: orange;">Orange</option>
-				<option style="color: purple;">Purple</option>
-				<option style="color: red;">Red</option>
-				<option style="color: silver;">Silver</option>
-				<option style="color: teal;">Teal</option>
-				<option selected="selected" style="color: yellow;">Yellow</option>
-			</select>
-			<select id="player1ai" title="Choose whether this player is controled by a human or by the computer." onclick="document.getElementById('player1name').disabled = this.value !== '0';">
-				<option value="0" selected="selected">Human</option>
-				<option value="1">AI (Test)</option>
-			</select>
-		</div>
+    <div id="profile-modal" class="interactive" onclick="this.style.display='none'">
+        <div class="profile-card" onclick="event.stopPropagation()">
+            <div class="profile-head">
+                <h2 id="prof-name">Name</h2>
+                <h2 style="color:green" id="prof-money">₹1500</h2>
+            </div>
+            <h3>Property Portfolio</h3>
+            <div class="asset-grid" id="prof-assets">
+                </div>
+        </div>
+    </div>
 
-		<div id="player2input" class="player-input">
-			Player 2: <input type="text" id="player2name" title="Player name" maxlength="16" value="Player 2" />
-			<select id="player2color" title="Player color">
-				<option style="color: aqua;">Aqua</option>
-				<option style="color: black;">Black</option>
-				<option selected="selected" style="color: blue;">Blue</option>
-				<option style="color: fuchsia;">Fuchsia</option>
-				<option style="color: gray;">Gray</option>
-				<option style="color: green;">Green</option>
-				<option style="color: lime;">Lime</option>
-				<option style="color: maroon;">Maroon</option>
-				<option style="color: navy;">Navy</option>
-				<option style="color: olive;">Olive</option>
-				<option style="color: orange;">Orange</option>
-				<option style="color: purple;">Purple</option>
-				<option style="color: red;">Red</option>
-				<option style="color: silver;">Silver</option>
-				<option style="color: teal;">Teal</option>
-				<option style="color: yellow;">Yellow</option>
-			</select>
-			<select id="player2ai" title="Choose whether this player is controled by a human or by the computer." onclick="document.getElementById('player2name').disabled = this.value !== '0';">
-				<option value="0" selected="selected">Human</option>
-				<option value="1">AI (Test)</option>
-			</select>
-		</div>
+    <div id="sky-gradient"></div>
+    <div id="game-canvas"></div>
 
-		<div id="player3input" class="player-input">
-			Player 3: <input type="text" id="player3name" title="Player name" maxlength="16" value="Player 3" />
-			<select id="player3color" title="Player color">
-				<option style="color: aqua;">Aqua</option>
-				<option style="color: black;">Black</option>
-				<option style="color: blue;">Blue</option>
-				<option style="color: fuchsia;">Fuchsia</option>
-				<option style="color: gray;">Gray</option>
-				<option style="color: green;">Green</option>
-				<option style="color: lime;">Lime</option>
-				<option style="color: maroon;">Maroon</option>
-				<option style="color: navy;">Navy</option>
-				<option style="color: olive;">Olive</option>
-				<option style="color: orange;">Orange</option>
-				<option style="color: purple;">Purple</option>
-				<option selected="selected" style="color: red;">Red</option>
-				<option style="color: silver;">Silver</option>
-				<option style="color: teal;">Teal</option>
-				<option style="color: yellow;">Yellow</option>
-			</select>
-			<select id="player3ai" title="Choose whether this player is controled by a human or by the computer." onclick="document.getElementById('player3name').disabled = this.value !== '0';">
-				<option value="0" selected="selected">Human</option>
-				<option value="1">AI (Test)</option>
-			</select>
-		</div>
+    <script>
+        // --- DATA & STATE ---
+        const players = [
+            { name: "Samrat Vikram", color: 0xd50000, money: 1500, pos: 0, assets: [], id: 0 },
+            { name: "Shivaji Maharaj", color: 0x2962ff, money: 1500, pos: 0, assets: [], id: 1 },
+            { name: "Maharana Pratap", color: 0x00c853, money: 1500, pos: 0, assets: [], id: 2 },
+            { name: "Raja Porus", color: 0xffab00, money: 1500, pos: 0, assets: [], id: 3 }
+        ];
 
-		<div id="player4input" class="player-input">
-			Player 4: <input type="text" id="player4name" title="Player name" maxlength="16" value="Player 4" />
-			<select id="player4color" title="Player color">
-				<option style="color: aqua;">Aqua</option>
-				<option style="color: black;">Black</option>
-				<option style="color: blue;">Blue</option>
-				<option style="color: fuchsia;">Fuchsia</option>
-				<option style="color: gray;">Gray</option>
-				<option style="color: green;">Green</option>
-				<option selected="selected" style="color: lime;">Lime</option>
-				<option style="color: maroon;">Maroon</option>
-				<option style="color: navy;">Navy</option>
-				<option style="color: olive;">Olive</option>
-				<option style="color: orange;">Orange</option>
-				<option style="color: purple;">Purple</option>
-				<option style="color: red;">Red</option>
-				<option style="color: silver;">Silver</option>
-				<option style="color: teal;">Teal</option>
-				<option style="color: yellow;">Yellow</option>
-			</select>
-			<select id="player4ai" title="Choose whether this player is controled by a human or by the computer." onclick="document.getElementById('player4name').disabled = this.value !== '0';">
-				<option value="0" selected="selected">Human</option>
-				<option value="1">AI (Test)</option>
-			</select>
-		</div>
+        // High Legibility Board Data
+        const boardMap = [
+            { type: "corner", name: "GO" },
+            { type: "prop", name: "INDORE", price: 60, group: "#795548", rent: [2, 10, 30] }, // Brown
+            { type: "chest", name: "KHAZANA" },
+            { type: "prop", name: "BHOPAL", price: 60, group: "#795548", rent: [4, 20, 60] },
+            { type: "tax", name: "INCOME TAX", amount: 200 },
+            { type: "rail", name: "MUMBAI RAIL", price: 200 },
+            { type: "prop", name: "JAIPUR", price: 100, group: "#4FC3F7", rent: [6, 30, 90] }, // Sky
+            { type: "chance", name: "BHAGYA" },
+            { type: "prop", name: "UDAIPUR", price: 100, group: "#4FC3F7", rent: [6, 30, 90] },
+            { type: "prop", name: "JODHPUR", price: 120, group: "#4FC3F7", rent: [8, 40, 100] },
+            { type: "corner", name: "JAIL" },
+            { type: "prop", name: "HARIDWAR", price: 140, group: "#EC407A", rent: [10, 50, 150] }, // Pink
+            { type: "util", name: "POWER" },
+            { type: "prop", name: "RISHIKESH", price: 140, group: "#EC407A", rent: [10, 50, 150] },
+            { type: "prop", name: "MANALI", price: 160, group: "#EC407A", rent: [12, 60, 180] },
+            { type: "rail", name: "DELHI RAIL", price: 200 },
+            { type: "prop", name: "SHIMLA", price: 180, group: "#FF9800", rent: [14, 70, 200] }, // Orange
+            { type: "chest", name: "KHAZANA" },
+            { type: "prop", name: "CHAMBA", price: 180, group: "#FF9800", rent: [14, 70, 200] },
+            { type: "prop", name: "KASOL", price: 200, group: "#FF9800", rent: [16, 80, 220] },
+            { type: "corner", name: "PARKING" },
+            { type: "prop", name: "PUNE", price: 220, group: "#F44336", rent: [18, 90, 250] }, // Red
+            { type: "chance", name: "BHAGYA" },
+            { type: "prop", name: "NAGPUR", price: 220, group: "#F44336", rent: [18, 90, 250] },
+            { type: "prop", name: "MUMBAI", price: 240, group: "#F44336", rent: [20, 100, 300] },
+            { type: "rail", name: "CHENNAI RAIL", price: 200 },
+            { type: "prop", name: "BANGALORE", price: 260, group: "#FFEB3B", rent: [22, 110, 330] }, // Yellow
+            { type: "prop", name: "MYSORE", price: 260, group: "#FFEB3B", rent: [22, 110, 330] },
+            { type: "util", name: "WATER" },
+            { type: "prop", name: "HYDERABAD", price: 280, group: "#FFEB3B", rent: [24, 120, 360] },
+            { type: "corner", name: "POLICE" },
+            { type: "prop", name: "KOLKATA", price: 300, group: "#4CAF50", rent: [26, 130, 390] }, // Green
+            { type: "prop", name: "DARJEELING", price: 300, group: "#4CAF50", rent: [26, 130, 390] },
+            { type: "chest", name: "KHAZANA" },
+            { type: "prop", name: "GANGTOK", price: 320, group: "#4CAF50", rent: [28, 150, 450] },
+            { type: "rail", name: "KOLKATA RAIL", price: 200 },
+            { type: "chance", name: "BHAGYA" },
+            { type: "prop", name: "DELHI", price: 350, group: "#2196F3", rent: [35, 175, 500] }, // Blue
+            { type: "tax", name: "LUXURY TAX", amount: 100 },
+            { type: "prop", name: "TAJ MAHAL", price: 400, group: "#2196F3", rent: [50, 200, 600] }
+        ];
 
-		<div id="player5input" class="player-input">
-			Player 5: <input type="text" id="player5name" title="Player name" maxlength="16" value="Player 5" />
-			<select id="player5color" title="Player color">
-				<option style="color: aqua;">Aqua</option>
-				<option style="color: black;">Black</option>
-				<option style="color: blue;">Blue</option>
-				<option style="color: fuchsia;">Fuchsia</option>
-				<option style="color: gray;">Gray</option>
-				<option selected="selected" style="color: green;">Green</option>
-				<option style="color: lime;">Lime</option>
-				<option style="color: maroon;">Maroon</option>
-				<option style="color: navy;">Navy</option>
-				<option style="color: olive;">Olive</option>
-				<option style="color: orange;">Orange</option>
-				<option style="color: purple;">Purple</option>
-				<option style="color: red;">Red</option>
-				<option style="color: silver;">Silver</option>
-				<option style="color: teal;">Teal</option>
-				<option style="color: yellow;">Yellow</option>
-			</select>
-			<select id="player5ai" title="Choose whether this player is controled by a human or by the computer." onclick="document.getElementById('player5name').disabled = this.value !== '0';">
-				<option value="0" selected="selected">Human</option>
-				<option value="1">AI (Test)</option>
-			</select>
-		</div>
+        let turn = 0;
+        let ownership = {}; // Map pos -> playerID
+        let scene, camera, renderer, controls;
+        let playerMeshes = [];
+        let isMoving = false;
 
-		<div id="player6input" class="player-input">
-			Player 6: <input type="text" id="player6name" title="Player name" maxlength="16" value="Player 6" />
-			<select id="player6color" title="Player color">
-				<option selected="selected" style="color: aqua;">Aqua</option>
-				<option style="color: black;">Black</option>
-				<option style="color: blue;">Blue</option>
-				<option style="color: fuchsia;">Fuchsia</option>
-				<option style="color: gray;">Gray</option>
-				<option style="color: green;">Green</option>
-				<option style="color: lime;">Lime</option>
-				<option style="color: maroon;">Maroon</option>
-				<option style="color: navy;">Navy</option>
-				<option style="color: olive;">Olive</option>
-				<option style="color: orange;">Orange</option>
-				<option style="color: purple;">Purple</option>
-				<option style="color: red;">Red</option>
-				<option style="color: silver;">Silver</option>
-				<option style="color: teal;">Teal</option>
-				<option style="color: yellow;">Yellow</option>
-			</select>
-			<select id="player6ai" title="Choose whether this player is controled by a human or by the computer." onclick="document.getElementById('player6name').disabled = this.value !== '0';">
-				<option value="0" selected="selected">Human</option>
-				<option value="1">AI (Test)</option>
-			</select>
-		</div>
+        // --- INIT ---
+        function initGame() {
+            document.getElementById('start-screen').style.display = 'none';
+            initThreeJS();
+            updateHUD();
+            document.getElementById('dice-btn').style.display = 'flex';
+        }
 
-		<div id="player7input" class="player-input">
-			Player 7: <input type="text" id="player7name" title="Player name" maxlength="16" value="Player 7" />
-			<select id="player7color" title="Player color">
-				<option style="color: aqua;">Aqua</option>
-				<option style="color: black;">Black</option>
-				<option style="color: blue;">Blue</option>
-				<option style="color: fuchsia;">Fuchsia</option>
-				<option style="color: gray;">Gray</option>
-				<option style="color: green;">Green</option>
-				<option style="color: lime;">Lime</option>
-				<option style="color: maroon;">Maroon</option>
-				<option style="color: navy;">Navy</option>
-				<option style="color: olive;">Olive</option>
-				<option selected="selected" style="color: orange;">Orange</option>
-				<option style="color: purple;">Purple</option>
-				<option style="color: red;">Red</option>
-				<option style="color: silver;">Silver</option>
-				<option style="color: teal;">Teal</option>
-				<option style="color: yellow;">Yellow</option>
-			</select>
-			<select id="player7ai" title="Choose whether this player is controled by a human or by the computer." onclick="document.getElementById('player7name').disabled = this.value !== '0';">
-				<option value="0" selected="selected">Human</option>
-				<option value="1">AI (Test)</option>
-			</select>
-		</div>
+        function initThreeJS() {
+            scene = new THREE.Scene();
+            // Lighting for Daylight
+            const ambient = new THREE.AmbientLight(0xffffff, 0.7);
+            scene.add(ambient);
+            const sun = new THREE.DirectionalLight(0xffffff, 0.8);
+            sun.position.set(20, 50, 20);
+            sun.castShadow = true;
+            sun.shadow.mapSize.width = 2048; sun.shadow.mapSize.height = 2048;
+            scene.add(sun);
 
-		<div id="player8input" class="player-input">
-			Player 8: <input type="text" id="player8name" title="Player name" maxlength="16" value="Player 8" />
-			<select id="player8color" title="Player color">
-				<option style="color: aqua;">Aqua</option>
-				<option style="color: black;">Black</option>
-				<option style="color: blue;">Blue</option>
-				<option style="color: fuchsia;">Fuchsia</option>
-				<option style="color: gray;">Gray</option>
-				<option style="color: green;">Green</option>
-				<option style="color: lime;">Lime</option>
-				<option style="color: maroon;">Maroon</option>
-				<option style="color: navy;">Navy</option>
-				<option style="color: olive;">Olive</option>
-				<option style="color: orange;">Orange</option>
-				<option selected="selected" style="color: purple;">Purple</option>
-				<option style="color: red;">Red</option>
-				<option style="color: silver;">Silver</option>
-				<option style="color: teal;">Teal</option>
-				<option style="color: yellow;">Yellow</option>
-			</select>
-			<select id="player8ai" title="Choose whether this player is controled by a human or by the computer." onclick="document.getElementById('player8name').disabled = this.value !== '0';">
-				<option value="0" selected="selected">Human</option>
-				<option value="1">AI (Test)</option>
-			</select>
-		</div>
+            camera = new THREE.PerspectiveCamera(45, window.innerWidth/window.innerHeight, 0.1, 1000);
+            camera.position.set(0, 22, 22);
+            camera.lookAt(0, 0, 0);
 
-		<div style="margin: 20px 0px;">
-			<input type="button" value="Start Game" onclick="setup();" title="Begin playing." />
-		</div>
+            renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+            renderer.setSize(window.innerWidth, window.innerHeight);
+            renderer.shadowMap.enabled = true;
+            document.getElementById('game-canvas').appendChild(renderer.domElement);
 
-		<div id="noF5">Note: Refreshing this page or navigating away from it may end your game without warning.</div>
-	</div>
+            controls = new THREE.OrbitControls(camera, renderer.domElement);
+            controls.enableDamping = true;
+            controls.maxPolarAngle = Math.PI / 2.2; // Keep above ground
+            controls.minDistance = 10;
+            controls.maxDistance = 40;
 
-	<div id="control">
-		<table>
-			<tr>
-				<td style="text-align: left; vertical-align: top; border: none;">
-					<div id="menu">
-						<table id="menutable" cellspacing="0">
-							<tr>
-								<td class="menu-item" id="buy-menu-item">
+            createEnvironment();
+            createBoard();
+            createTokens();
+            animate();
+        }
 
-									<a href="javascript:void(0);" title="View alerts and buy the property you landed on.">Buy</a>
-								</td>
-								<td class="menu-item" id="manage-menu-item">
+        // --- 3D ASSETS ---
+        function createEnvironment() {
+            // Realistic Grass Ground
+            const groundGeo = new THREE.PlaneGeometry(80, 80);
+            
+            // Generate Grass Texture
+            const canvas = document.createElement('canvas');
+            canvas.width = 512; canvas.height = 512;
+            const ctx = canvas.getContext('2d');
+            ctx.fillStyle = '#4CAF50'; ctx.fillRect(0,0,512,512);
+            // Add noise
+            for(let i=0; i<10000; i++) {
+                ctx.fillStyle = Math.random() > 0.5 ? '#388E3C' : '#81C784';
+                ctx.fillRect(Math.random()*512, Math.random()*512, 2, 2);
+            }
+            const grassTex = new THREE.CanvasTexture(canvas);
+            grassTex.wrapS = THREE.RepeatWrapping; grassTex.wrapT = THREE.RepeatWrapping;
+            grassTex.repeat.set(8, 8);
+            
+            const groundMat = new THREE.MeshStandardMaterial({ map: grassTex });
+            const ground = new THREE.Mesh(groundGeo, groundMat);
+            ground.rotation.x = -Math.PI / 2;
+            ground.position.y = -0.5;
+            ground.receiveShadow = true;
+            scene.add(ground);
+        }
 
-									<a href="javascript:void(0);" title="View, mortgage, and improve your property. ">Manage</a>
-								</td>
-								<td class="menu-item" id="trade-menu-item">
+        function createBoard() {
+            // Center Logo Area
+            const centerGeo = new THREE.PlaneGeometry(6, 6);
+            const cvs = document.createElement('canvas');
+            cvs.width = 512; cvs.height = 512;
+            const ctx = cvs.getContext('2d');
+            
+            // Royal Blue Background for Center
+            ctx.fillStyle = "#1a237e"; ctx.fillRect(0,0,512,512);
+            
+            // Gold Text
+            ctx.fillStyle = "#FFD700"; 
+            ctx.font = "bold 70px serif"; ctx.textAlign = "center";
+            ctx.fillText("VISHAL", 256, 200);
+            ctx.fillText("EMPIRE", 256, 300);
+            
+            // Gold Border
+            ctx.strokeStyle = "#FFD700"; ctx.lineWidth = 15; ctx.strokeRect(20,20,472,472);
 
-									<a href="javascript:void(0);" title="Exchange property with other players.">Trade</a>
-								</td>
-							</tr>
-						</table>
-					</div>
+            const tex = new THREE.CanvasTexture(cvs);
+            const centerMesh = new THREE.Mesh(centerGeo, new THREE.MeshBasicMaterial({ map: tex }));
+            centerMesh.rotation.x = -Math.PI/2;
+            centerMesh.position.y = 0.05;
+            scene.add(centerMesh);
 
-					<div id="buy">
-						<div id="alert"></div>
-						<div id="landed"></div>
-					</div>
+            // Tiles
+            for(let i=0; i<40; i++) createTile(i, boardMap[i]);
+        }
 
-					<div id="manage">
-						<div id="option">
-							<div id="buildings" title="Available buildings"></div>
-							<input type="button" value="Buy house" id="buyhousebutton"/>
-							<input type="button" value="Mortgage" id="mortgagebutton" />
-							<input type="button" value="Sell house" id="sellhousebutton"/>
-						</div>
-						<div id="owned"></div>
-					</div>
-				</td>
-				<td style="vertical-align: top; border: none;">
-					<div id="quickstats" style="">
-							<div><span id="pname" >Player 1</span>:</div>
-							<div><span id="pmoney">$1500</span></div>
-					</div>
-					<div>
-						<div id="die0" title="Die" class="die die-no-img"></div>
-						<div id="die1" title="Die" class="die die-no-img"></div>
-					</div>
+        function createTile(i, data) {
+            const pos = getTilePos(i);
+            const isCorner = i%10 === 0;
+            const w = isCorner ? 1.6 : 1.1; 
+            const d = isCorner ? 1.6 : 1.6;
 
-				</td>
-			</tr><tr>
-				<td colspan="2" style="border: none">
-					<div style="padding-top: 8px;">
-						<input type="button" id="nextbutton" title="Roll the dice and move your token accordingly." value="Roll Dice"/>
-						<input type="button" id="resignbutton" title="If you cannot pay your debt then you must resign from the game." value="Resign" onclick="game.resign();" />
-					</div>
-				</td>
-			</tr>
-		</table>
-	</div>
+            // HIGH RES TEXTURE FOR BIG TEXT
+            const cvs = document.createElement('canvas');
+            cvs.width = 256; cvs.height = 400; // High resolution
+            const ctx = cvs.getContext('2d');
+            
+            ctx.fillStyle = "#fff"; ctx.fillRect(0,0,256,400);
+            ctx.strokeStyle = "#000"; ctx.lineWidth = 4; ctx.strokeRect(0,0,256,400);
 
-	<div id="trade">
-		<table style="border-spacing: 3px;">
-			<tr>
-				<td class="trade-cell">
-					<div id="trade-leftp-name"></div>
-				</td>
-				<td class="trade-cell">
-					<div id="trade-rightp-name"></div>
-				</td>
-			</tr>
-			<tr>
-				<td class="trade-cell">
-					$&nbsp;<input id="trade-leftp-money" value="0" title="Enter amount to exchange with the other player." />
-				</td>
-				<td class="trade-cell">
-					$&nbsp;<input id="trade-rightp-money" value="0" title="Enter amount to exchange with the other player." />
-				</td>
-			</tr>
-			<tr>
-				<td id="trade-leftp-property" class="trade-cell"></td>
-				<td id="trade-rightp-property" class="trade-cell"></td>
-			</tr>
-			<tr>
-				<td colspan="2" class="trade-cell">
-					<input type="button" id="proposetradebutton" value="Propose Trade" onclick="game.proposeTrade();" title="Exchange the money and properties that are checked above." />
-					<input type="button" id="canceltradebutton" value="Cancel Trade" onclick='game.cancelTrade();' title="Cancel the trade." />
-					<input type="button" id="accepttradebutton" value="Accept Trade" onclick="game.acceptTrade();" title="Accept the proposed trade." />
-					<input type="button" id="rejecttradebutton" value="Reject Trade" onclick='game.cancelTrade();' title="Reject the proposed trade." />
-				</td>
-			</tr>
-		</table>
-	</div>
+            if(data.group) {
+                // Color Header
+                ctx.fillStyle = data.group; ctx.fillRect(0,0,256,100);
+                ctx.strokeStyle="#000"; ctx.lineWidth=2; ctx.strokeRect(0,0,256,100);
+                
+                // Big Name
+                ctx.fillStyle = "#000"; ctx.font = "900 38px Arial"; ctx.textAlign = "center";
+                ctx.fillText(data.name, 128, 160);
+                
+                // Price
+                ctx.font = "bold 35px Arial";
+                ctx.fillText("₹" + data.price, 128, 350);
+            } else {
+                ctx.fillStyle = "#000"; ctx.font = "900 35px Arial"; ctx.textAlign = "center";
+                // Wrap text manually if needed or just center
+                ctx.fillText(data.name, 128, 200);
+                if(data.amount) ctx.fillText("₹" + data.amount, 128, 260);
+            }
 
+            const tex = new THREE.CanvasTexture(cvs);
+            const mat = new THREE.MeshStandardMaterial({ map: tex });
+            const geo = new THREE.BoxGeometry(w, 0.2, d);
+            const mesh = new THREE.Mesh(geo, mat);
+
+            mesh.position.set(pos.x, 0.1, pos.z);
+            
+            // Rotation logic
+            if(i>0 && i<10) mesh.rotation.y = Math.PI;
+            else if(i>10 && i<20) mesh.rotation.y = -Math.PI/2;
+            else if(i>20 && i<30) mesh.rotation.y = 0;
+            else if(i>30) mesh.rotation.y = Math.PI/2;
+
+            mesh.receiveShadow = true;
+            scene.add(mesh);
+        }
+
+        function getTilePos(i) {
+            const width = 6; const step = 1.2;
+            if(i<=10) return {x: width - (i*step), z: width};
+            if(i<=20) return {x: -width, z: width - ((i-10)*step)};
+            if(i<=30) return {x: -width + ((i-20)*step), z: -width};
+            return {x: width, z: -width + ((i-30)*step)};
+        }
+
+        function createTokens() {
+            players.forEach((p, idx) => {
+                const geo = new THREE.CylinderGeometry(0.2, 0.3, 0.7, 16);
+                const mat = new THREE.MeshStandardMaterial({ color: p.color, metalness: 0.5, roughness: 0.1 });
+                const mesh = new THREE.Mesh(geo, mat);
+                const start = getTilePos(0);
+                mesh.position.set(start.x + (idx%2*0.3), 0.5, start.z + (Math.floor(idx/2)*0.3));
+                mesh.castShadow = true;
+                scene.add(mesh);
+                playerMeshes.push(mesh);
+            });
+        }
+
+        // --- GAMEPLAY & ANIMATION ---
+
+        function updateHUD() {
+            players.forEach((p, i) => {
+                const hud = document.getElementById(`p${i+1}-hud`);
+                document.getElementById(`money-${i}`).innerText = `₹${p.money}`;
+                if(i===turn) hud.classList.add('active'); else hud.classList.remove('active');
+            });
+        }
+
+        function triggerATM(amount) {
+            const p = players[turn];
+            const cardEl = document.getElementById('atm-card-el');
+            const cont = document.getElementById('atm-container');
+            const amtEl = document.getElementById('trans-amt');
+            const nameEl = document.getElementById('trans-name');
+
+            // Set Data
+            nameEl.innerText = p.name.split(" ")[0].toUpperCase();
+            amtEl.innerText = (amount >= 0 ? "+" : "") + " ₹" + amount;
+            amtEl.style.color = amount >= 0 ? "#00e676" : "#ff1744";
+
+            // Show & Animate
+            cont.style.display = "block";
+            cardEl.classList.remove('swipe-action');
+            void cardEl.offsetWidth; // Force reflow
+            cardEl.classList.add('swipe-action');
+
+            // Hide after animation (3s duration)
+            setTimeout(() => {
+                cont.style.display = "none";
+            }, 3000);
+        }
+
+        function rollDice() {
+            if(isMoving) return;
+            isMoving = true;
+            document.getElementById('dice-btn').style.display = 'none';
+
+            const d = Math.floor(Math.random()*12) + 1; // 2-12 roughly
+            movePlayer(d);
+        }
+
+        function movePlayer(steps) {
+            const p = players[turn];
+            let count = 0;
+            const interval = setInterval(() => {
+                p.pos = (p.pos + 1) % 40;
+                
+                // Visual
+                const pos = getTilePos(p.pos);
+                new TWEEN.Tween(playerMeshes[turn].position)
+                    .to({ x: pos.x + (turn%2*0.3), z: pos.z + (Math.floor(turn/2)*0.3) }, 200)
+                    .start();
+
+                if(p.pos === 0) {
+                    p.money += 200;
+                    triggerATM(200);
+                    updateHUD();
+                }
+
+                count++;
+                if(count >= steps) {
+                    clearInterval(interval);
+                    setTimeout(handleLand, 500);
+                }
+            }, 250);
+        }
+
+        function handleLand() {
+            const p = players[turn];
+            const tile = boardMap[p.pos];
+
+            if(tile.type === "tax") {
+                p.money -= tile.amount;
+                triggerATM(-tile.amount);
+                updateHUD();
+                setTimeout(nextTurn, 3500); // Wait for ATM
+            } 
+            else if(tile.group) {
+                // Property
+                if(ownership[p.pos] === undefined) {
+                    // Buy
+                    showDeed(tile);
+                } else if(ownership[p.pos] !== p.id) {
+                    // Rent
+                    const rent = 50; // Simplified
+                    p.money -= rent;
+                    players[ownership[p.pos]].money += rent;
+                    triggerATM(-rent);
+                    updateHUD();
+                    setTimeout(nextTurn, 3500);
+                } else {
+                    nextTurn();
+                }
+            } else {
+                nextTurn();
+            }
+        }
+
+        function showDeed(tile) {
+            const ol = document.getElementById('deed-overlay');
+            const head = document.getElementById('deed-header');
+            
+            head.innerText = tile.name;
+            head.style.backgroundColor = tile.group;
+            
+            // Rent Data (Mockup logic if array exists)
+            const rents = tile.rent || [10, 50, 100, 300, 500];
+            document.getElementById('r-base').innerText = `₹${rents[0]}`;
+            document.getElementById('r-1').innerText = `₹${rents[1]}`;
+            document.getElementById('r-2').innerText = `₹${rents[2]}`;
+            document.getElementById('deed-price').innerText = `₹${tile.price}`;
+
+            ol.style.display = 'flex';
+        }
+
+        function handleTransaction(buy) {
+            document.getElementById('deed-overlay').style.display = 'none';
+            const p = players[turn];
+            const tile = boardMap[p.pos];
+
+            if(buy) {
+                if(p.money >= tile.price) {
+                    p.money -= tile.price;
+                    ownership[p.pos] = p.id;
+                    p.assets.push(tile.name);
+                    
+                    triggerATM(-tile.price);
+                    
+                    // Build 3D Castle
+                    const pos = getTilePos(p.pos);
+                    const geo = new THREE.ConeGeometry(0.35, 0.6, 4);
+                    const mat = new THREE.MeshStandardMaterial({ color: p.color });
+                    const house = new THREE.Mesh(geo, mat);
+                    house.position.set(pos.x*0.9, 0.4, pos.z*0.9);
+                    scene.add(house);
+                }
+            }
+            updateHUD();
+            // Wait for ATM animation to finish before next turn
+            setTimeout(nextTurn, 3500);
+        }
+
+        function nextTurn() {
+            isMoving = false;
+            turn = (turn + 1) % 4;
+            updateHUD();
+            document.getElementById('dice-btn').style.display = 'flex';
+        }
+
+        function openProfile(pid) {
+            const p = players[pid];
+            const mod = document.getElementById('profile-modal');
+            document.getElementById('prof-name').innerText = p.name;
+            document.getElementById('prof-money').innerText = `₹${p.money}`;
+            
+            const grid = document.getElementById('prof-assets');
+            grid.innerHTML = "";
+            if(p.assets.length === 0) grid.innerHTML = "<p>No Assets</p>";
+            
+            p.assets.forEach(a => {
+                const el = document.createElement('div');
+                el.className = 'mini-asset';
+                el.innerText = a;
+                // Find color
+                const t = boardMap.find(x => x.name === a);
+                el.style.backgroundColor = t ? t.group : '#333';
+                grid.appendChild(el);
+            });
+            mod.style.display = 'flex';
+        }
+
+        function animate() {
+            requestAnimationFrame(animate);
+            TWEEN.update();
+            controls.update();
+            renderer.render(scene, camera);
+        }
+        
+        window.addEventListener('resize', () => {
+            camera.aspect = window.innerWidth/window.innerHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(window.innerWidth, window.innerHeight);
+        });
+
+    </script>
 </body>
 </html>
