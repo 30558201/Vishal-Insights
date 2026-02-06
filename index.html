@@ -178,6 +178,63 @@ body.dark .header { background: rgba(11, 17, 32, 0.75); }
     background: linear-gradient(145deg, var(--card) 0%, rgba(139, 92, 246, 0.04) 100%);
 }
 
+/* NEW: VOTE CARD STYLE (Official Government Look) */
+.card.vote-card {
+    border: 1px solid rgba(249, 115, 22, 0.2);
+    background: linear-gradient(135deg, #fff7ed 0%, #ffedd5 100%);
+}
+body.dark .card.vote-card {
+    background: linear-gradient(135deg, #1e1b4b 0%, #0f172a 100%);
+    border-color: #f59e0b;
+}
+
+/* Live Blinking Indicator */
+.live-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: rgba(220, 38, 38, 0.1);
+    color: #dc2626;
+    font-size: 10px;
+    padding: 6px 12px;
+    border-radius: 100px;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    border: 1px solid rgba(220, 38, 38, 0.2);
+    animation: pulseBorder 2s infinite;
+}
+
+.live-dot {
+    width: 6px; height: 6px;
+    background: #dc2626;
+    border-radius: 50%;
+    animation: blinkLive 1s infinite;
+}
+
+/* Vote Stats Box */
+.vote-stats {
+    background: rgba(255,255,255,0.6);
+    padding: 10px 14px;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 20px;
+    border: 1px solid rgba(0,0,0,0.05);
+}
+body.dark .vote-stats {
+    background: rgba(255,255,255,0.05);
+    border-color: rgba(255,255,255,0.1);
+}
+
+.stat-number {
+    font-weight: 800;
+    color: #c2410c;
+    font-size: 14px;
+}
+body.dark .stat-number { color: #fbbf24; }
+
 .btn{
   display:inline-flex;
   align-items: center;
@@ -196,6 +253,7 @@ body.dark .header { background: rgba(11, 17, 32, 0.75); }
 }
 .btn:active{ transform:scale(0.96); box-shadow: none; }
 .btn-craft { background: #8b5cf6; box-shadow: 0 8px 20px rgba(139, 92, 246, 0.3); }
+.btn-vote { background: #ea580c; box-shadow: 0 8px 20px rgba(234, 88, 12, 0.3); }
 
 /* ===== BADGES (Professional Categorization) ===== */
 .badge {
@@ -222,17 +280,22 @@ body.dark .header { background: rgba(11, 17, 32, 0.75); }
 .badge.ai { background: rgba(14, 165, 233, 0.1); color: #0ea5e9; }
 .badge.read { background: rgba(245, 158, 11, 0.1); color: #d97706; }
 .badge.craft { background: rgba(139, 92, 246, 0.1); color: #8b5cf6; }
+.badge.govt { background: rgba(234, 88, 12, 0.1); color: #ea580c; border: 1px solid rgba(234, 88, 12, 0.2); }
 
 /* Dark mode adjustments for badges */
 body.dark .badge.game { background: rgba(37, 99, 235, 0.2); color: #60a5fa; }
 body.dark .badge.info { background: rgba(148, 163, 184, 0.2); color: #cbd5e1; }
 body.dark .badge.media { background: rgba(236, 72, 153, 0.2); color: #f472b6; }
 body.dark .badge.craft { background: rgba(139, 92, 246, 0.2); color: #a78bfa; }
+body.dark .badge.govt { background: rgba(234, 88, 12, 0.2); color: #fbbf24; }
 
 @keyframes proPulse {
     0%, 100% { opacity: 1; }
     50% { opacity: 0.7; }
 }
+@keyframes blinkLive { 0%, 100% { opacity: 1; } 50% { opacity: 0.4; } }
+@keyframes pulseBorder { 0% { box-shadow: 0 0 0 0 rgba(220, 38, 38, 0.4); } 70% { box-shadow: 0 0 0 6px rgba(220, 38, 38, 0); } 100% { box-shadow: 0 0 0 0 rgba(220, 38, 38, 0); } }
+
 
 /* ===== BOTTOM NAVIGATION (4 Items) ===== */
 .bottom-nav{
@@ -401,6 +464,21 @@ body.dark .bottom-nav { background: rgba(30, 41, 59, 0.9); }
 
     <div class="section-title">Dashboard</div>
 
+    <div class="card vote-card">
+        <h3>
+            Supreme Commission 
+            <span class="live-badge"><span class="live-dot"></span> LIVE</span>
+        </h3>
+        <div class="vote-stats">
+            <span style="font-size: 16px;">📊</span>
+            <div>
+                <div class="stat-number">Vote NOW</div>
+                <div style="font-size: 10px; opacity: 0.7;">Polling Active Now</div>
+            </div>
+        </div>
+        <p>The voting lines are now open for the 2026 Term. Cast your vote securely for Baba Ji via the official portal.</p>
+        <a href="vote.html" class="btn btn-vote">Vote Now</a>
+    </div>
     <div class="card craft-card">
         <h3>Baba Craft <span class="badge new-blink">NEW</span></h3>
         <p>Experience the new era of creativity. Build, explore, and engineer your world in our latest immersive environment.</p>
@@ -474,7 +552,11 @@ body.dark .bottom-nav { background: rgba(30, 41, 59, 0.9); }
     <a href="index.html" class="menu-item">
         Home
     </a>
-    
+
+    <a href="vote.html" class="menu-item">
+        Supreme Commission <span class="badge govt">OFFICIAL</span>
+    </a>
+
     <a href="https://30558201.github.io/Vishal-Insights/craft.html" class="menu-item">
         Baba Craft <span class="badge craft">GAME</span>
     </a>
