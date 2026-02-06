@@ -3,103 +3,182 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Commission Admin Panel</title>
+    <title>Supreme Commission | Control Room</title>
     
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&display=swap" rel="stylesheet">
     
     <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
 
     <style>
-        body { font-family: 'Outfit', sans-serif; background: #0f172a; color: white; }
-        
-        .glass-panel {
-            background: rgba(30, 41, 59, 0.7);
-            backdrop-filter: blur(20px);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+        :root {
+            --bg-dark: #020617;
+            --glass: rgba(30, 41, 59, 0.4);
+            --border: rgba(255, 255, 255, 0.08);
         }
 
-        /* Progress Bar Animation */
-        .progress-bar { transition: width 1s cubic-bezier(0.4, 0, 0.2, 1); }
-        
-        /* Rank Colors */
-        .rank-1 .bar-fill { background: linear-gradient(90deg, #fbbf24, #d97706); } /* Gold */
-        .rank-2 .bar-fill { background: linear-gradient(90deg, #94a3b8, #64748b); } /* Silver */
-        .rank-3 .bar-fill { background: linear-gradient(90deg, #b45309, #78350f); } /* Bronze */
-        .rank-other .bar-fill { background: #334155; }
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            background: var(--bg-dark);
+            background-image: radial-gradient(circle at 50% 0%, #1e3a8a 0%, #020617 60%);
+            color: white;
+            min-height: 100vh;
+        }
 
-        .crown-icon { display: none; }
-        .rank-1 .crown-icon { display: inline-block; color: #fbbf24; animation: bounce 2s infinite; }
+        /* --- Glass Panel --- */
+        .glass-panel {
+            background: var(--glass);
+            backdrop-filter: blur(20px);
+            border: 1px solid var(--border);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+            border-radius: 20px;
+        }
 
-        @keyframes bounce { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-5px); } }
+        /* --- Inputs --- */
+        .secure-input {
+            background: rgba(0,0,0,0.4);
+            border: 1px solid var(--border);
+            letter-spacing: 4px;
+            font-family: monospace;
+            transition: 0.3s;
+        }
+        .secure-input:focus { border-color: #3b82f6; outline: none; box-shadow: 0 0 20px rgba(59, 130, 246, 0.2); }
+
+        /* --- MEDAL CARDS --- */
+        .rank-card {
+            position: relative;
+            overflow: hidden;
+            transition: transform 0.3s;
+        }
+        .rank-card:hover { transform: translateY(-5px); }
+
+        /* GOLD */
+        .rank-1 {
+            background: linear-gradient(145deg, rgba(234, 179, 8, 0.15), rgba(0,0,0,0));
+            border: 1px solid rgba(234, 179, 8, 0.5);
+            box-shadow: 0 0 30px rgba(234, 179, 8, 0.15);
+        }
+        .rank-1 .medal-icon { color: #facc15; text-shadow: 0 0 10px rgba(250, 204, 21, 0.6); }
+        .rank-1 .progress-fill { background: linear-gradient(90deg, #facc15, #a16207); }
+
+        /* SILVER */
+        .rank-2 {
+            background: linear-gradient(145deg, rgba(148, 163, 184, 0.1), rgba(0,0,0,0));
+            border: 1px solid rgba(148, 163, 184, 0.4);
+        }
+        .rank-2 .medal-icon { color: #cbd5e1; text-shadow: 0 0 10px rgba(203, 213, 225, 0.4); }
+        .rank-2 .progress-fill { background: linear-gradient(90deg, #cbd5e1, #64748b); }
+
+        /* BRONZE */
+        .rank-3 {
+            background: linear-gradient(145deg, rgba(249, 115, 22, 0.1), rgba(0,0,0,0));
+            border: 1px solid rgba(249, 115, 22, 0.4);
+        }
+        .rank-3 .medal-icon { color: #fdba74; text-shadow: 0 0 10px rgba(253, 186, 116, 0.4); }
+        .rank-3 .progress-fill { background: linear-gradient(90deg, #fb923c, #9a3412); }
+
+        /* Normal Rows */
+        .rank-norm { border-bottom: 1px solid rgba(255,255,255,0.05); }
+        .rank-norm .progress-fill { background: #334155; }
+
+        /* Animations */
+        @keyframes pulse-gold { 0%, 100% { opacity: 0.5; } 50% { opacity: 1; } }
+        .live-dot { animation: pulse-gold 1.5s infinite; }
     </style>
 </head>
-<body class="min-h-screen flex flex-col items-center justify-center p-4">
+<body class="flex flex-col items-center justify-center p-4">
 
-    <div id="login-screen" class="glass-panel p-8 rounded-3xl w-full max-w-sm text-center">
-        <div class="w-16 h-16 bg-red-500/10 rounded-full flex items-center justify-center mx-auto mb-6">
-            <i class="fa-solid fa-user-lock text-2xl text-red-500"></i>
+    <div id="lock-screen" class="fixed inset-0 z-50 flex items-center justify-center bg-[#020617]">
+        <div class="glass-panel p-8 w-full max-w-md text-center">
+            <div class="w-20 h-20 bg-blue-500/10 rounded-full flex items-center justify-center mx-auto mb-6 ring-1 ring-blue-500/30">
+                <i class="fa-solid fa-fingerprint text-4xl text-blue-500"></i>
+            </div>
+            <h2 class="text-2xl font-bold mb-1 tracking-wide">SUPREME ACCESS</h2>
+            <p class="text-gray-500 text-xs uppercase tracking-widest mb-8">Authorized Personnel Only</p>
+            
+            <input type="password" id="admin-pin" placeholder="ENTER SECURE PIN" class="secure-input w-full p-4 rounded-xl text-center text-white text-lg mb-4 placeholder-gray-600">
+            
+            <button onclick="authenticate()" class="w-full bg-blue-600 hover:bg-blue-500 text-white font-bold py-4 rounded-xl transition shadow-lg shadow-blue-600/20">
+                DECRYPT DATA
+            </button>
+            <p id="error-msg" class="text-red-500 text-xs font-bold mt-4 opacity-0 transition">ACCESS DENIED</p>
         </div>
-        <h2 class="text-2xl font-bold mb-2">Restricted Access</h2>
-        <p class="text-gray-400 text-sm mb-6">Enter Admin PIN to view results</p>
-        
-        <input type="password" id="admin-pin" placeholder="Enter PIN" class="w-full bg-black/30 border border-gray-700 rounded-xl px-4 py-3 text-center text-xl font-mono tracking-widest mb-4 focus:outline-none focus:border-blue-500 transition">
-        
-        <button onclick="checkPin()" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 rounded-xl transition shadow-lg shadow-blue-500/30">
-            Access Dashboard
-        </button>
-        <p id="login-error" class="text-red-400 text-xs mt-4 hidden">Incorrect PIN</p>
     </div>
 
-    <div id="dashboard-screen" class="w-full max-w-2xl hidden pb-20">
+    <div id="main-dash" class="w-full max-w-6xl hidden opacity-0 transition-opacity duration-1000">
         
-        <div class="flex justify-between items-center mb-8 pt-8">
-            <div>
-                <h1 class="text-3xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-purple-400">Live Results</h1>
-                <p class="text-gray-400 text-sm">Supreme Baba Commission 2026</p>
-            </div>
-            <button onclick="fetchResults()" class="w-10 h-10 rounded-full bg-gray-800 flex items-center justify-center hover:bg-gray-700 transition">
-                <i class="fa-solid fa-rotate-right text-white"></i>
-            </button>
-        </div>
-
-        <div class="glass-panel p-6 rounded-2xl mb-8 flex items-center justify-between">
-            <div>
-                <p class="text-gray-400 text-xs font-bold uppercase tracking-widest">Total Votes Cast</p>
-                <h2 class="text-4xl font-black mt-1" id="total-votes">0</h2>
-            </div>
-            <div class="h-12 w-12 bg-green-500/20 rounded-xl flex items-center justify-center text-green-500 text-xl">
-                <i class="fa-solid fa-chart-pie"></i>
-            </div>
-        </div>
-
-        <div class="mb-10">
-            <h3 class="text-xl font-bold mb-4 flex items-center gap-2">
-                <i class="fa-solid fa-user-tie text-blue-500"></i> Candidate Standings
-            </h3>
-            <div id="cand-list" class="space-y-4">
-                <div class="text-center text-gray-500 py-10">Loading data...</div>
-            </div>
-        </div>
-
-        <div class="mb-10">
-            <h3 class="text-xl font-bold mb-4 flex items-center gap-2">
-                <i class="fa-solid fa-tag text-purple-500"></i> Title Assignments
-            </h3>
-            <div id="title-list" class="space-y-4">
+        <div class="flex flex-col md:flex-row justify-between items-center mb-10 border-b border-white/5 pb-6">
+            <div class="flex items-center gap-4 mb-4 md:mb-0">
+                <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/5/55/Emblem_of_India.svg/1200px-Emblem_of_India.svg.png" class="w-12 filter brightness-0 invert opacity-80">
+                <div>
+                    <h1 class="text-2xl font-extrabold tracking-tight">ELECTION RESULT <span class="text-blue-500">2026</span></h1>
+                    <div class="flex items-center gap-2 text-green-400 text-xs font-bold uppercase tracking-widest">
+                        <span class="w-2 h-2 bg-green-500 rounded-full live-dot"></span> Live Counting
+                    </div>
                 </div>
+            </div>
+            
+            <div class="glass-panel px-6 py-3 flex items-center gap-6">
+                <div class="text-right">
+                    <p class="text-[10px] text-gray-400 font-bold uppercase">Total Votes</p>
+                    <p class="text-3xl font-black text-white" id="total-count">0</p>
+                </div>
+                <button onclick="fetchData()" class="w-10 h-10 rounded-full bg-white/5 hover:bg-white/10 flex items-center justify-center transition">
+                    <i class="fa-solid fa-arrows-rotate text-blue-400"></i>
+                </button>
+            </div>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-8 mb-12">
+            
+            <div>
+                <h3 class="text-sm font-bold text-gray-400 uppercase tracking-widest mb-4 flex items-center gap-2">
+                    <i class="fa-solid fa-user-tie"></i> Leading Candidates
+                </h3>
+                <div id="podium-cand" class="space-y-3">
+                    <div class="text-center py-10 text-gray-600">Connecting to server...</div>
+                </div>
+            </div>
+
+            <div>
+                <h3 class="text-sm font-bold text-gray-400 uppercase tracking-widest mb-4 flex items-center gap-2">
+                    <i class="fa-solid fa-award"></i> Leading Titles
+                </h3>
+                <div id="podium-title" class="space-y-3">
+                    </div>
+            </div>
+        </div>
+
+        <div class="glass-panel p-6">
+            <h3 class="text-lg font-bold mb-6 border-b border-white/5 pb-4">Full Statistical Report</h3>
+            
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-10">
+                <div>
+                    <div class="flex justify-between text-[10px] font-bold text-gray-500 uppercase mb-2 px-2">
+                        <span>Rank / Candidate</span>
+                        <span>Votes / %</span>
+                    </div>
+                    <div id="list-cand" class="space-y-1"></div>
+                </div>
+
+                <div>
+                    <div class="flex justify-between text-[10px] font-bold text-gray-500 uppercase mb-2 px-2">
+                        <span>Rank / Title</span>
+                        <span>Votes / %</span>
+                    </div>
+                    <div id="list-title" class="space-y-1"></div>
+                </div>
+            </div>
         </div>
 
     </div>
 
 <script>
-    // --- CONFIG ---
-    // Change this PIN to whatever you want
-    const ADMIN_PIN = "2026"; 
-
+    // --- 1. SECURE CONFIG ---
+    const SECRET_PIN = "572009572009"; // STRICT PIN
+    
     const firebaseConfig = {
         apiKey: "AIzaSyDVVEVhLabrza9OXEkcSfYEctDx80nwNPA",
         authDomain: "new-era-226f1.firebaseapp.com",
@@ -109,106 +188,136 @@
         appId: "1:55126293226:web:8deb0c3b320f8d1f8ef593"
     };
 
-    // Lists must match your main app
     const CANDIDATES = ["Yograj", "Aditya", "Mohit", "Bhoomika", "Than Singh", "Kartik", "Tushar", "Amit", "Vishal"];
     const TITLES = ["Pappu Baba", "History Baba", "Museum Baba", "Poli Baba", "Zero Baba", "Error Baba", "Pir Baba"];
 
     firebase.initializeApp(firebaseConfig);
     const db = firebase.firestore();
 
-    // --- AUTH LOGIC ---
-    function checkPin() {
+    // --- 2. AUTHENTICATION ---
+    function authenticate() {
         const input = document.getElementById('admin-pin').value;
-        if(input === ADMIN_PIN) {
-            document.getElementById('login-screen').classList.add('hidden');
-            document.getElementById('dashboard-screen').classList.remove('hidden');
-            fetchResults();
+        const err = document.getElementById('error-msg');
+        
+        if(input === SECRET_PIN) {
+            document.getElementById('lock-screen').style.opacity = '0';
+            setTimeout(() => {
+                document.getElementById('lock-screen').style.display = 'none';
+                const dash = document.getElementById('main-dash');
+                dash.classList.remove('hidden');
+                dash.style.opacity = '1';
+                fetchData();
+            }, 500);
         } else {
-            document.getElementById('login-error').classList.remove('hidden');
+            err.style.opacity = '1';
+            document.getElementById('admin-pin').value = '';
         }
     }
 
-    // --- RESULT LOGIC ---
-    async function fetchResults() {
-        const cList = document.getElementById('cand-list');
-        const tList = document.getElementById('title-list');
-        const totalEl = document.getElementById('total-votes');
-        
-        // Show loading state
-        cList.innerHTML = '<div class="text-center animate-pulse">Calculating...</div>';
-        
+    // --- 3. DATA PROCESSING ---
+    async function fetchData() {
         try {
-            // Fetch ALL votes where 'hasVoted' is true
-            const snapshot = await db.collection("voters").where("hasVoted", "==", true).get();
-            const total = snapshot.size;
-            totalEl.innerText = total;
+            const snap = await db.collection("voters").where("hasVoted", "==", true).get();
+            const total = snap.size;
+            document.getElementById('total-count').innerText = total;
 
-            // Initialize counters
-            let candCounts = {};
-            let titleCounts = {};
-            CANDIDATES.forEach(c => candCounts[c] = 0);
-            TITLES.forEach(t => titleCounts[t] = 0);
+            // Initialize Count Maps
+            let cMap = {}; CANDIDATES.forEach(c => cMap[c] = 0);
+            let tMap = {}; TITLES.forEach(t => tMap[t] = 0);
 
-            // Count votes
-            snapshot.forEach(doc => {
-                const data = doc.data();
-                if(data.voteCand && candCounts[data.voteCand] !== undefined) candCounts[data.voteCand]++;
-                if(data.voteTitle && titleCounts[data.voteTitle] !== undefined) titleCounts[data.voteTitle]++;
+            // Tally Votes
+            snap.forEach(doc => {
+                const d = doc.data();
+                if(d.voteCand && cMap[d.voteCand] !== undefined) cMap[d.voteCand]++;
+                if(d.voteTitle && tMap[d.voteTitle] !== undefined) tMap[d.voteTitle]++;
             });
 
-            // Helper to sort and calculate %
-            const process = (counts) => {
-                return Object.keys(counts)
-                    .map(key => ({ name: key, count: counts[key] }))
-                    .sort((a, b) => b.count - a.count)
-                    .map(item => ({
-                        ...item,
-                        percent: total > 0 ? ((item.count / total) * 100).toFixed(1) : 0
-                    }));
-            };
+            // Convert to Arrays & Sort
+            const cSorted = sortData(cMap, total);
+            const tSorted = sortData(tMap, total);
 
-            const sortedCand = process(candCounts);
-            const sortedTitle = process(titleCounts);
-
-            // Render Function
-            const render = (data, container) => {
-                container.innerHTML = '';
-                data.forEach((item, index) => {
-                    let rankClass = 'rank-other';
-                    if(index === 0) rankClass = 'rank-1';
-                    if(index === 1) rankClass = 'rank-2';
-                    if(index === 2) rankClass = 'rank-3';
-
-                    container.innerHTML += `
-                        <div class="glass-panel p-4 rounded-xl ${rankClass}">
-                            <div class="flex justify-between items-end mb-2">
-                                <div class="flex items-center gap-2">
-                                    <span class="text-lg font-bold text-white">${item.name}</span>
-                                    <i class="fa-solid fa-crown crown-icon text-xs"></i>
-                                </div>
-                                <div class="text-right">
-                                    <span class="text-xl font-black text-white">${item.count}</span>
-                                    <span class="text-xs text-gray-400">Votes</span>
-                                </div>
-                            </div>
-                            <div class="w-full bg-gray-700 h-3 rounded-full overflow-hidden">
-                                <div class="bar-fill h-full rounded-full progress-bar" style="width: ${item.percent}%"></div>
-                            </div>
-                            <div class="text-right mt-1">
-                                <span class="text-[10px] font-bold text-gray-400">${item.percent}%</span>
-                            </div>
-                        </div>
-                    `;
-                });
-            };
-
-            render(sortedCand, cList);
-            render(sortedTitle, tList);
+            // Render UI
+            renderPodium(cSorted, 'podium-cand');
+            renderPodium(tSorted, 'podium-title');
+            
+            renderList(cSorted, 'list-cand');
+            renderList(tSorted, 'list-title');
 
         } catch(e) {
             console.error(e);
-            alert("Error fetching data. Check internet.");
+            alert("Connection Failed");
         }
+    }
+
+    function sortData(map, total) {
+        return Object.keys(map)
+            .map(key => ({
+                name: key,
+                count: map[key],
+                pct: total > 0 ? ((map[key] / total) * 100).toFixed(1) : 0
+            }))
+            .sort((a,b) => b.count - a.count);
+    }
+
+    // --- 4. RENDER LOGIC (TOP 3) ---
+    function renderPodium(data, elementId) {
+        const container = document.getElementById(elementId);
+        container.innerHTML = '';
+        const top3 = data.slice(0, 3); // Get only top 3
+
+        top3.forEach((item, index) => {
+            let rankClass = `rank-${index + 1}`;
+            let icon = index === 0 ? '<i class="fa-solid fa-trophy text-xl"></i>' : 
+                       index === 1 ? '<i class="fa-solid fa-medal text-lg"></i>' : 
+                                     '<i class="fa-solid fa-medal text-lg"></i>';
+            let label = index === 0 ? 'WINNER' : index === 1 ? '2nd' : '3rd';
+
+            container.innerHTML += `
+                <div class="glass-panel p-4 flex items-center justify-between rank-card ${rankClass}">
+                    <div class="flex items-center gap-4">
+                        <div class="w-12 h-12 rounded-full bg-black/20 flex items-center justify-center medal-icon">
+                            ${icon}
+                        </div>
+                        <div>
+                            <p class="text-[10px] font-bold opacity-60 tracking-wider">${label}</p>
+                            <h4 class="text-lg font-bold leading-none">${item.name}</h4>
+                        </div>
+                    </div>
+                    <div class="text-right">
+                        <p class="text-2xl font-black">${item.count}</p>
+                        <p class="text-[10px] font-bold opacity-60">${item.pct}%</p>
+                    </div>
+                </div>
+            `;
+        });
+    }
+
+    // --- 5. RENDER LOGIC (FULL LIST) ---
+    function renderList(data, elementId) {
+        const container = document.getElementById(elementId);
+        container.innerHTML = '';
+
+        data.forEach((item, index) => {
+            let rankColor = index < 3 ? 'text-white' : 'text-gray-500';
+            let barColor = index === 0 ? 'bg-yellow-500' : index === 1 ? 'bg-gray-400' : index === 2 ? 'bg-orange-500' : 'bg-slate-700';
+
+            container.innerHTML += `
+                <div class="py-3 px-2 rank-norm flex items-center justify-between hover:bg-white/5 rounded-lg transition">
+                    <div class="flex items-center gap-3 w-1/2">
+                        <span class="font-mono font-bold text-sm w-6 ${rankColor}">#${index + 1}</span>
+                        <span class="font-semibold text-sm truncate">${item.name}</span>
+                    </div>
+                    <div class="w-1/2 flex items-center gap-3 justify-end">
+                        <div class="w-24 h-1.5 bg-gray-800 rounded-full overflow-hidden">
+                            <div class="h-full rounded-full ${barColor}" style="width: ${item.pct}%"></div>
+                        </div>
+                        <div class="text-right w-12">
+                            <span class="block text-sm font-bold">${item.count}</span>
+                        </div>
+                    </div>
+                </div>
+            `;
+        });
     }
 </script>
 
