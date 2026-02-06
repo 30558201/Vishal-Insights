@@ -254,6 +254,7 @@ body.dark .stat-number { color: #fbbf24; }
 .btn:active{ transform:scale(0.96); box-shadow: none; }
 .btn-craft { background: #8b5cf6; box-shadow: 0 8px 20px rgba(139, 92, 246, 0.3); }
 .btn-vote { background: #ea580c; box-shadow: 0 8px 20px rgba(234, 88, 12, 0.3); }
+.btn-result { background: #1e293b; box-shadow: 0 8px 20px rgba(30, 41, 59, 0.3); }
 
 /* ===== BADGES (Professional Categorization) ===== */
 .badge {
@@ -472,12 +473,20 @@ body.dark .bottom-nav { background: rgba(30, 41, 59, 0.9); }
         <div class="vote-stats">
             <span style="font-size: 16px;">📊</span>
             <div>
-                <div class="stat-number">Vote NOW</div>
+                <div class="stat-number">14,205 Votes</div>
                 <div style="font-size: 10px; opacity: 0.7;">Polling Active Now</div>
             </div>
         </div>
         <p>The voting lines are now open for the 2026 Term. Cast your vote securely for Baba Ji via the official portal.</p>
-        <a href="vote.html" class="btn btn-vote">Vote Now</a>
+        
+        <div style="display: flex; gap: 10px; margin-bottom: 12px;">
+            <a href="vote.html" class="btn btn-vote" style="flex: 1;">Vote Now</a>
+            <a href="voteresult.html" class="btn btn-result" style="flex: 1;">Check Results</a>
+        </div>
+        
+        <div style="font-size: 10px; font-weight: 700; color: #b91c1c; text-align: center; background: rgba(255,255,255,0.5); padding: 8px; border-radius: 10px; border: 1px dashed #fca5a5;">
+            <span style="margin-right:4px;">🔒</span> Result password will show on 8:00 p.m. today. Wait.
+        </div>
     </div>
     <div class="card craft-card">
         <h3>Baba Craft <span class="badge new-blink">NEW</span></h3>
