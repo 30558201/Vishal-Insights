@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Commission Admin Panel</title>
+    
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700;800&display=swap" rel="stylesheet">
+    
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+
+    <style>
+        body { font-family: 'Outfit', sans-serif; background: #0f172a; color: white; }
+        
+        .glass-panel {
+            background: rgba(30, 41, 59, 0.7);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+        }
+
+        /* Progress Bar Animation */
+        .progress-bar { transition: width 1s cubic-bezier(0.4, 0, 0.2, 1); }
+        
+        /* Rank Colors */
+        .rank-1 .bar-fill { background: linear-gradient(90deg, #fbbf24, #d97706); } /* Gold */
+        .rank-2 .bar-fill { background: linear-gradient(90deg, #94a3b8, #64748b); } /* Silver */
+        .rank-3 .bar-fill { background: linear-gradient(90deg, #b45309, #78350f); } /* Bronze */
+        .rank-other .bar-fill { background: #334155; }
+
+        .crown-icon { display: none; }
+        .rank-1 .crown-icon { display: inline-block; color: #fbbf24; animation: bounce 2s infinite; }
+
+        @keyframes bounce { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-5px); } }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col items-center justify-center p-4">
+
+    <div id="login-screen" class="glass-panel p-8 rounded-3xl w-full max-w-sm text-center">
+        <div class="w-16 h-16 bg-red-500/10 rounded-full flex items-center justify-center mx-auto mb-6">
+            <i class="fa-solid fa-user-lock text-2xl text-red-500"></i>
+        </div>
+        <h2 class="text-2xl font-bold mb-2">Restricted Access</h2>
+        <p class="text-gray-400 text-sm mb-6">Enter Admin PIN to view results</p>
+        
+        <input type="password" id="admin-pin" placeholder="Enter PIN" class="w-full bg-black/30 border border-gray-700 rounded-xl px-4 py-3 text-center text-xl font-mono tracking-widest mb-4 focus:outline-none focus:border-blue-500 transition">
+        
+        <button onclick="checkPin()" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 rounded-xl transition shadow-lg shadow-blue-500/30">
+            Access Dashboard
+        </button>
+        <p id="login-error" class="text-red-400 text-xs mt-4 hidden">Incorrect PIN</p>
+    </div>
+
+    <div id="dashboard-screen" class="w-full max-w-2xl hidden pb-20">
+        
+        <div class="flex justify-between items-center mb-8 pt-8">
+            <div>
+                <h1 class="text-3xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-purple-400">Live Results</h1>
+                <p class="text-gray-400 text-sm">Supreme Baba Commission 2026</p>
+            </div>
+            <button onclick="fetchResults()" class="w-10 h-10 rounded-full bg-gray-800 flex items-center justify-center hover:bg-gray-700 transition">
+                <i class="fa-solid fa-rotate-right text-white"></i>
+            </button>
+        </div>
+
+        <div class="glass-panel p-6 rounded-2xl mb-8 flex items-center justify-between">
+            <div>
+                <p class="text-gray-400 text-xs font-bold uppercase tracking-widest">Total Votes Cast</p>
+                <h2 class="text-4xl font-black mt-1" id="total-votes">0</h2>
+            </div>
+            <div class="h-12 w-12 bg-green-500/20 rounded-xl flex items-center justify-center text-green-500 text-xl">
+                <i class="fa-solid fa-chart-pie"></i>
+            </div>
+        </div>
+
+        <div class="mb-10">
+            <h3 class="text-xl font-bold mb-4 flex items-center gap-2">
+                <i class="fa-solid fa-user-tie text-blue-500"></i> Candidate Standings
+            </h3>
+            <div id="cand-list" class="space-y-4">
+                <div class="text-center text-gray-500 py-10">Loading data...</div>
+            </div>
+        </div>
+
+        <div class="mb-10">
+            <h3 class="text-xl font-bold mb-4 flex items-center gap-2">
+                <i class="fa-solid fa-tag text-purple-500"></i> Title Assignments
+            </h3>
+            <div id="title-list" class="space-y-4">
+                </div>
+        </div>
+
+    </div>
+
+<script>
+    // --- CONFIG ---
+    // Change this PIN to whatever you want
+    const ADMIN_PIN = "2026"; 
+
+    const firebaseConfig = {
+        apiKey: "AIzaSyDVVEVhLabrza9OXEkcSfYEctDx80nwNPA",
+        authDomain: "new-era-226f1.firebaseapp.com",
+        projectId: "new-era-226f1",
+        storageBucket: "new-era-226f1.firebasestorage.app",
+        messagingSenderId: "55126293226",
+        appId: "1:55126293226:web:8deb0c3b320f8d1f8ef593"
+    };
+
+    // Lists must match your main app
+    const CANDIDATES = ["Yograj", "Aditya", "Mohit", "Bhoomika", "Than Singh", "Kartik", "Tushar", "Amit", "Vishal"];
+    const TITLES = ["Pappu Baba", "History Baba", "Museum Baba", "Poli Baba", "Zero Baba", "Error Baba", "Pir Baba"];
+
+    firebase.initializeApp(firebaseConfig);
+    const db = firebase.firestore();
+
+    // --- AUTH LOGIC ---
+    function checkPin() {
+        const input = document.getElementById('admin-pin').value;
+        if(input === ADMIN_PIN) {
+            document.getElementById('login-screen').classList.add('hidden');
+            document.getElementById('dashboard-screen').classList.remove('hidden');
+            fetchResults();
+        } else {
+            document.getElementById('login-error').classList.remove('hidden');
+        }
+    }
+
+    // --- RESULT LOGIC ---
+    async function fetchResults() {
+        const cList = document.getElementById('cand-list');
+        const tList = document.getElementById('title-list');
+        const totalEl = document.getElementById('total-votes');
+        
+        // Show loading state
+        cList.innerHTML = '<div class="text-center animate-pulse">Calculating...</div>';
+        
+        try {
+            // Fetch ALL votes where 'hasVoted' is true
+            const snapshot = await db.collection("voters").where("hasVoted", "==", true).get();
+            const total = snapshot.size;
+            totalEl.innerText = total;
+
+            // Initialize counters
+            let candCounts = {};
+            let titleCounts = {};
+            CANDIDATES.forEach(c => candCounts[c] = 0);
+            TITLES.forEach(t => titleCounts[t] = 0);
+
+            // Count votes
+            snapshot.forEach(doc => {
+                const data = doc.data();
+                if(data.voteCand && candCounts[data.voteCand] !== undefined) candCounts[data.voteCand]++;
+                if(data.voteTitle && titleCounts[data.voteTitle] !== undefined) titleCounts[data.voteTitle]++;
+            });
+
+            // Helper to sort and calculate %
+            const process = (counts) => {
+                return Object.keys(counts)
+                    .map(key => ({ name: key, count: counts[key] }))
+                    .sort((a, b) => b.count - a.count)
+                    .map(item => ({
+                        ...item,
+                        percent: total > 0 ? ((item.count / total) * 100).toFixed(1) : 0
+                    }));
+            };
+
+            const sortedCand = process(candCounts);
+            const sortedTitle = process(titleCounts);
+
+            // Render Function
+            const render = (data, container) => {
+                container.innerHTML = '';
+                data.forEach((item, index) => {
+                    let rankClass = 'rank-other';
+                    if(index === 0) rankClass = 'rank-1';
+                    if(index === 1) rankClass = 'rank-2';
+                    if(index === 2) rankClass = 'rank-3';
+
+                    container.innerHTML += `
+                        <div class="glass-panel p-4 rounded-xl ${rankClass}">
+                            <div class="flex justify-between items-end mb-2">
+                                <div class="flex items-center gap-2">
+                                    <span class="text-lg font-bold text-white">${item.name}</span>
+                                    <i class="fa-solid fa-crown crown-icon text-xs"></i>
+                                </div>
+                                <div class="text-right">
+                                    <span class="text-xl font-black text-white">${item.count}</span>
+                                    <span class="text-xs text-gray-400">Votes</span>
+                                </div>
+                            </div>
+                            <div class="w-full bg-gray-700 h-3 rounded-full overflow-hidden">
+                                <div class="bar-fill h-full rounded-full progress-bar" style="width: ${item.percent}%"></div>
+                            </div>
+                            <div class="text-right mt-1">
+                                <span class="text-[10px] font-bold text-gray-400">${item.percent}%</span>
+                            </div>
+                        </div>
+                    `;
+                });
+            };
+
+            render(sortedCand, cList);
+            render(sortedTitle, tList);
+
+        } catch(e) {
+            console.error(e);
+            alert("Error fetching data. Check internet.");
+        }
+    }
+</script>
+
+</body>
+</html>
