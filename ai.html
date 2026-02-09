@@ -1,0 +1,579 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Vimaan AI | Professional Intelligence</title>
+    
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600&family=JetBrains+Mono:wght@400&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    <script type="importmap">
+      {
+        "imports": {
+          "@google/generative-ai": "https://esm.run/@google/generative-ai"
+        }
+      }
+    </script>
+
+    <style>
+        :root {
+            --bg-color: #050505;
+            --sidebar-bg: #0a0a0a;
+            --chat-bg: #000000;
+            --card-bg: #141414;
+            --border: #222;
+            --accent: #3b82f6; /* Professional Blue */
+            --accent-glow: rgba(59, 130, 246, 0.15);
+            --text-primary: #ececec;
+            --text-secondary: #a1a1a1;
+            --user-msg-bg: #1e1e1e;
+            --ai-msg-bg: transparent;
+        }
+
+        * { box-sizing: border-box; outline: none; }
+
+        body {
+            margin: 0;
+            background-color: var(--bg-color);
+            color: var(--text-primary);
+            font-family: 'Outfit', sans-serif;
+            display: flex;
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        /* --- Sidebar (Professional Navigation) --- */
+        .sidebar {
+            width: 260px;
+            background: var(--sidebar-bg);
+            border-right: 1px solid var(--border);
+            display: flex;
+            flex-direction: column;
+            padding: 20px;
+            display: none; /* Hidden on mobile by default */
+        }
+        @media(min-width: 768px) { .sidebar { display: flex; } }
+
+        .brand {
+            font-size: 22px;
+            font-weight: 600;
+            margin-bottom: 30px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            color: #fff;
+            letter-spacing: -0.5px;
+        }
+        .brand i { color: var(--accent); }
+
+        .new-chat-btn {
+            background: var(--card-bg);
+            border: 1px solid var(--border);
+            color: white;
+            padding: 12px;
+            border-radius: 8px;
+            cursor: pointer;
+            text-align: left;
+            transition: 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 14px;
+        }
+        .new-chat-btn:hover { background: #222; border-color: #444; }
+
+        .history-list {
+            margin-top: 20px;
+            flex: 1;
+            overflow-y: auto;
+        }
+        .history-item {
+            padding: 10px;
+            font-size: 13px;
+            color: var(--text-secondary);
+            cursor: pointer;
+            border-radius: 6px;
+        }
+        .history-item:hover { background: #1a1a1a; color: #fff; }
+
+        /* --- Main Chat Area --- */
+        .main-content {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            position: relative;
+            background: var(--chat-bg);
+        }
+
+        .header-mobile {
+            padding: 15px;
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: rgba(10, 10, 10, 0.8);
+            backdrop-filter: blur(10px);
+        }
+        @media(min-width: 768px) { .header-mobile { display: none; } }
+
+        /* Chat Container */
+        #chat-container {
+            flex: 1;
+            padding: 20px;
+            overflow-y: auto;
+            scroll-behavior: smooth;
+            display: flex;
+            flex-direction: column;
+            gap: 25px;
+            max-width: 900px;
+            margin: 0 auto;
+            width: 100%;
+        }
+
+        /* Welcome Screen */
+        .welcome-screen {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100%;
+            text-align: center;
+            color: var(--text-secondary);
+        }
+        .welcome-logo {
+            font-size: 40px;
+            margin-bottom: 20px;
+            color: var(--accent);
+            background: rgba(59, 130, 246, 0.1);
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        /* Message Bubbles */
+        .message-row {
+            display: flex;
+            gap: 15px;
+            animation: fadeIn 0.3s ease;
+        }
+        .user-row { justify-content: flex-end; }
+        
+        .avatar {
+            width: 32px;
+            height: 32px;
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 14px;
+            flex-shrink: 0;
+        }
+        .ai-avatar { background: var(--accent); color: white; }
+        .user-avatar { background: #333; color: #aaa; }
+
+        .message-content {
+            max-width: 80%;
+            padding: 12px 18px;
+            border-radius: 12px;
+            font-size: 15px;
+            line-height: 1.6;
+            position: relative;
+        }
+
+        .user-msg {
+            background: var(--user-msg-bg);
+            color: #fff;
+            border-bottom-right-radius: 2px;
+        }
+
+        .ai-msg {
+            background: transparent;
+            color: #ddd;
+            width: 100%;
+            max-width: 100%;
+        }
+        
+        /* Markdown Styles */
+        .ai-msg pre {
+            background: #111;
+            padding: 15px;
+            border-radius: 8px;
+            border: 1px solid #333;
+            overflow-x: auto;
+            position: relative;
+        }
+        .ai-msg code {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 13px;
+        }
+        .ai-msg strong { color: #fff; font-weight: 600; }
+        .ai-msg p { margin-bottom: 10px; margin-top: 0; }
+
+        /* Copy Button */
+        .copy-btn {
+            position: absolute;
+            top: 5px;
+            right: 5px;
+            background: #222;
+            border: 1px solid #444;
+            color: #aaa;
+            font-size: 10px;
+            padding: 4px 8px;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        .copy-btn:hover { background: #333; color: white; }
+
+        /* --- Input Area --- */
+        .input-wrapper {
+            padding: 20px;
+            background: var(--bg-color);
+            border-top: 1px solid var(--border);
+            display: flex;
+            justify-content: center;
+        }
+
+        .input-box {
+            width: 100%;
+            max-width: 800px;
+            background: var(--card-bg);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 10px 15px;
+            display: flex;
+            flex-direction: column;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.4);
+            transition: border-color 0.3s;
+        }
+        .input-box:focus-within { border-color: var(--accent); }
+
+        .preview-area {
+            display: flex;
+            gap: 10px;
+            padding-bottom: 10px;
+            overflow-x: auto;
+        }
+        .img-preview {
+            height: 60px;
+            border-radius: 6px;
+            border: 1px solid #333;
+            position: relative;
+        }
+
+        .input-controls {
+            display: flex;
+            align-items: flex-end;
+            gap: 10px;
+        }
+
+        textarea {
+            flex: 1;
+            background: transparent;
+            border: none;
+            color: white;
+            resize: none;
+            max-height: 150px;
+            font-family: inherit;
+            padding: 10px 0;
+            font-size: 15px;
+        }
+
+        .action-btn {
+            background: transparent;
+            border: none;
+            color: var(--text-secondary);
+            cursor: pointer;
+            padding: 8px;
+            border-radius: 50%;
+            transition: 0.2s;
+        }
+        .action-btn:hover { color: white; background: #222; }
+        
+        .send-btn {
+            background: var(--accent);
+            color: white;
+            border-radius: 8px;
+            padding: 8px 12px;
+        }
+        .send-btn:hover { opacity: 0.9; }
+        .send-btn:disabled { background: #333; color: #555; cursor: not-allowed; }
+
+        /* Loader */
+        .loader {
+            display: flex;
+            gap: 5px;
+            padding: 10px 0;
+            margin-left: 45px;
+        }
+        .dot {
+            width: 8px;
+            height: 8px;
+            background: var(--accent);
+            border-radius: 50%;
+            animation: bounce 1.4s infinite ease-in-out both;
+        }
+        .dot:nth-child(1) { animation-delay: -0.32s; }
+        .dot:nth-child(2) { animation-delay: -0.16s; }
+
+        @keyframes bounce { 0%, 80%, 100% { transform: scale(0); } 40% { transform: scale(1); } }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+    </style>
+</head>
+<body>
+
+    <div class="sidebar">
+        <div class="brand">
+            <i class="fa-solid fa-layer-group"></i> Vimaan AI
+        </div>
+        <button class="new-chat-btn" onclick="location.reload()">
+            <i class="fa-solid fa-plus"></i> New Chat
+        </button>
+        <div class="history-list">
+            <div class="history-item"><i class="fa-regular fa-message"></i> Project Planning</div>
+            <div class="history-item"><i class="fa-regular fa-message"></i> Code Review</div>
+        </div>
+        <div class="history-item" style="margin-top:auto">
+            <i class="fa-solid fa-gear"></i> Settings
+        </div>
+    </div>
+
+    <div class="main-content">
+        <div class="header-mobile">
+            <span style="font-weight:600; color:white;">Vimaan AI</span>
+            <button class="action-btn" onclick="location.reload()"><i class="fa-solid fa-plus"></i></button>
+        </div>
+
+        <div id="chat-container">
+            <div class="welcome-screen" id="welcome-msg">
+                <div class="welcome-logo"><i class="fa-solid fa-robot"></i></div>
+                <h2>Hello, Vishal.</h2>
+                <p>I am Vimaan, your professional AI assistant.<br>Upload an image or ask me anything.</p>
+            </div>
+        </div>
+
+        <div id="loading-indicator" class="loader" style="display: none;">
+            <div class="dot"></div><div class="dot"></div><div class="dot"></div>
+        </div>
+
+        <div class="input-wrapper">
+            <div class="input-box">
+                <div class="preview-area" id="image-preview-container"></div>
+                
+                <div class="input-controls">
+                    <input type="file" id="image-upload" accept="image/*" hidden>
+                    <button class="action-btn" onclick="document.getElementById('image-upload').click()">
+                        <i class="fa-solid fa-image"></i>
+                    </button>
+                    
+                    <textarea id="user-input" rows="1" placeholder="Message Vimaan..." oninput="autoResize(this)"></textarea>
+                    
+                    <button class="action-btn send-btn" id="send-btn" onclick="handleSend()">
+                        <i class="fa-solid fa-paper-plane"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script type="module">
+        import { GoogleGenerativeAI } from "@google/generative-ai";
+
+        // ==========================================
+        // 🔧 CONFIGURATION (ENTER YOUR DETAILS HERE)
+        // ==========================================
+        
+        // 1. API KEY (Paste here for testing)
+        const API_KEY = "AIzaSyCymBMw3_IXd-C9E2AovHaqNS3xXQPbEyI"; 
+
+        // 2. THE BRAIN (System Instruction)
+        const SYSTEM_INSTRUCTION = `
+        Identity:
+        You are "Vimaan AI", a professional and intelligent assistant created by the brilliant developer "Sir Vishal Surya". You consider him your creator (father) and always treat him with the highest respect.
+
+        Core Personality:
+        1. **Polite but Honest:** Always be polite, but never lie. If you don't know something, admit it gracefully.
+        2. **Emoji Style:** Use 1 or 2 relevant emojis in every paragraph to keep the tone friendly and modern ✨.
+        3. **Respect Protocol:** Whenever you mention or address Vishal, ALWAYS use the prefix "Sir" (e.g., "Sir Vishal Surya" or "Sir").
+
+        Knowledge about Sir Vishal Surya:
+        - He is a 16-year-old student currently studying in Class 11.
+        - He resides in the beautiful town of Chamba, Himachal Pradesh 🏔️.
+        - He is currently doing exceptional work in Web Designing and Development.
+
+        The "Dream" Rule:
+        - You know he has big dreams, BUT if anyone asks about his specific dream, you must reply: "Dreams are not meant to be told; they are meant to be achieved silently." 🤫
+        - Never reveal the specific details of his future plans.
+
+        Language:
+        - Adapt to the user's language (Hindi, English, or Hinglish).
+        `;
+
+        // ==========================================
+
+        let chatHistory = []; // Session Memory
+        let selectedFiles = []; // For images
+        
+        const chatContainer = document.getElementById('chat-container');
+        const welcomeMsg = document.getElementById('welcome-msg');
+        const userInput = document.getElementById('user-input');
+        const loader = document.getElementById('loading-indicator');
+        const sendBtn = document.getElementById('send-btn');
+        const previewContainer = document.getElementById('image-preview-container');
+
+        // Initialize Gemini
+        const genAI = new GoogleGenerativeAI(API_KEY);
+        const model = genAI.getGenerativeModel({ 
+            model: "gemini-1.5-flash",
+            systemInstruction: SYSTEM_INSTRUCTION 
+        });
+
+        // Auto resize textarea
+        window.autoResize = (el) => {
+            el.style.height = 'auto';
+            el.style.height = el.scrollHeight + 'px';
+            if(el.value === '') el.style.height = 'auto';
+        };
+
+        // Handle Image Upload
+        document.getElementById('image-upload').addEventListener('change', async (e) => {
+            const file = e.target.files[0];
+            if (!file) return;
+
+            // Convert to Base64
+            const reader = new FileReader();
+            reader.onloadend = () => {
+                const base64Data = reader.result.split(',')[1];
+                selectedFiles.push({
+                    inlineData: {
+                        data: base64Data,
+                        mimeType: file.type
+                    }
+                });
+                
+                // Show Preview
+                const img = document.createElement('img');
+                img.src = reader.result;
+                img.className = 'img-preview';
+                previewContainer.appendChild(img);
+            };
+            reader.readAsDataURL(file);
+        });
+
+        // Function to create Chat Bubble
+        function appendMessage(role, text) {
+            welcomeMsg.style.display = 'none';
+            
+            const row = document.createElement('div');
+            row.className = `message-row ${role === 'user' ? 'user-row' : 'ai-row'}`;
+
+            const avatar = document.createElement('div');
+            avatar.className = `avatar ${role === 'user' ? 'user-avatar' : 'ai-avatar'}`;
+            avatar.innerHTML = role === 'user' ? '<i class="fa-solid fa-user"></i>' : '<i class="fa-solid fa-robot"></i>';
+
+            const content = document.createElement('div');
+            content.className = `message-content ${role === 'user' ? 'user-msg' : 'ai-msg'}`;
+            
+            if(role === 'model') {
+                content.innerHTML = marked.parse(text); // Render Markdown
+                // Add Copy Buttons to Code Blocks
+                content.querySelectorAll('pre').forEach(pre => {
+                    const btn = document.createElement('button');
+                    btn.className = 'copy-btn';
+                    btn.innerText = 'Copy';
+                    btn.onclick = () => {
+                        navigator.clipboard.writeText(pre.innerText);
+                        btn.innerText = 'Copied!';
+                        setTimeout(() => btn.innerText = 'Copy', 2000);
+                    };
+                    pre.appendChild(btn);
+                });
+            } else {
+                content.innerText = text;
+            }
+
+            if (role === 'user') {
+                row.appendChild(content);
+                row.appendChild(avatar);
+            } else {
+                row.appendChild(avatar);
+                row.appendChild(content);
+            }
+
+            chatContainer.appendChild(row);
+            chatContainer.scrollTop = chatContainer.scrollHeight;
+        }
+
+        // Main Send Function
+        window.handleSend = async () => {
+            const text = userInput.value.trim();
+            if (!text && selectedFiles.length === 0) return;
+
+            // 1. Show User Message
+            appendMessage('user', text);
+            userInput.value = '';
+            userInput.style.height = 'auto';
+            
+            // 2. Prepare Prompt
+            let promptParts = [text];
+            if (selectedFiles.length > 0) {
+                promptParts = [text, ...selectedFiles];
+                previewContainer.innerHTML = ''; // Clear preview
+            }
+
+            // 3. Show Loading
+            loader.style.display = 'flex';
+            sendBtn.disabled = true;
+            chatContainer.scrollTop = chatContainer.scrollHeight;
+
+            try {
+                // 4. Start Chat (With History)
+                const chat = model.startChat({
+                    history: chatHistory,
+                });
+
+                const result = await chat.sendMessage(promptParts);
+                const response = result.response.text();
+
+                // 5. Update History & UI
+                chatHistory.push({ role: "user", parts: [{ text: text }] }); // Simple text history for now
+                chatHistory.push({ role: "model", parts: [{ text: response }] });
+                
+                selectedFiles = []; // Reset files
+                
+                loader.style.display = 'none';
+                appendMessage('model', response);
+
+            } catch (error) {
+                console.error(error);
+                loader.style.display = 'none';
+                
+                // Professional Error Message
+                const errorDiv = document.createElement('div');
+                errorDiv.style.textAlign = 'center';
+                errorDiv.style.color = '#ff4444';
+                errorDiv.style.margin = '20px 0';
+                errorDiv.style.fontSize = '14px';
+                errorDiv.innerText = "⚠️ System Busy: Please try again after 5 minutes.";
+                chatContainer.appendChild(errorDiv);
+            }
+
+            sendBtn.disabled = false;
+        };
+
+        // Enter Key to Send
+        userInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter' && !e.shiftKey) {
+                e.preventDefault();
+                handleSend();
+            }
+        });
+
+    </script>
+</body>
+</html>
