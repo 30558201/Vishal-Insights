@@ -3,467 +3,507 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-<title>Insights TV | Premium</title>
+<title>Drishya | Premium Streaming</title>
 <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
 
 <style>
-/* --- 1. PREMIUM DESIGN TOKENS --- */
+/* --- CORE TOKENS --- */
 :root {
-    --bg-body: #ffffff;
-    --bg-surface: #f2f2f2;
-    --text-main: #0f0f0f;
-    --text-muted: #606060;
-    --primary: #2563eb;
-    --accent-gold: #fbbf24; /* Professional Yellow/Gold */
-    --red-live: #cc0000; 
-    --glass: rgba(255, 255, 255, 0.95);
-    --border: rgba(0,0,0,0.08);
-    --shadow-card: 0 4px 15px rgba(0,0,0,0.05);
-    --shadow-hover: 0 10px 25px rgba(0,0,0,0.15);
-    --radius: 12px;
+    --bg-base: #000000;
+    --bg-surface: #121212;
+    --bg-elevated: #1e1e1e;
+    --text-primary: #ffffff;
+    --text-secondary: #a3a3a3;
+    --accent: #e50914; 
+    --glass: rgba(10, 10, 10, 0.95);
+    --border: rgba(255, 255, 255, 0.1);
+    --radius: 8px;
+    --transition: 0.3s ease;
 }
 
-body.dark-mode {
-    --bg-body: #0f0f0f;
-    --bg-surface: #1e1e1e;
-    --text-main: #f1f1f1;
-    --text-muted: #aaaaaa;
-    --glass: rgba(15, 15, 15, 0.95);
-    --border: rgba(255,255,255,0.1);
-    --shadow-card: 0 4px 15px rgba(0,0,0,0.3);
+* { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Outfit', sans-serif; -webkit-tap-highlight-color: transparent; outline: none; }
+html { scroll-behavior: smooth; }
+body { background: var(--bg-base); color: var(--text-primary); overflow-x: hidden; padding-top: 90px; }
+::-webkit-scrollbar { display: none; } 
+
+/* --- 1. LOADING SCREEN --- */
+#loader {
+    position: fixed; inset: 0; background: var(--bg-base); z-index: 9999;
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    transition: opacity 0.4s ease, visibility 0.4s;
 }
+.loader-logo { width: 70px; animation: pulse 1.5s infinite; }
+@keyframes pulse { 0%, 100% { transform: scale(0.95); opacity: 0.8; } 50% { transform: scale(1.05); opacity: 1; } }
 
-* { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; outline: none; font-family: 'Outfit', sans-serif; }
-body { background: var(--bg-body); color: var(--text-main); transition: 0.3s ease; padding-top: 70px; overflow-x: hidden; }
-
-/* --- 2. HEADER --- */
-.header {
-    position: fixed; top: 0; left: 0; right: 0; height: 70px;
-    background: var(--glass); backdrop-filter: blur(15px); -webkit-backdrop-filter: blur(15px);
-    border-bottom: 1px solid var(--border); z-index: 1000;
-    display: flex; align-items: center; justify-content: space-between; padding: 0 20px;
+/* --- 2. HEADER & SEARCH BAR --- */
+.header-wrapper {
+    position: fixed; top: 0; left: 0; right: 0; z-index: 1000;
+    background: var(--glass); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
+    border-bottom: 1px solid var(--border); display: flex; flex-direction: column;
 }
+.header-top { display: flex; align-items: center; justify-content: space-between; padding: 12px 20px; }
+.brand { display: flex; align-items: center; gap: 10px; font-weight: 800; font-size: 20px; color: var(--text-primary); text-transform: uppercase; letter-spacing: 1px; text-decoration: none; }
+.brand img { width: 32px; height: 32px; border-radius: 4px; }
+.menu-btn { background: none; border: none; color: var(--text-primary); cursor: pointer; padding: 5px; display: flex; align-items: center; }
+.menu-btn svg { width: 28px; height: 28px; }
 
-.left-nav { display: flex; align-items: center; gap: 20px; }
-.menu-btn { background: none; border: none; cursor: pointer; color: var(--text-main); display: flex; flex-direction: column; gap: 5px; width: 26px; }
-.menu-btn span { width: 100%; height: 2px; background: currentColor; border-radius: 2px; transition: 0.3s; }
-.menu-btn:hover span { background: var(--accent-gold); }
-
-.brand { display: flex; align-items: center; gap: 10px; font-weight: 800; font-size: 20px; letter-spacing: -0.5px; cursor: pointer; color: var(--text-main); }
-.brand img { width: 32px; height: 32px; border-radius: 6px; object-fit: cover; }
-
-.right-nav { display: flex; gap: 18px; align-items: center; }
-.icon-action { background: none; border: none; cursor: pointer; color: var(--text-main); position: relative; padding: 5px; transition: 0.2s; }
-.icon-action:hover { color: var(--primary); transform: scale(1.1); }
-.icon-action svg { width: 24px; height: 24px; stroke-width: 1.8px; }
-.badge { position: absolute; top: 4px; right: 4px; width: 8px; height: 8px; background: var(--red-live); border-radius: 50%; }
-
-/* --- 3. SIDE DRAWER (PROFESSIONAL) --- */
-.drawer-backdrop {
-    position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 2000;
-    opacity: 0; pointer-events: none; transition: 0.3s; backdrop-filter: blur(3px);
+.header-search { padding: 0 20px 12px 20px; }
+.search-box {
+    display: flex; align-items: center; background: var(--bg-elevated);
+    border: 1px solid var(--border); border-radius: 20px; padding: 0 15px; height: 44px;
 }
-.drawer-backdrop.active { opacity: 1; pointer-events: all; }
+.search-box input { flex: 1; background: transparent; border: none; color: #fff; font-size: 15px; padding-left: 10px; }
+.search-box input::placeholder { color: var(--text-secondary); }
 
+/* --- 3. SIDEBAR MENU --- */
+.sidebar-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.8); z-index: 2000; opacity: 0; pointer-events: none; transition: var(--transition); }
+.sidebar-overlay.active { opacity: 1; pointer-events: auto; }
 .sidebar {
-    position: fixed; top: 0; left: 0; bottom: 0; width: 280px;
-    background: var(--bg-body); z-index: 2100; transform: translateX(-100%);
-    transition: transform 0.4s cubic-bezier(0.19, 1, 0.22, 1);
-    box-shadow: 10px 0 30px rgba(0,0,0,0.1); padding: 20px;
-    display: flex; flex-direction: column; border-right: 1px solid var(--border);
+    position: fixed; top: 0; right: 0; bottom: 0; width: 260px;
+    background: var(--bg-surface); z-index: 2100; transform: translateX(100%);
+    transition: transform 0.4s cubic-bezier(0.25, 0.8, 0.25, 1);
+    padding: 30px 20px; border-left: 1px solid var(--border); display: flex; flex-direction: column;
 }
 .sidebar.active { transform: translateX(0); }
+.sidebar-close { background: none; border: none; color: #fff; font-size: 28px; cursor: pointer; margin-bottom: 30px; text-align: right; width: 100%; }
+.menu-link { display: block; padding: 15px 0; color: var(--text-primary); text-decoration: none; font-size: 18px; font-weight: 500; border-bottom: 1px solid var(--border); transition: 0.2s; cursor: pointer; }
+.menu-link:active { color: var(--accent); padding-left: 10px; }
 
-.sidebar-header { display: flex; align-items: center; gap: 10px; margin-bottom: 30px; padding-bottom: 20px; border-bottom: 1px solid var(--border); }
-.sidebar-header img { width: 40px; border-radius: 8px; }
+/* --- 4. HOMEPAGE & CINEMATIC PREMIERE BANNER --- */
+.container { padding: 0 0 40px 0; max-width: 1200px; margin: 0 auto; }
 
-.menu-group { margin-bottom: 25px; }
-.group-title { font-size: 11px; font-weight: 700; text-transform: uppercase; color: var(--text-muted); margin-bottom: 10px; padding-left: 12px; letter-spacing: 1px; }
-
-.nav-link {
-    display: flex; align-items: center; gap: 15px; padding: 12px 15px;
-    color: var(--text-main); text-decoration: none; font-size: 15px; font-weight: 500;
-    border-radius: 10px; transition: 0.2s; cursor: pointer; position: relative;
-    overflow: hidden;
+.premiere-banner {
+    margin: 10px 20px 35px; border-radius: 12px; overflow: hidden;
+    position: relative; aspect-ratio: 2/1; /* Balanced cinematic wide banner */
+    box-shadow: 0 8px 25px rgba(0,0,0,0.4);
+    border: 1px solid rgba(255, 255, 255, 0.08); cursor: pointer;
 }
-.nav-link svg { width: 20px; height: 20px; opacity: 0.8; }
-/* Professional Hover Effect */
-.nav-link:hover { background: var(--bg-surface); color: var(--primary); }
-/* Active/Selected Effect */
-.nav-link.active { background: rgba(251, 191, 36, 0.15); color: #d97706; font-weight: 600; } /* Yellow/Gold Tint */
-.nav-link.active::before { content:''; position: absolute; left: 0; top: 50%; transform: translateY(-50%); height: 60%; width: 4px; background: var(--accent-gold); border-radius: 0 4px 4px 0; }
-
-.dark-toggle {
-    margin-top: auto; background: var(--bg-surface); padding: 12px 15px; border-radius: 12px;
-    display: flex; align-items: center; justify-content: space-between; cursor: pointer;
+@media (min-width: 768px) { .premiere-banner { aspect-ratio: 3/1; } }
+.premiere-img { width: 100%; height: 100%; object-fit: cover; opacity: 0.85; transition: transform 0.6s ease; }
+.premiere-banner:active .premiere-img { transform: scale(1.05); }
+.premiere-overlay-ui { 
+    position: absolute; inset: 0; 
+    background: linear-gradient(to top, rgba(0,0,0,0.95) 0%, rgba(0,0,0,0.2) 60%, transparent 100%); 
+    display: flex; flex-direction: column; justify-content: flex-end; padding: 20px; 
 }
-
-/* --- 4. MAIN FEED --- */
-.container { max-width: 1300px; margin: 0 auto; padding: 10px 20px 40px; }
-
-/* HERO (Scheduled) */
-.hero-card {
-    position: relative; width: 100%; aspect-ratio: 16/9; max-height: 500px;
-    border-radius: var(--radius); overflow: hidden; cursor: pointer;
-    box-shadow: var(--shadow-card); margin-bottom: 30px;
-    border: 2px solid var(--red-live); animation: breathe 3s infinite;
+.premiere-badge { 
+    background: var(--accent); color: #fff; padding: 5px 10px; border-radius: 4px; 
+    font-size: 10px; font-weight: 800; letter-spacing: 1.5px; align-self: flex-start; margin-bottom: 10px; 
+    text-transform: uppercase;
 }
-@keyframes breathe { 0% { box-shadow: 0 0 0 0 rgba(204, 0, 0, 0.4); } 50% { box-shadow: 0 0 0 10px rgba(204, 0, 0, 0); } 100% { box-shadow: 0 0 0 0 rgba(204, 0, 0, 0); } }
+.premiere-title-small { font-size: 22px; font-weight: 800; margin-bottom: 6px; letter-spacing: 0.5px; }
+.premiere-cta { font-size: 13px; color: var(--text-secondary); display: flex; align-items: center; gap: 6px; font-weight: 500; }
 
-.hero-img { width: 100%; height: 100%; object-fit: cover; transition: transform 0.6s; }
-.hero-card:hover .hero-img { transform: scale(1.05); }
-.hero-overlay {
-    position: absolute; inset: 0; background: linear-gradient(to top, rgba(0,0,0,0.9), transparent);
-    display: flex; flex-direction: column; justify-content: flex-end; padding: 25px; color: #fff;
+/* --- 5. PREMIERE OVERLAY SCREEN --- */
+.premiere-modal {
+    position: fixed; inset: 0; background: var(--bg-base); z-index: 4000;
+    transform: translateY(100%); transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+    display: flex; flex-direction: column; overflow-y: auto; overflow-x: hidden;
 }
+.premiere-modal.active { transform: translateY(0); }
+.p-modal-close { position: absolute; top: 20px; right: 20px; background: rgba(0,0,0,0.5); border: 1px solid rgba(255,255,255,0.2); width: 40px; height: 40px; border-radius: 50%; color: #fff; font-size: 20px; z-index: 4010; cursor: pointer; display: flex; align-items: center; justify-content: center; backdrop-filter: blur(10px); }
+.p-modal-poster { width: 100%; height: 45vh; position: relative; }
+.p-modal-poster img { width: 100%; height: 100%; object-fit: cover; opacity: 0.6; }
+.p-modal-gradient { position: absolute; inset: 0; background: linear-gradient(to top, var(--bg-base) 0%, rgba(0,0,0,0.3) 50%, transparent 100%); }
+.p-modal-content { padding: 0 30px; margin-top: -80px; position: relative; z-index: 10; text-align: center; }
+.p-modal-title { font-size: 32px; font-weight: 800; margin-bottom: 8px; line-height: 1.2; text-shadow: 0 4px 10px rgba(0,0,0,0.8); }
+.p-modal-date { font-size: 15px; color: var(--text-secondary); font-weight: 500; margin-bottom: 35px; letter-spacing: 1px; }
 
-/* UNIFIED VIDEO GRID (No Shorts Section) */
-.section-title { font-size: 18px; font-weight: 700; margin-bottom: 15px; display: flex; align-items: center; gap: 8px; }
-.video-grid {
-    display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); 
-    gap: 24px;
-}
+.timer-grid { display: flex; gap: 15px; justify-content: center; margin-bottom: 40px; }
+.timer-box { background: rgba(20,20,20,0.8); backdrop-filter: blur(10px); border: 1px solid rgba(255,255,255,0.1); border-radius: 8px; padding: 15px 10px; width: 75px; box-shadow: 0 10px 20px rgba(0,0,0,0.5); }
+.t-val { font-size: 28px; font-weight: 800; color: #fff; margin-bottom: 4px; }
+.t-lbl { font-size: 11px; color: var(--accent); text-transform: uppercase; font-weight: 700; letter-spacing: 1px; }
 
-/* VIDEO CARD (Professional) */
+/* --- 6. MOBILE UI RAILS --- */
+.rail { margin-bottom: 35px; position: relative; padding-top: 60px; margin-top: -60px; } 
+.rail-title { font-size: 18px; font-weight: 700; margin-bottom: 12px; padding: 0 20px; }
+.rail::after { content: ''; position: absolute; top: 0; right: 0; bottom: 0; width: 30px; background: linear-gradient(to right, transparent, var(--bg-base)); pointer-events: none; }
+.rail-scroll { display: flex; gap: 12px; padding: 0 20px 10px 20px; overflow-x: auto; scroll-snap-type: x mandatory; }
+
 .v-card {
-    cursor: pointer; transition: 0.3s; background: transparent;
-    border-radius: var(--radius);
+    flex: 0 0 42vw; 
+    scroll-snap-align: start; cursor: pointer; display: flex; flex-direction: column;
 }
-.v-card:hover { transform: translateY(-5px); }
-.v-card:hover .thumb img { transform: scale(1.03); }
+@media (min-width: 768px) { .v-card { flex: 0 0 22vw; } }
+.v-thumb { width: 100%; aspect-ratio: 16/9; border-radius: var(--radius); overflow: hidden; position: relative; background: #111; }
+.v-thumb img { width: 100%; height: 100%; object-fit: cover; }
+.v-duration { position: absolute; bottom: 6px; right: 6px; background: rgba(0,0,0,0.8); padding: 3px 6px; border-radius: 4px; font-size: 11px; font-weight: 600; }
+.v-info { padding-top: 8px; }
+.v-title { font-size: 13px; font-weight: 600; line-height: 1.3; margin-bottom: 3px; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+.v-sub { font-size: 11px; color: var(--text-secondary); }
 
-.thumb {
-    position: relative; width: 100%; aspect-ratio: 16/9; border-radius: var(--radius);
-    overflow: hidden; background: #000; box-shadow: var(--shadow-card); margin-bottom: 12px;
+/* --- 7. VIDEO OVERLAY & PROFESSIONAL PLAYER --- */
+.player-page {
+    position: fixed; inset: 0; background: var(--bg-base); z-index: 3000;
+    transform: translateY(100%); transition: transform 0.4s ease;
+    display: flex; flex-direction: column; overflow-y: auto; overflow-x: hidden;
 }
-.thumb img { width: 100%; height: 100%; object-fit: cover; transition: 0.3s; opacity: 0.95; }
-.duration {
-    position: absolute; bottom: 8px; right: 8px;
-    background: rgba(0,0,0,0.8); color: #fff; padding: 3px 6px;
-    border-radius: 4px; font-size: 11px; font-weight: 600;
+.player-page.active { transform: translateY(0); }
+
+.player-nav { position: sticky; top: 0; background: var(--bg-base); padding: 15px 20px; display: flex; justify-content: space-between; align-items: center; z-index: 3100; border-bottom: 1px solid var(--border); }
+.close-player { background: none; border: none; color: #fff; font-size: 24px; cursor: pointer; }
+.fs-btn { background: var(--bg-surface); border: 1px solid var(--border); color: #fff; padding: 6px 14px; border-radius: 20px; font-size: 12px; font-weight: 600; cursor: pointer; }
+
+/* Player Wrapper */
+.player-wrapper { width: 100%; aspect-ratio: 16/9; background: #000; position: relative; z-index: 3005; }
+.player-wrapper iframe { width: 100%; height: 100%; border: none; }
+
+/* PREMIUM WATERMARK (Replaces Black Box)
+   Uses padding & content-box to create a large invisible click-blocking area,
+   while keeping the visual Drishya logo small and elegantly gapped from the edges.
+*/
+.player-watermark {
+    position: absolute;
+    top: 5px;
+    right: 5px;
+    width: 32px;   /* Small visual logo width */
+    height: 32px;  /* Small visual logo height */
+    padding: 12px; /* Expands the click-blocking area over the external source button */
+    background-origin: content-box;
+    box-sizing: content-box;
+    background-image: url('https://lh3.googleusercontent.com/pw/AP1GczNLfnOhim2Yie9CJDQarCQxa8BoxLhjmXod81To-mg7Fjp3Ph2mTwreEc8HuBQVu9yuYE26epNymCEtZQJA1_Q06D8_jWxTWx6WWXOkOLZhHE8nzWkhVDbI8kdNS7Sp0eq8I-aRCDFHtWh_YZNsREk=w631-h623-s-no-gm?authuser=0');
+    background-size: contain;
+    background-repeat: no-repeat;
+    background-position: center;
+    opacity: 0.75;
+    z-index: 3010;
+    cursor: default;
+    filter: drop-shadow(0 2px 5px rgba(0,0,0,0.8));
+    border-radius: 4px;
 }
 
-.details { display: flex; gap: 12px; align-items: flex-start; }
-.chan-logo { width: 36px; height: 36px; border-radius: 50%; object-fit: cover; flex-shrink: 0; }
-.meta { flex: 1; }
-.v-title { font-size: 15px; font-weight: 600; line-height: 1.3; margin-bottom: 4px; color: var(--text-main); display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
-.v-sub { font-size: 13px; color: var(--text-muted); }
+.player-details { padding: 20px; border-bottom: 1px solid var(--border); }
+.p-title { font-size: 18px; font-weight: 700; margin-bottom: 6px; line-height: 1.3; }
+.p-desc { font-size: 13px; color: var(--text-secondary); line-height: 1.5; }
 
-/* --- 5. OVERLAYS (Search, Notify, Player) --- */
-.overlay-full {
-    position: fixed; inset: 0; background: var(--bg-body); z-index: 2500;
-    transform: translateY(-100%); transition: 0.4s cubic-bezier(0.16, 1, 0.3, 1);
-    display: flex; flex-direction: column;
-}
-.overlay-full.active { transform: translateY(0); }
-.search-top { padding: 15px 20px; border-bottom: 1px solid var(--border); display: flex; align-items: center; gap: 15px; }
-.search-box { flex: 1; border: none; background: transparent; font-size: 18px; color: var(--text-main); height: 40px; }
-.close-btn { background: var(--bg-surface); border: none; width: 40px; height: 40px; border-radius: 50%; font-size: 20px; cursor: pointer; color: var(--text-main); }
+/* Related Videos */
+.related-section { padding: 20px; }
+.related-header { font-size: 16px; font-weight: 700; margin-bottom: 15px; }
+.related-list { display: flex; flex-direction: column; gap: 15px; }
+.r-card { display: flex; gap: 15px; cursor: pointer; align-items: center; }
+.r-thumb { width: 120px; flex-shrink: 0; aspect-ratio: 16/9; border-radius: 6px; overflow: hidden; position: relative; background: #111; }
+.r-thumb img { width: 100%; height: 100%; object-fit: cover; }
+.r-info { flex: 1; }
+.r-title { font-size: 13px; font-weight: 600; margin-bottom: 4px; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
 
-.modal-center {
-    position: fixed; inset: 0; background: rgba(0,0,0,0.6); z-index: 3000;
-    display: none; align-items: center; justify-content: center; backdrop-filter: blur(5px);
-}
-.modal-content {
-    width: 90%; max-width: 400px; background: var(--bg-body); border-radius: 20px;
-    padding: 24px; position: relative; border: 1px solid var(--border);
-}
+/* --- 8. ELEGANT FOOTER --- */
+.branding-footer { text-align: center; padding: 40px 20px; border-top: 1px solid var(--bg-elevated); margin-top: 20px; }
+.f-made { font-size: 13px; color: var(--text-secondary); margin-bottom: 6px; letter-spacing: 0.5px; }
+.f-name { font-size: 16px; color: #fff; font-weight: 600; letter-spacing: 1px; }
 
-.player-overlay {
-    position: fixed; inset: 0; background: rgba(0,0,0,0.95); z-index: 5000;
-    display: none; overflow-y: auto; backdrop-filter: blur(10px);
-}
-.player-stage { width: 100%; max-width: 1100px; margin: 40px auto; background: #000; position: relative; }
-.shield { position: absolute; top: 0; right: 0; width: 60px; height: 60px; background: rgba(0,0,0,0.7); color: #fff; z-index: 100; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 24px; }
-.shield:hover { background: var(--red-live); }
-.iframe-box { position: relative; padding-top: 56.25%; width: 100%; }
-.iframe-box iframe { position: absolute; top: 0; left: 0; width: 100%; height: 100%; border: none; }
-.player-info { padding: 20px; background: var(--bg-card); color: var(--text-main); }
-
+.hidden { display: none !important; }
 </style>
 </head>
 <body>
 
-<header class="header">
-    <div class="left-nav">
-        <button class="menu-btn" onclick="openMenu()">
-            <span></span><span></span><span></span>
+<div id="loader">
+    <img src="https://lh3.googleusercontent.com/pw/AP1GczNLfnOhim2Yie9CJDQarCQxa8BoxLhjmXod81To-mg7Fjp3Ph2mTwreEc8HuBQVu9yuYE26epNymCEtZQJA1_Q06D8_jWxTWx6WWXOkOLZhHE8nzWkhVDbI8kdNS7Sp0eq8I-aRCDFHtWh_YZNsREk=w631-h623-s-no-gm?authuser=0" class="loader-logo" alt="Drishya">
+</div>
+
+<div class="header-wrapper" id="top">
+    <div class="header-top">
+        <a href="#top" class="brand">
+            <img src="https://lh3.googleusercontent.com/pw/AP1GczNLfnOhim2Yie9CJDQarCQxa8BoxLhjmXod81To-mg7Fjp3Ph2mTwreEc8HuBQVu9yuYE26epNymCEtZQJA1_Q06D8_jWxTWx6WWXOkOLZhHE8nzWkhVDbI8kdNS7Sp0eq8I-aRCDFHtWh_YZNsREk=w631-h623-s-no-gm?authuser=0" alt="Logo">
+            Drishya
+        </a>
+        <button class="menu-btn" onclick="toggleMenu(true)">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="12" x2="21" y2="12"></line><line x1="3" y1="6" x2="21" y2="6"></line><line x1="3" y1="18" x2="21" y2="18"></line></svg>
         </button>
-        <div class="brand" onclick="location.reload()">
-            <img src="https://lh3.googleusercontent.com/pw/AP1GczP1FxDyqLI0EVbXpZEhgt9c9LvyJMaTUX4jySqgZ9FUGW0Zzzu8h4yf1y2XpVsmFGpOMMDgNbDF5MtnNfHQbh51Hq1V7kJLmQIJGnxFyi2ospz1ufeepCbpJ_63zAllNYgjQmOZxVhYwuQ9JVlZET86=w865-h900-s-no-gm">
-            Insights TV
+    </div>
+    <div class="header-search">
+        <div class="search-box">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" style="width:18px; color:var(--text-secondary);"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+            <input type="text" id="searchInput" placeholder="Search shows, movies, shorts..." oninput="handleSearch()">
         </div>
     </div>
-    <div class="right-nav">
-        <button class="icon-action" onclick="openSearch()">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
-        </button>
-        <button class="icon-action" onclick="openNotify()">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path><path d="M13.73 21a2 2 0 0 1-3.46 0"></path></svg>
-            <div class="badge"></div>
-        </button>
-    </div>
-</header>
+</div>
 
-<div class="drawer-backdrop" id="drawerBackdrop" onclick="closeMenu()"></div>
+<div class="sidebar-overlay" id="sidebarOverlay" onclick="toggleMenu(false)"></div>
 <div class="sidebar" id="sidebar">
-    <div class="sidebar-header">
-        <img src="https://lh3.googleusercontent.com/pw/AP1GczP1FxDyqLI0EVbXpZEhgt9c9LvyJMaTUX4jySqgZ9FUGW0Zzzu8h4yf1y2XpVsmFGpOMMDgNbDF5MtnNfHQbh51Hq1V7kJLmQIJGnxFyi2ospz1ufeepCbpJ_63zAllNYgjQmOZxVhYwuQ9JVlZET86=w865-h900-s-no-gm">
-        <div style="font-weight:700; font-size:18px">Insights TV</div>
-    </div>
-
-    <div class="menu-group">
-        <div class="group-title">Main</div>
-        <div class="nav-link" onclick="window.location.href='index.html'">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></svg>
-            Home Page
-        </div>
-        <div class="nav-link" onclick="window.location.href='feedback.html'">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2-2z"></path></svg>
-            Feedback
-        </div>
-    </div>
-
-    <div class="menu-group">
-        <div class="group-title">Categories</div>
-        <div class="nav-link" onclick="autoSearch('Trailer')">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><rect x="2" y="7" width="20" height="15" rx="2" ry="2"></rect><polyline points="17 2 12 7 7 2"></polyline></svg>
-            Trailers
-        </div>
-        <div class="nav-link" onclick="autoSearch('Comedy')">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="12" cy="12" r="10"></circle><path d="M8 14s1.5 2 4 2 4-2 4-2"></path><line x1="9" y1="9" x2="9.01" y2="9"></line><line x1="15" y1="9" x2="15.01" y2="9"></line></svg>
-            Comedy
-        </div>
-        <div class="nav-link" onclick="autoSearch('Shorts')">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"></path></svg>
-            Short Clips
-        </div>
-    </div>
-
-    <div class="dark-toggle" onclick="toggleTheme()">
-        <span style="font-weight:600; font-size:14px">Appearance</span>
-        <div id="themeIcon">
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path></svg>
-        </div>
-    </div>
+    <button class="sidebar-close" onclick="toggleMenu(false)">✕</button>
+    <a href="#top" class="menu-link" onclick="toggleMenu(false)">Home</a>
+    <a href="#trending-section" class="menu-link" onclick="toggleMenu(false)">Trending</a>
+    <a href="#shorts-section" class="menu-link" onclick="toggleMenu(false)">Shorts</a>
+    <a onclick="openPremiereModal(); toggleMenu(false);" class="menu-link">Upcoming Premiere</a>
+    <a onclick="focusSearch(); toggleMenu(false);" class="menu-link">Search</a>
 </div>
 
-<div class="overlay-full" id="searchOverlay">
-    <div class="search-top">
-        <button class="close-btn" onclick="closeSearch()">←</button>
-        <input type="text" class="search-box" id="searchBox" placeholder="Search videos..." oninput="filterFeed()">
-    </div>
-    <div class="container" id="searchResults" style="margin-top:20px;"></div>
-</div>
+<div class="container" id="mainContent">
 
-<div class="modal-center" id="notifyModal">
-    <div class="modal-content">
-        <button style="position:absolute; top:15px; right:15px; background:none; border:none; cursor:pointer;" onclick="closeNotify()">✕</button>
-        <h3 style="margin-bottom:15px">Notifications</h3>
-        <p style="color:var(--text-muted); font-size:14px">New trailer released: The BackBench Files.</p>
-    </div>
-</div>
-
-<div class="container" id="mainFeed">
-
-    <div class="hero-card" onclick="openPlayer('scheduled', 'The BackBench Files', 'Premiere')">
-        <img src="https://lh3.googleusercontent.com/pw/AP1GczPhWlabuk_fU9UOWBAGbsyi4in473P6Cmigfv0oI5QOhR3jWHn2Fn7NmJyPcy5QKVhxzYu5pLuqrsthj5zdvyNOu9W6V0PR7TDuh1ELJozxEDjNoEVIZxjGVYF0DTrnNw0k51K-iesfEcYvGNtcguzi=w271-h181-s-no-gm" class="hero-img">
-        <div class="hero-overlay">
-            <div style="background:var(--red-live); padding:4px 8px; border-radius:4px; font-size:11px; font-weight:800; text-transform:uppercase; align-self:flex-start; margin-bottom:8px; display:flex; align-items:center; gap:5px;">
-                <span style="width:6px; height:6px; background:#fff; border-radius:50%; animation:breathe 1s infinite"></span> Live Event
-            </div>
-            <h1 style="font-size:28px; font-weight:800; line-height:1.2; text-shadow:0 2px 10px rgba(0,0,0,0.5)">The BackBench Files</h1>
-            <p style="opacity:0.9; margin-top:5px">Season Finale • 10 Feb 2026</p>
+    <div class="premiere-banner" onclick="openPremiereModal()">
+        <img src="https://lh3.googleusercontent.com/pw/AP1GczPhWlabuk_fU9UOWBAGbsyi4in473P6Cmigfv0oI5QOhR3jWHn2Fn7NmJyPcy5QKVhxzYu5pLuqrsthj5zdvyNOu9W6V0PR7TDuh1ELJozxEDjNoEVIZxjGVYF0DTrnNw0k51K-iesfEcYvGNtcguzi=w271-h181-s-no-gm" class="premiere-img">
+        <div class="premiere-overlay-ui">
+            <div class="premiere-badge">Upcoming Premiere</div>
+            <div class="premiere-title-small">The BackBench Files</div>
+            <div class="premiere-cta">View Details <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:14px;"><polyline points="9 18 15 12 9 6"></polyline></svg></div>
         </div>
     </div>
 
-     <div class="v-card searchable" data-title="Amit & Baba Ji" data-cat="Comedy Shorts" onclick="openPlayer('https://drive.google.com/file/d/1G2JnRNOpWEyXm8609Vh7X1Rr9gKW3pcL/preview','NEW BABA JI 😅','Comedy')">
-            <div class="thumb">
-                <img src="https://lh3.googleusercontent.com/pw/AP1GczM7RY9nv41hCG4vL3u17ZgSi70aPaTO2bNIjBlyI07R8Zj2gLR8NXz_sGkhcH91miz9ZxWdgnoE3ajiane9s6u3fSUqh6BqOOTWXnISv8KMMjsYkRY4gJ2xURQDXcBEFm_wv9ocYZolEctZEYNrhY2l=w508-h339-s-no-gm">
-                <div class="duration">4:00</div>
+    <div class="rail" id="trending-section">
+        <div class="rail-title">Trending Now</div>
+        <div class="rail-scroll">
+            
+            <div class="v-card searchable" 
+                 data-title="The BackBench Files : Official Trailer" 
+                 data-desc="A sneak peek into the mysterious events surrounding the backbenchers. Who is telling the truth?"
+                 data-src="https://drive.google.com/file/d/1ukuVyw1D-VzmPIi3Vg5syO0Yz0elY4VG/preview"
+                 data-thumb="https://lh3.googleusercontent.com/pw/AP1GczPAIsVQsOglBSIz1oGTL9gEpjxT6ZrX3S8FW1XgHSYmBhVMalQrVwP2brYsVhpRrO4U0wPhX_dzKdchswJujU8nf1-ANhv0oVoLqZrPgoZTjXYS9m_kvoI5tMrY5WxiXwYSisCotr_wUiZ7D4-KiGQf=w271-h181-s-no-gm"
+                 onclick="playVideo(this)">
+                <div class="v-thumb"><img src="https://lh3.googleusercontent.com/pw/AP1GczPAIsVQsOglBSIz1oGTL9gEpjxT6ZrX3S8FW1XgHSYmBhVMalQrVwP2brYsVhpRrO4U0wPhX_dzKdchswJujU8nf1-ANhv0oVoLqZrPgoZTjXYS9m_kvoI5tMrY5WxiXwYSisCotr_wUiZ7D4-KiGQf=w271-h181-s-no-gm"><div class="v-duration">0:42</div></div>
+                <div class="v-info"><div class="v-title">The BackBench Files: Trailer</div><div class="v-sub">Drishya Exclusive</div></div>
             </div>
-            <div class="details">
-                <img src="https://lh3.googleusercontent.com/pw/AP1GczM7RY9nv41hCG4vL3u17ZgSi70aPaTO2bNIjBlyI07R8Zj2gLR8NXz_sGkhcH91miz9ZxWdgnoE3ajiane9s6u3fSUqh6BqOOTWXnISv8KMMjsYkRY4gJ2xURQDXcBEFm_wv9ocYZolEctZEYNrhY2l=w508-h339-s-no-gm" class="chan-logo">
-                <div class="meta">
-                    <div class="v-title">New BABA JI </div>
-                    <div class="v-sub">Insights TV • Comedy</div>
-                </div>
+
+            <div class="v-card searchable" 
+                 data-title="Trailer of Amit ki Shrarte" 
+                 data-desc="Get ready to laugh out loud with the funniest moments from Amit's latest comedy special."
+                 data-src="https://drive.google.com/file/d/11vgmEf4V7S9IJH2x0pupwYnwsIxXDKuj/preview"
+                 data-thumb="https://lh3.googleusercontent.com/pw/AP1GczNfu_JR0dSXLxj82yInpH_Bm_RFw-qDLMhItr4Er3jXxGy7A58qSS-QxEgKGR46CFEbipvQIHrQJyXTY6KR_6DtBQL_tKyExBlWUsBpo1baV5AqntVnUFAn6sRqew6kTa3p5I1BqAzYBsYLd8C-m7GZ=w631-h355-s-no-gm"
+                 onclick="playVideo(this)">
+                <div class="v-thumb"><img src="https://lh3.googleusercontent.com/pw/AP1GczNfu_JR0dSXLxj82yInpH_Bm_RFw-qDLMhItr4Er3jXxGy7A58qSS-QxEgKGR46CFEbipvQIHrQJyXTY6KR_6DtBQL_tKyExBlWUsBpo1baV5AqntVnUFAn6sRqew6kTa3p5I1BqAzYBsYLd8C-m7GZ=w631-h355-s-no-gm"><div class="v-duration">0:15</div></div>
+                <div class="v-info"><div class="v-title">Trailer of Amit ki Shrarte</div><div class="v-sub">Comedy Special</div></div>
             </div>
+
         </div>
-    
-    <div class="section-title">
-        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--primary)" stroke-width="2"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg>
-        All Videos
     </div>
 
-    <div class="video-grid">
+    <div class="rail" id="shorts-section">
+        <div class="rail-title">Comedy Shorts</div>
+        <div class="rail-scroll">
+            
+            <div class="v-card searchable" 
+                 data-title="Amit & Baba Ji (Full Episode)" 
+                 data-desc="The complete encounter between Amit and Baba Ji. A masterclass in situational comedy."
+                 data-src="https://drive.google.com/file/d/1G2JnRNOpWEyXm8609Vh7X1Rr9gKW3pcL/preview"
+                 data-thumb="https://lh3.googleusercontent.com/pw/AP1GczM7RY9nv41hCG4vL3u17ZgSi70aPaTO2bNIjBlyI07R8Zj2gLR8NXz_sGkhcH91miz9ZxWdgnoE3ajiane9s6u3fSUqh6BqOOTWXnISv8KMMjsYkRY4gJ2xURQDXcBEFm_wv9ocYZolEctZEYNrhY2l=w508-h339-s-no-gm"
+                 onclick="playVideo(this)">
+                <div class="v-thumb"><img src="https://lh3.googleusercontent.com/pw/AP1GczM7RY9nv41hCG4vL3u17ZgSi70aPaTO2bNIjBlyI07R8Zj2gLR8NXz_sGkhcH91miz9ZxWdgnoE3ajiane9s6u3fSUqh6BqOOTWXnISv8KMMjsYkRY4gJ2xURQDXcBEFm_wv9ocYZolEctZEYNrhY2l=w508-h339-s-no-gm"><div class="v-duration">4:00</div></div>
+                <div class="v-info"><div class="v-title">Amit & Baba Ji (Full)</div><div class="v-sub">Comedy</div></div>
+            </div>
+
+            <div class="v-card searchable" 
+                 data-title="Amit & Baba Ji (Short Clip)" 
+                 data-desc="A quick 8-second burst of comedy perfectly capturing the dynamic duo."
+                 data-src="https://drive.google.com/file/d/137Uzb_VAOX78Lp27wXCMTYXcUdxHV0u8/preview"
+                 data-thumb="https://lh3.googleusercontent.com/pw/AP1GczP2B_aT7pDFxtwNLCZnuDjwKP0nzeLou0MJRdkfKkgFuVX7vf0wUvGTFFOQTr1mIEfnUN6bH-5QBL7B_eGXgQ-Yvnl1WPz3ynRHKzlPPd6VeHEWa-Wc0D6899jZ7UuxG30ncCpEmZiHZ3QCV-0aVdP7=w631-h355-s-no-gm"
+                 onclick="playVideo(this)">
+                <div class="v-thumb"><img src="https://lh3.googleusercontent.com/pw/AP1GczP2B_aT7pDFxtwNLCZnuDjwKP0nzeLou0MJRdkfKkgFuVX7vf0wUvGTFFOQTr1mIEfnUN6bH-5QBL7B_eGXgQ-Yvnl1WPz3ynRHKzlPPd6VeHEWa-Wc0D6899jZ7UuxG30ncCpEmZiHZ3QCV-0aVdP7=w631-h355-s-no-gm"><div class="v-duration">0:08</div></div>
+                <div class="v-info"><div class="v-title">Amit & Baba Ji (Short)</div><div class="v-sub">Comedy</div></div>
+            </div>
+
+            <div class="v-card searchable" 
+                 data-title="Baba ji ne app ke bare me kaha" 
+                 data-desc="A hilarious short clip featuring the wisdom of Baba Ji. Viewer discretion advised for continuous laughter."
+                 data-src="https://drive.google.com/file/d/1lpmGEu0HeTMN6Q0LVT8sK3Ate5hC11O5/preview"
+                 data-thumb="https://lh3.googleusercontent.com/pw/AP1GczP8aC3Yr0P6QilvWduuo9EMFNdjqbcK3NuclawOjnqKdJclNlG4WefSneucg6vQimluiSDLHN8JLd8wjnBrz_SnLRzt8GJE4494Pg_GnN89FhA2TkHvk33bd-lphGfEddoMpkpbPJ7lVlItuIaRXsmH=w1272-h848-s-no-gm"
+                 onclick="playVideo(this)">
+                <div class="v-thumb"><img src="https://lh3.googleusercontent.com/pw/AP1GczP8aC3Yr0P6QilvWduuo9EMFNdjqbcK3NuclawOjnqKdJclNlG4WefSneucg6vQimluiSDLHN8JLd8wjnBrz_SnLRzt8GJE4494Pg_GnN89FhA2TkHvk33bd-lphGfEddoMpkpbPJ7lVlItuIaRXsmH=w1272-h848-s-no-gm"><div class="v-duration">0:08</div></div>
+                <div class="v-info"><div class="v-title">Baba ji ne app ke bare me kaha</div><div class="v-sub">Drishya Shorts</div></div>
+            </div>
+
+        </div>
+    </div>
+
+    <div class="branding-footer">
+        <div class="f-made">Made in India with Love 🇮🇳</div>
+        <div class="f-name">Vishal Surya</div>
+    </div>
+
+</div>
+
+<div class="premiere-modal" id="premiereModal">
+    <button class="p-modal-close" onclick="closePremiereModal()">✕</button>
+    <div class="p-modal-poster">
+        <img src="https://lh3.googleusercontent.com/pw/AP1GczPhWlabuk_fU9UOWBAGbsyi4in473P6Cmigfv0oI5QOhR3jWHn2Fn7NmJyPcy5QKVhxzYu5pLuqrsthj5zdvyNOu9W6V0PR7TDuh1ELJozxEDjNoEVIZxjGVYF0DTrnNw0k51K-iesfEcYvGNtcguzi=w271-h181-s-no-gm">
+        <div class="p-modal-gradient"></div>
+    </div>
+    <div class="p-modal-content">
+        <h1 class="p-modal-title">The BackBench Files</h1>
+        <div class="p-modal-date">Premieres April 2, 2026</div>
         
-        <div class="v-card searchable" data-title="The BackBench Files : Official Trailer" data-cat="Trailer" onclick="openPlayer('https://drive.google.com/file/d/1ukuVyw1D-VzmPIi3Vg5syO0Yz0elY4VG/preview','The BackBench Files : Official Trailer','Trailer')">
-            <div class="thumb">
-                <img src="https://lh3.googleusercontent.com/pw/AP1GczPAIsVQsOglBSIz1oGTL9gEpjxT6ZrX3S8FW1XgHSYmBhVMalQrVwP2brYsVhpRrO4U0wPhX_dzKdchswJujU8nf1-ANhv0oVoLqZrPgoZTjXYS9m_kvoI5tMrY5WxiXwYSisCotr_wUiZ7D4-KiGQf=w271-h181-s-no-gm">
-                <div class="duration">0:42</div>
-            </div>
-            <div class="details">
-                <img src="https://lh3.googleusercontent.com/pw/AP1GczP1FxDyqLI0EVbXpZEhgt9c9LvyJMaTUX4jySqgZ9FUGW0Zzzu8h4yf1y2XpVsmFGpOMMDgNbDF5MtnNfHQbh51Hq1V7kJLmQIJGnxFyi2ospz1ufeepCbpJ_63zAllNYgjQmOZxVhYwuQ9JVlZET86=w865-h900-s-no-gm" class="chan-logo">
-                <div class="meta">
-                    <div class="v-title">The BackBench Files : Official Trailer</div>
-                    <div class="v-sub">Insights TV • Trailer</div>
-                </div>
-            </div>
+        <div class="timer-grid">
+            <div class="timer-box"><div class="t-val" id="t-days">00</div><div class="t-lbl">Days</div></div>
+            <div class="timer-box"><div class="t-val" id="t-hours">00</div><div class="t-lbl">Hours</div></div>
+            <div class="timer-box"><div class="t-val" id="t-mins">00</div><div class="t-lbl">Mins</div></div>
+            <div class="timer-box"><div class="t-val" id="t-secs">00</div><div class="t-lbl">Secs</div></div>
         </div>
-
-        <div class="v-card searchable" data-title="Amit & Baba Ji" data-cat="Comedy Shorts" onclick="openPlayer('https://drive.google.com/file/d/137Uzb_VAOX78Lp27wXCMTYXcUdxHV0u8/preview','Amit & Baba ji 😅','Comedy')">
-            <div class="thumb">
-                <img src="https://lh3.googleusercontent.com/pw/AP1GczP2B_aT7pDFxtwNLCZnuDjwKP0nzeLou0MJRdkfKkgFuVX7vf0wUvGTFFOQTr1mIEfnUN6bH-5QBL7B_eGXgQ-Yvnl1WPz3ynRHKzlPPd6VeHEWa-Wc0D6899jZ7UuxG30ncCpEmZiHZ3QCV-0aVdP7=w631-h355-s-no-gm">
-                <div class="duration">0:08</div>
-            </div>
-            <div class="details">
-                <img src="https://lh3.googleusercontent.com/pw/AP1GczP1FxDyqLI0EVbXpZEhgt9c9LvyJMaTUX4jySqgZ9FUGW0Zzzu8h4yf1y2XpVsmFGpOMMDgNbDF5MtnNfHQbh51Hq1V7kJLmQIJGnxFyi2ospz1ufeepCbpJ_63zAllNYgjQmOZxVhYwuQ9JVlZET86=w865-h900-s-no-gm" class="chan-logo">
-                <div class="meta">
-                    <div class="v-title">Amit & Baba ji 😅</div>
-                    <div class="v-sub">Insights TV • Comedy</div>
-                </div>
-            </div>
-        </div>
-
-        <div class="v-card searchable" data-title="Baba ji ne app ke bare me kaha" data-cat="Comedy Shorts" onclick="openPlayer('https://drive.google.com/file/d/1lpmGEu0HeTMN6Q0LVT8sK3Ate5hC11O5/preview','Baba ji ne app ke bare mai kaha','Comedy')">
-            <div class="thumb">
-                <img src="https://lh3.googleusercontent.com/pw/AP1GczP8aC3Yr0P6QilvWduuo9EMFNdjqbcK3NuclawOjnqKdJclNlG4WefSneucg6vQimluiSDLHN8JLd8wjnBrz_SnLRzt8GJE4494Pg_GnN89FhA2TkHvk33bd-lphGfEddoMpkpbPJ7lVlItuIaRXsmH=w1272-h848-s-no-gm">
-                <div class="duration">0:08</div>
-            </div>
-            <div class="details">
-                <img src="https://lh3.googleusercontent.com/pw/AP1GczP1FxDyqLI0EVbXpZEhgt9c9LvyJMaTUX4jySqgZ9FUGW0Zzzu8h4yf1y2XpVsmFGpOMMDgNbDF5MtnNfHQbh51Hq1V7kJLmQIJGnxFyi2ospz1ufeepCbpJ_63zAllNYgjQmOZxVhYwuQ9JVlZET86=w865-h900-s-no-gm" class="chan-logo">
-                <div class="meta">
-                    <div class="v-title">Baba ji ne app ke bare me kaha 😅</div>
-                    <div class="v-sub">Insights TV • Comedy</div>
-                </div>
-            </div>
-        </div>
-
-        <div class="v-card searchable" data-title="Trailer of Amit ki Shrarte" data-cat="Comedy Trailer" onclick="openPlayer('https://drive.google.com/file/d/11vgmEf4V7S9IJH2x0pupwYnwsIxXDKuj/preview','Trailer of Amit ki Shrarte','Comedy')">
-            <div class="thumb">
-                <img src="https://lh3.googleusercontent.com/pw/AP1GczNfu_JR0dSXLxj82yInpH_Bm_RFw-qDLMhItr4Er3jXxGy7A58qSS-QxEgKGR46CFEbipvQIHrQJyXTY6KR_6DtBQL_tKyExBlWUsBpo1baV5AqntVnUFAn6sRqew6kTa3p5I1BqAzYBsYLd8C-m7GZ=w631-h355-s-no-gm">
-                <div class="duration">0:15</div>
-            </div>
-            <div class="details">
-                <img src="https://lh3.googleusercontent.com/pw/AP1GczP1FxDyqLI0EVbXpZEhgt9c9LvyJMaTUX4jySqgZ9FUGW0Zzzu8h4yf1y2XpVsmFGpOMMDgNbDF5MtnNfHQbh51Hq1V7kJLmQIJGnxFyi2ospz1ufeepCbpJ_63zAllNYgjQmOZxVhYwuQ9JVlZET86=w865-h900-s-no-gm" class="chan-logo">
-                <div class="meta">
-                    <div class="v-title">Trailer of Amit ki Shrarte 🎉</div>
-                    <div class="v-sub">Insights TV • Comedy</div>
-                </div>
-            </div>
-        </div>
-
+        
+        <p style="color:var(--text-secondary); font-size:14px; padding:0 20px;">The highly anticipated season finale exclusively premiering on Drishya. Join the conversation and mark your calendars.</p>
     </div>
 </div>
 
-<div id="playerModal" class="player-overlay">
-    <div class="player-stage">
-        <div class="shield" onclick="closePlayer()">✕</div>
-        <div class="iframe-box" id="videoFrame"></div>
-        <div class="player-info">
-            <h2 id="pTitle">Title</h2>
-            <p id="pMeta" style="color:var(--text-muted); font-size:14px; margin-top:5px">Details</p>
-        </div>
+<div class="player-page" id="playerPage">
+    <div class="player-nav">
+        <button class="close-player" onclick="closePlayer()">↓</button>
+        <button class="fs-btn" onclick="toggleFullscreen()">Expand Player</button>
+    </div>
+
+    <div class="player-wrapper" id="playerWrapper">
+        <iframe id="videoIframe" allow="autoplay; fullscreen" allowfullscreen></iframe>
+        <div class="player-watermark"></div>
+    </div>
+
+    <div class="player-details">
+        <h1 class="p-title" id="pTitle">Video Title</h1>
+        <p class="p-desc" id="pDesc">Short video description goes here.</p>
+    </div>
+
+    <div class="related-section">
+        <div class="related-header">Up Next</div>
+        <div class="related-list" id="relatedVideos"></div>
     </div>
 </div>
 
 <script>
-    // --- MENU LOGIC ---
-    function openMenu() {
-        document.getElementById('sidebar').classList.add('active');
-        document.getElementById('drawerBackdrop').classList.add('active');
-    }
-    function closeMenu() {
-        document.getElementById('sidebar').classList.remove('active');
-        document.getElementById('drawerBackdrop').classList.remove('active');
-    }
+    // --- 1. Loading Screen ---
+    window.addEventListener('load', () => {
+        setTimeout(() => {
+            const loader = document.getElementById('loader');
+            loader.style.opacity = '0';
+            loader.style.visibility = 'hidden';
+        }, 600);
+    });
 
-    // --- AUTO SEARCH CATEGORY ---
-    function autoSearch(category) {
-        closeMenu();
-        openSearch();
-        document.getElementById('searchBox').value = category;
-        filterFeed(); // Trigger filter immediately
-    }
-
-    // --- SEARCH LOGIC ---
-    function openSearch() {
-        document.getElementById('searchOverlay').classList.add('active');
-        setTimeout(() => document.getElementById('searchBox').focus(), 300);
-    }
-    function closeSearch() {
-        document.getElementById('searchOverlay').classList.remove('active');
-        document.getElementById('searchBox').value = ""; // Reset
-        document.getElementById('searchResults').innerHTML = "";
-    }
-    function filterFeed() {
-        const q = document.getElementById('searchBox').value.toLowerCase();
-        const results = document.getElementById('searchResults');
-        results.innerHTML = ""; // Clear previous
-        
-        if(q.length > 0) {
-            const allVideos = document.querySelectorAll('.searchable');
-            let found = false;
-            
-            allVideos.forEach(card => {
-                const title = card.getAttribute('data-title').toLowerCase();
-                const cat = card.getAttribute('data-cat').toLowerCase();
-                
-                if(title.includes(q) || cat.includes(q)) {
-                    const clone = card.cloneNode(true);
-                    results.appendChild(clone);
-                    found = true;
-                }
-            });
-
-            if(found) {
-                // Apply grid style to results container
-                results.className = "video-grid container";
-            } else {
-                results.className = "container";
-                results.innerHTML = "<div style='text-align:center; padding:40px; color:var(--text-muted)'>No videos found matching that category.</div>";
-            }
-        }
-    }
-
-    // --- THEME ---
-    let isDark = false;
-    function toggleTheme() {
-        isDark = !isDark;
-        document.body.classList.toggle('dark-mode');
-        const icon = document.getElementById('themeIcon');
-        icon.innerHTML = isDark 
-            ? '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="5"></circle><line x1="12" y1="1" x2="12" y2="3"></line><line x1="12" y1="21" x2="12" y2="23"></line><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line><line x1="1" y1="12" x2="3" y2="12"></line><line x1="21" y1="12" x2="23" y2="12"></line><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line></svg>'
-            : '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path></svg>';
-    }
-
-    // --- NOTIFY ---
-    function openNotify() { document.getElementById('notifyModal').style.display = 'flex'; }
-    function closeNotify() { document.getElementById('notifyModal').style.display = 'none'; }
-
-    // --- PLAYER ---
-    function openPlayer(src, title, meta) {
-        const modal = document.getElementById('playerModal');
-        const frame = document.getElementById('videoFrame');
-        document.getElementById('pTitle').innerText = title;
-        document.getElementById('pMeta').innerText = meta + " • Insights TV Originals";
-        
-        modal.style.display = 'block';
-        document.body.style.overflow = 'hidden';
-
-        if(src === 'scheduled') {
-            frame.innerHTML = `<div style="position:absolute; inset:0; background:#000; display:flex; flex-direction:column; align-items:center; justify-content:center; color:#fff; text-align:center"><h1 style="color:red; font-size:40px">PREMIERE EVENT</h1><p style="font-size:20px; margin-top:10px">10 FEB 2026</p></div>`;
+    // --- 2. Menu Navigation & Focus ---
+    function toggleMenu(show) {
+        const sidebar = document.getElementById('sidebar');
+        const overlay = document.getElementById('sidebarOverlay');
+        if (show) {
+            sidebar.classList.add('active');
+            overlay.classList.add('active');
+            document.body.style.overflow = 'hidden';
         } else {
-            frame.innerHTML = `<iframe src="${src}" allow="autoplay; fullscreen" allowfullscreen></iframe>`;
+            sidebar.classList.remove('active');
+            overlay.classList.remove('active');
+            document.body.style.overflow = 'auto';
         }
     }
-    function closePlayer() {
-        document.getElementById('playerModal').style.display = 'none';
-        document.getElementById('videoFrame').innerHTML = '';
+
+    function focusSearch() {
+        document.getElementById('searchInput').focus();
+        window.scrollTo(0, 0);
+    }
+
+    // --- 3. Functional Search ---
+    function handleSearch() {
+        const query = document.getElementById('searchInput').value.toLowerCase();
+        const cards = document.querySelectorAll('.searchable');
+        
+        cards.forEach(card => {
+            const title = card.getAttribute('data-title').toLowerCase();
+            if (title.includes(query)) {
+                card.classList.remove('hidden');
+            } else {
+                card.classList.add('hidden');
+            }
+        });
+    }
+
+    // --- 4. Premiere Modal & Timer ---
+    function openPremiereModal() {
+        document.getElementById('premiereModal').classList.add('active');
+        document.body.style.overflow = 'hidden';
+    }
+    
+    function closePremiereModal() {
+        document.getElementById('premiereModal').classList.remove('active');
         document.body.style.overflow = 'auto';
     }
-</script>
 
+    function initTimer() {
+        const dest = new Date("April 2, 2026 00:00:00").getTime();
+        
+        setInterval(function() {
+            const now = new Date().getTime();
+            const distance = dest - now;
+
+            if (distance < 0) {
+                document.getElementById("t-days").innerText = "00";
+                document.getElementById("t-hours").innerText = "00";
+                document.getElementById("t-mins").innerText = "00";
+                document.getElementById("t-secs").innerText = "00";
+                return;
+            }
+
+            document.getElementById("t-days").innerText = Math.floor(distance / (1000 * 60 * 60 * 24)).toString().padStart(2, '0');
+            document.getElementById("t-hours").innerText = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60)).toString().padStart(2, '0');
+            document.getElementById("t-mins").innerText = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60)).toString().padStart(2, '0');
+            document.getElementById("t-secs").innerText = Math.floor((distance % (1000 * 60)) / 1000).toString().padStart(2, '0');
+        }, 1000);
+    }
+    initTimer();
+
+    // --- 5. Video Player System ---
+    let currentVideoCard = null;
+
+    function playVideo(element) {
+        const src = element.getAttribute('data-src');
+        const title = element.getAttribute('data-title');
+        const desc = element.getAttribute('data-desc');
+        currentVideoCard = element;
+        
+        const page = document.getElementById('playerPage');
+        document.getElementById('videoIframe').src = src;
+        document.getElementById('pTitle').innerText = title;
+        document.getElementById('pDesc').innerText = desc;
+        
+        generateRelatedVideos();
+
+        page.classList.add('active');
+        document.body.style.overflow = 'hidden';
+    }
+
+    function closePlayer() {
+        document.getElementById('playerPage').classList.remove('active');
+        document.getElementById('videoIframe').src = ""; 
+        document.body.style.overflow = 'auto';
+        if (document.fullscreenElement) document.exitFullscreen();
+    }
+
+    function toggleFullscreen() {
+        const wrapper = document.getElementById('playerWrapper');
+        if (!document.fullscreenElement) {
+            if (wrapper.requestFullscreen) {
+                wrapper.requestFullscreen().catch(err => console.log(err));
+            } else if (wrapper.webkitRequestFullscreen) {
+                wrapper.webkitRequestFullscreen();
+            }
+            if (screen.orientation && screen.orientation.lock) {
+                screen.orientation.lock('landscape').catch(e => console.log('Lock error ignored'));
+            }
+        } else {
+            if (document.exitFullscreen) document.exitFullscreen();
+        }
+    }
+
+    function generateRelatedVideos() {
+        const listContainer = document.getElementById('relatedVideos');
+        listContainer.innerHTML = ''; 
+
+        const allCards = Array.from(document.querySelectorAll('.v-card.searchable'));
+        const relatedCards = allCards.filter(card => card !== currentVideoCard);
+
+        relatedCards.forEach(card => {
+            const title = card.getAttribute('data-title');
+            const desc = card.getAttribute('data-desc');
+            const thumb = card.getAttribute('data-thumb');
+
+            const rCard = document.createElement('div');
+            rCard.className = 'r-card';
+            rCard.onclick = () => {
+                playVideo(card);
+                document.getElementById('playerPage').scrollTo({ top: 0, behavior: 'smooth' });
+            };
+
+            rCard.innerHTML = `
+                <div class="r-thumb"><img src="${thumb}"></div>
+                <div class="r-info">
+                    <div class="r-title">${title}</div>
+                    <div class="v-sub">Drishya Original</div>
+                </div>
+            `;
+            listContainer.appendChild(rCard);
+        });
+    }
+</script>
 </body>
 </html>
